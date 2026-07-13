@@ -119,11 +119,10 @@ function PaginationControls({
           <button
             key={num}
             onClick={() => onPageChange(num)}
-            className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${
-              isActive
+            className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${isActive
                 ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
                 : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
-            }`}
+              }`}
           >
             {num}
           </button>
@@ -163,20 +162,18 @@ function FilterDropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-        className={`inline-flex items-center justify-between gap-2 bg-white border rounded-xl h-10 px-4 min-w-[120px] text-sm font-semibold transition-all duration-200 shadow-sm cursor-pointer focus:outline-none ${
-          isOpen
+        className={`inline-flex items-center justify-between gap-2 bg-white border rounded-xl h-10 px-4 min-w-[120px] text-sm font-semibold transition-all duration-200 shadow-sm cursor-pointer focus:outline-none ${isOpen
             ? "border-ocean-light ring-2 ring-ocean-light/30 text-ocean-dark"
             : "border-slate-200 text-slate-700 hover:border-slate-300"
-        }`}
+          }`}
       >
         <div className="flex items-center gap-2">
           {icon}
           <span className="truncate">{selectedLabel}</span>
         </div>
         <ChevronDown
-          className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${
-            isOpen ? "rotate-180 text-ocean-dark" : ""
-          }`}
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180 text-ocean-dark" : ""
+            }`}
         />
       </button>
 
@@ -196,11 +193,10 @@ function FilterDropdown({
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-bold transition-colors hover:bg-slate-50 ${
-                  isSelected
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-bold transition-colors hover:bg-slate-50 ${isSelected
                     ? "text-ocean-dark bg-ocean-light/5"
                     : "text-slate-600"
-                }`}
+                  }`}
               >
                 {opt.label}
                 {isSelected && <Check className="w-4 h-4" />}
@@ -343,8 +339,7 @@ export default function AdminInventoryPage() {
         category,
         storeId,
         imageUrl,
-        expiryDate: null, // Removed expiryDate field
-        // Pass the new fields
+        expiryDate: null,
         ...(costPrice && { costPrice: parseFloat(costPrice) }),
         ...(storeId !== "jasuda" && { commission: parseFloat(commission) }),
       } as any);
@@ -543,21 +538,19 @@ export default function AdminInventoryPage() {
           <div className="flex overflow-x-auto">
             <button
               onClick={() => handleTabChange("jasuda")}
-              className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${
-                activeTab === "jasuda"
+              className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${activeTab === "jasuda"
                   ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
                   : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
-              }`}
+                }`}
             >
               Produk Jasuda
             </button>
             <button
               onClick={() => handleTabChange("tenant")}
-              className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${
-                activeTab === "tenant"
+              className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${activeTab === "tenant"
                   ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
                   : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
-              }`}
+                }`}
             >
               Produk Mitra
             </button>
@@ -608,9 +601,8 @@ export default function AdminInventoryPage() {
                 paginatedProducts.map((product, index) => (
                   <tr
                     key={product.id}
-                    className={`hover:bg-slate-50/80 transition-colors duration-300 group ${
-                      favorites.includes(product.id) ? "bg-amber-50/30" : ""
-                    }`}
+                    className={`hover:bg-slate-50/80 transition-colors duration-300 group ${favorites.includes(product.id) ? "bg-amber-50/30" : ""
+                      }`}
                   >
                     <td className="py-4 pl-8 pr-2 text-sm font-medium text-slate-500">
                       {(currentPage - 1) * itemsPerPage + index + 1}
@@ -644,13 +636,12 @@ export default function AdminInventoryPage() {
                     </td>
                     <td className="py-4 px-6">
                       <span
-                        className={`text-sm font-bold ${
-                          product.stock === 0
+                        className={`text-sm font-bold ${product.stock === 0
                             ? "text-slate-400"
                             : product.stock < lowStockThreshold
                               ? "text-rose-600"
                               : "text-slate-900"
-                        }`}
+                          }`}
                       >
                         {product.stock === 0 ? (
                           <span className="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-0.5 rounded-full text-xs font-bold text-slate-400">
@@ -665,18 +656,16 @@ export default function AdminInventoryPage() {
                       <div className="flex items-center justify-center gap-2 transition-opacity duration-300">
                         <button
                           onClick={() => toggleFavorite(product.id)}
-                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${
-                            favorites.includes(product.id)
+                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${favorites.includes(product.id)
                               ? "text-amber-500 hover:text-slate-400 hover:bg-white"
                               : "text-slate-400 hover:text-amber-500 hover:bg-white"
-                          }`}
+                            }`}
                         >
                           <Star
-                            className={`w-4 h-4 ${
-                              favorites.includes(product.id)
+                            className={`w-4 h-4 ${favorites.includes(product.id)
                                 ? "fill-current"
                                 : ""
-                            }`}
+                              }`}
                           />
                         </button>
                         <button
@@ -1046,7 +1035,7 @@ export default function AdminInventoryPage() {
                     <h4 className="text-sm font-bold text-slate-900 mb-4">
                       Harga & Inventaris
                     </h4>
-                    
+
                     {/* Baris 1: Harga Modal & Harga Jual */}
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
@@ -1067,7 +1056,7 @@ export default function AdminInventoryPage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-bold text-slate-900 mb-1.5">
                           Harga Jual <span className="text-rose-600">*</span>
