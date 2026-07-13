@@ -18,10 +18,22 @@ import {
   Trash,
 } from "lucide-react";
 import { Client } from "@/types/firebase";
-import { getAllClients } from "@/lib/actions/client";
+import { deleteClient, getAllClients, toggleFavorite } from "@/lib/actions/client";
 import AddMitraDrawer from "@/components/mitra/addForm";
 import EditMitraDrawer from "@/components/mitra/editForm";
 import Loading from "@/components/loading";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { format } from 'date-fns'
 
 // --- Pagination Controls Component ---
 function PaginationControls({
@@ -132,14 +144,6 @@ export default function AdminCRMPage() {
   const [contactClient, setContactClient] = useState<string | null>(null);
   const activeContactClient = clientsData.find((c) => c.id === contactClient);
 
-  const toggleFavorite = (clientId: string) => {
-    if (favorites.includes(clientId)) {
-      setFavorites(favorites.filter((id) => id !== clientId));
-    } else {
-      setFavorites([...favorites, clientId]);
-    }
-  };
-
   const filteredAndSortedClients = clientsData
     .filter((client) =>
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -159,6 +163,40 @@ export default function AdminCRMPage() {
     currentPage * itemsPerPage,
   );
 
+  const handleDeleteMitra = async (clientId: string) => {
+    setIsLoading(true);
+
+    const result = await deleteClient(clientId);
+
+    if (result.success) {
+      setClientsData((prevClients) =>
+        prevClients.filter((client) => client.id !== clientId)
+      );
+    } else {
+      console.error(result.error);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleToggleFavorite = async (client: Client) => {
+    setClientsData((prev) =>
+      prev.map((c) =>
+        c.id === client.id ? { ...c, favorite: !c.favorite } : c
+      ).sort((a, b) => Number(b.favorite) - Number(a.favorite))
+    );
+
+    const result = await toggleFavorite(client.id ?? "", client.favorite);
+
+    if (!result.success) {
+      setClientsData((prev) =>
+        prev.map((c) =>
+          c.id === client.id ? { ...c, favorite: client.favorite } : c
+        )
+      );
+    }
+  };
+
   return (
     <div className="relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
@@ -171,12 +209,12 @@ export default function AdminCRMPage() {
           </p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold bg-white text-slate-900 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md">
+          <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold bg-white text-slate-900 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm cursor-pointer hover:shadow-md">
             <Download className="w-4 h-4" /> Ekspor
           </button>
           <button
             onClick={() => setIsAddDrawerOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm cursor-pointer hover:shadow-md"
           >
             <UserPlus className="w-4 h-4" /> Tambah Mitra
           </button>
@@ -230,7 +268,7 @@ export default function AdminCRMPage() {
 
       <div className="bg-white border border-slate-100/50 rounded-2xl shadow-sm hover:shadow-md overflow-hidden flex-1 flex flex-col transition-all duration-300">
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+          <table className="w-full text-left border-collapse min-w-225">
             <thead className="bg-slate-50 sticky top-0 z-10">
               <tr>
                 <th className="py-4 px-6 text-xs text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
@@ -256,7 +294,7 @@ export default function AdminCRMPage() {
             {isLoading ? (
               <tbody>
                 <tr>
-                  <td colSpan={6} className="h-[300px]">
+                  <td colSpan={6} className="h-75">
                     <Loading title="Memuat mitra" />
                   </td>
                 </tr>
@@ -266,7 +304,6 @@ export default function AdminCRMPage() {
                 {paginatedClients.map((client, index) => (
                   <tr
                     key={client.id}
-                    onClick={() => setSelectedClient(client.id || null)}
                     className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${client.id && favorites.includes(client.id) ? "bg-amber-50/30" : ""
                       }`}
                   >
@@ -308,7 +345,7 @@ export default function AdminCRMPage() {
                       </p>
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-slate-500">
-                      Okt 12, 2022
+                      {format(client.createdAt?.toDateString() || "", "d-M-y")}
                     </td>
                     <td className="py-4 px-6 text-right text-sm font-bold text-slate-900">
                       {client.productsCount}
@@ -318,9 +355,9 @@ export default function AdminCRMPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (client.id) toggleFavorite(client.id);
+                            if (client.id) handleToggleFavorite(client);
                           }}
-                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${client.id && favorites.includes(client.id)
+                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${client.id && client.favorite
                             ? "text-amber-500 hover:text-slate-400 hover:bg-white"
                             : "text-slate-400 hover:text-amber-500 hover:bg-white"
                             }`}
@@ -335,7 +372,7 @@ export default function AdminCRMPage() {
                             e.stopPropagation();
                             setContactClient(client.id || null);
                           }}
-                          className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
+                          className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm cursor-pointer"
                           title="Hubungi"
                         >
                           <Phone className="w-4 h-4" />
@@ -345,19 +382,31 @@ export default function AdminCRMPage() {
                             e.stopPropagation();
                             setSelectedClient(client.id || null);
                           }}
-                          className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
+                          className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm cursor-pointer"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedClient(client.id || null);
-                          }}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
-                        >
-                          <Trash className="w-4 h-4" />
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger render={
+                            <button
+                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                            >
+                              <Trash className="w-4 h-4" />
+                            </button>
+                          } />
+                          <AlertDialogContent className="bg-white">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-xl">Yakin ingin menghapus data <span className="font-bold">{client.name}</span>?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Aksi ini akan menghapus data secara permanen dari database sehingga kamu harus menambahkannya ulang secara manual.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="hover:bg-black/5 transition-all cursor-pointer">Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteMitra(client.id ?? "")} className="bg-red-600 hover:bg-red-500 transition-all cursor-pointer border border-red-800  text-white">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </td>
                   </tr>
@@ -417,7 +466,7 @@ export default function AdminCRMPage() {
 
       {/* Contact Mitra Drawer */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${contactClient ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-full sm:w-112.5 bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${contactClient ? "translate-x-0" : "translate-x-full"}`}
       >
         {activeContactClient && (
           <div className="flex-1 flex flex-col h-full">

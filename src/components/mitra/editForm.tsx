@@ -62,7 +62,7 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
     e.preventDefault();
     if (!client || !client.id) return;
 
-    const updatedData: Omit<Client, "id"> = {
+    const updatedData: Omit<Client, "id" | "favorite"> = {
       name: editMitraName,
       corp: editMitraCorp,
       email: editMitraEmail,
@@ -139,9 +139,9 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
                     <div className="w-full h-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-4xl">
                       {editMitraName
                         ? editMitraName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
                         : ""}
                     </div>
                   )}

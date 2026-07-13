@@ -73,6 +73,8 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
       tdpNumber: addMitraTdpNumber,
       pirtNumber: addMitraPirtNumber,
       googleMapsLink: addMitraGoogleMapsLink,
+      favorite: false,
+      createdAt: new Date()
     };
 
     try {

@@ -1,17 +1,18 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase/admin";
-import { Client, Product } from "@/types/firebase";
+import { Client } from "@/types/firebase";
 import { FieldValue } from "firebase-admin/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/lib/firebase/client";
+import { revalidatePath } from "next/cache";
 
-export const uploadProductImage = async (
+export const uploadClientImage = async (
     file: File,
     onProgress?: (progress: number) => void,
 ): Promise<string> => {
     const fileExtension = file.name.split(".").pop();
-    const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
+    const fileName = `clients/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
     const storageRef = ref(storage, fileName);
 
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -39,9 +40,12 @@ export const uploadProductImage = async (
 
 export async function getAllClients() {
     try {
-        const clientsSnapshot = await adminDb.collection("clients").get();
+        const clientsSnapshot = await adminDb
+            .collection("clients")
+            .orderBy("favorite", "desc")
+            .orderBy("createdAt", "desc")
+            .get();
 
-        // 1. Map documents to your Client interface first
         const clients: Client[] = clientsSnapshot.docs.map((doc) => {
             const data = doc.data();
             return {
@@ -60,10 +64,16 @@ export async function getAllClients() {
                 tdpNumber: data.tdpNumber ?? "",
                 pirtNumber: data.pirtNumber ?? "",
                 googleMapsLink: data.googleMapsLink ?? "",
+                favorite: data.favorite ?? false,
+                createdAt: data.createdAt?.toDate
+                    ? data.createdAt.toDate()
+                    : data.createdAt,
+                updatedAt: data.updatedAt?.toDate
+                    ? data.updatedAt.toDate()
+                    : data.updatedAt,
             };
         });
 
-        // 2. Attach the productsCount to each client
         const clientsWithCount = await Promise.all(
             clients.map(async (client) => {
                 const countSnapshot = await adminDb
@@ -74,7 +84,7 @@ export async function getAllClients() {
 
                 return {
                     ...client,
-                    productsCount: countSnapshot.data().count,
+                    clientsWithCount: countSnapshot.data().count,
                 };
             }),
         );
@@ -104,6 +114,8 @@ export async function addClient(
             updatedAt: FieldValue.serverTimestamp(),
         });
 
+        revalidatePath("/admin/mitra");
+
         return {
             success: true,
             productId: docRef.id,
@@ -114,31 +126,6 @@ export async function addClient(
         return {
             success: false,
             error: "Failed to add client. Please try again.",
-        };
-    }
-}
-
-export async function updateProduct(
-    productId: string,
-    data: Partial<Omit<Product, "id" | "createdAt">>,
-) {
-    try {
-        const productRef = adminDb.collection("products").doc(productId);
-
-        await productRef.update({
-            ...data,
-            updatedAt: FieldValue.serverTimestamp(),
-        });
-
-        return {
-            success: true,
-            message: "Product updated successfully!",
-        };
-    } catch (error) {
-        console.error("Error updating product:", error);
-        return {
-            success: false,
-            error: "Failed to update product.",
         };
     }
 }
@@ -168,3 +155,37 @@ export async function updateClient(
     }
 }
 
+export async function deleteClient(clientId: string) {
+    try {
+        const clientRef = adminDb.collection("clients").doc(clientId);
+
+        await clientRef.delete();
+
+        return {
+            success: true,
+            message: "Client deleted successfully!",
+        };
+    } catch (error) {
+        console.error("Error deleting client:", error);
+        return {
+            success: false,
+            error: "Failed to delete client.",
+        };
+    }
+}
+
+export async function toggleFavorite(clientId: string, currentStatus: boolean) {
+    try {
+        const clientRef = adminDb.collection("clients").doc(clientId);
+
+        await clientRef.update({
+            favorite: !currentStatus,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error toggling favorite:", error);
+        return { success: false, error: "Failed to update favorite." };
+    }
+}

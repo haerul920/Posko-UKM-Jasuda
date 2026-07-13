@@ -29,4 +29,7 @@ export interface Client {
     tdpNumber: string;
     pirtNumber: string;
     googleMapsLink: string;
+    favorite: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
