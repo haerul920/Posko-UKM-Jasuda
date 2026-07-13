@@ -84,7 +84,7 @@ export async function getAllClients() {
 
                 return {
                     ...client,
-                    clientsWithCount: countSnapshot.data().count,
+                    productsCount: countSnapshot.data().count,
                 };
             }),
         );

@@ -134,6 +134,7 @@ export default function AdminCRMPage() {
   useEffect(() => {
     (async () => {
       const client = await getAllClients();
+      console.log(client.clients)
       setClientsData(client.clients ?? []);
       setIsLoading(false)
     })();
