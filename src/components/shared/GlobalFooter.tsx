@@ -102,7 +102,7 @@ export default function GlobalFooter() {
               >
                 <div className="flex items-center gap-2">
                   <img
-                    src="/image/ikon%20shopee.png"
+                    src="/image/ikon%20shopee.webp"
                     alt="Shopee Icon"
                     className="w-5 h-5 object-contain"
                   />
@@ -118,7 +118,7 @@ export default function GlobalFooter() {
               >
                 <div className="flex items-center gap-2">
                   <img
-                    src="/image/ikon%20tokopedia.png"
+                    src="/image/ikon%20tokopedia.webp"
                     alt="Tokopedia Icon"
                     className="w-5 h-5 object-contain"
                   />
@@ -143,7 +143,7 @@ export default function GlobalFooter() {
               className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer drop-shadow-sm"
             >
               <img
-                src="/image/instagram.png"
+                src="/image/instagram.webp"
                 alt="Instagram"
                 className="w-full h-full object-contain"
               />
@@ -155,7 +155,7 @@ export default function GlobalFooter() {
               className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer drop-shadow-sm"
             >
               <img
-                src="/image/tiktok.png"
+                src="/image/tiktok.webp"
                 alt="TikTok"
                 className="w-full h-full object-contain"
               />
@@ -167,7 +167,7 @@ export default function GlobalFooter() {
               className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer drop-shadow-sm"
             >
               <img
-                src="/image/facebook.png"
+                src="/image/facebook.webp"
                 alt="Facebook"
                 className="w-full h-full object-contain"
               />
@@ -179,7 +179,7 @@ export default function GlobalFooter() {
               className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer drop-shadow-sm"
             >
               <img
-                src="/image/linkedin.png"
+                src="/image/linkedin.webp"
                 alt="LinkedIn"
                 className="w-full h-full object-contain"
               />

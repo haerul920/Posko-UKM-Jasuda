@@ -29,10 +29,10 @@ const itemVariants: Variants = {
 };
 
 const COLLECTION_ITEMS = [
-  { title: "Maeki Brownies", price: "55k", desc: "Brownies rumput laut premium dengan cita rasa cokelat yang kaya.", image: "/image/maeki brownies.jpg", span: "md:col-span-2 md:row-span-2" },
+  { title: "Maeki Brownies", price: "55k", desc: "Brownies rumput laut premium dengan cita rasa cokelat yang kaya.", image: "/image/maeki brownies.webp", span: "md:col-span-2 md:row-span-2" },
   { title: "Kelp Kering", price: "30k", desc: "Bahan masakan yang kaya umami.", image: "https://images.unsplash.com/photo-1564414545041-3b764b85c39b?w=400", span: "md:col-span-1 md:row-span-1" },
-  { title: "Nori Flakes", price: "25k", desc: "Taburan gurih dari laut.", image: "/image/nori flakes.jpg", span: "md:col-span-1 md:row-span-1" },
-  { title: "Pizzata'", price: "35k", desc: "Inovasi piza rumput laut khas Jasuda.", image: "/image/pizzata.jpg", span: "md:col-span-2 md:row-span-1" },
+  { title: "Nori Flakes", price: "25k", desc: "Taburan gurih dari laut.", image: "/image/nori flakes.webp", span: "md:col-span-1 md:row-span-1" },
+  { title: "Pizzata'", price: "35k", desc: "Inovasi piza rumput laut khas Jasuda.", image: "/image/pizzata.webp", span: "md:col-span-2 md:row-span-1" },
   { title: "Sirup Alga", price: "40k", desc: "Minuman segar bergizi.", image: "https://images.unsplash.com/photo-1520024146169-3240400354ae?w=400", span: "md:col-span-1 md:row-span-1" },
   { title: "Sabun Organik", price: "25k", desc: "Perawatan kulit alami.", image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=400", span: "md:col-span-2 md:row-span-1" },
   { title: "Masker Wajah", price: "60k", desc: "Peremajaan kulit dari laut dalam.", image: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400", span: "md:col-span-1 md:row-span-2" },
@@ -209,7 +209,7 @@ export default function JasudaStore() {
                   }}
                 >
                   <img
-                    src="/image/maeki brownies.jpg"
+                    src="/image/maeki brownies.webp"
                     alt="Maeki Brownies"
                     className="w-full h-full object-cover"
                   />
@@ -230,7 +230,7 @@ export default function JasudaStore() {
                   }}
                 >
                   <img
-                    src="/image/maeki brownies 2.jpg"
+                    src="/image/maeki brownies 2.webp"
                     alt="Fresh Sea Greens"
                     className="w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700"
                   />
@@ -276,11 +276,11 @@ export default function JasudaStore() {
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none z-10"></div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
-                  
+
                   {/* Hover Button (Center) */}
                   <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                     <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
                         className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
                       >

@@ -162,7 +162,7 @@ export default function KontakPage() {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 flex items-center justify-center drop-shadow-sm">
                       <img
-                        src="/image/instagram.png"
+                        src="/image/instagram.webp"
                         alt="Instagram"
                         className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                       />
@@ -190,7 +190,7 @@ export default function KontakPage() {
                 >
                   <div className="w-10 h-10 mb-3 flex items-center justify-center">
                     <img
-                      src="/image/linkedin.png"
+                      src="/image/linkedin.webp"
                       alt="LinkedIn"
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                     />
@@ -209,7 +209,7 @@ export default function KontakPage() {
                 >
                   <div className="w-10 h-10 mb-3 flex items-center justify-center">
                     <img
-                      src="/image/facebook.png"
+                      src="/image/facebook.webp"
                       alt="Facebook"
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                     />
@@ -229,7 +229,7 @@ export default function KontakPage() {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 flex items-center justify-center drop-shadow-sm">
                       <img
-                        src="/image/tiktok.png"
+                        src="/image/tiktok.webp"
                         alt="TikTok"
                         className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                       />

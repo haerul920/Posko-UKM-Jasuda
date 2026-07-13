@@ -378,7 +378,7 @@ export default function HomeLandingPage() {
 
             <div
               className="absolute right-0 top-0 bottom-0 w-1/3 hidden md:block z-0 opacity-70 mix-blend-multiply bg-cover bg-center"
-              style={{ backgroundImage: `url('/image/hero.jpg')` }}
+              style={{ backgroundImage: `url('/image/hero.webp')` }}
             ></div>
           </section>
 
@@ -388,7 +388,7 @@ export default function HomeLandingPage() {
             <div className="md:col-span-2">
               <InteractiveProductCard
                 href="/mitra"
-                imageSrc="/image/nori%20flakes.jpg"
+                imageSrc="/image/nori%20flakes.webp"
                 title="Nori Flakes"
                 description="Nori Flakes Bumbu Tabur Ulva adalah pelengkap hidangan berbahan dasar ganggang laut hijau. Dirancang dalam kemasan stoples kaca praktis untuk menambahkan cita rasa gurih alami pada berbagai jenis makanan."
                 isWide={true}
@@ -408,7 +408,7 @@ export default function HomeLandingPage() {
                 href="/mitra"
                 title="Pizzata'"
                 description="Pizzata' merupakan inovasi kuliner yang memadukan hidangan klasik piza dengan komoditas lokal berupa rumput laut. Produk ini menawarkan alternatif makanan dengan cita rasa gurih khas laut."
-                imageSrc="/image/pizzata.jpg"
+                imageSrc="/image/pizzata.webp"
                 isWide={true}
                 priceDisplay="35k"
               />

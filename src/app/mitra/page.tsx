@@ -176,7 +176,7 @@ export default function TenantDirectoryPage() {
         <div className="absolute inset-0 z-0">
           <div
             className="w-full h-full bg-cover bg-center opacity-30"
-            style={{ backgroundImage: `url('/image/market mitra.jpg')` }}
+            style={{ backgroundImage: `url('/image/market mitra.webp')` }}
           />
           <div className="absolute inset-0 bg-linear-to-b from-surface/80 via-surface/60 to-surface"></div>
         </div>
