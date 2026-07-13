@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Download,
   UserPlus,
@@ -12,16 +12,16 @@ import {
   ChevronRight,
   Star,
   Package,
-  Camera,
   Phone,
-  Check,
   MapPin,
   Search,
+  Trash,
 } from "lucide-react";
 import { Client } from "@/types/firebase";
 import { getAllClients } from "@/lib/actions/client";
 import AddMitraDrawer from "@/components/mitra/addForm";
 import EditMitraDrawer from "@/components/mitra/editForm";
+import Loading from "@/components/loading";
 
 // --- Pagination Controls Component ---
 function PaginationControls({
@@ -117,11 +117,13 @@ export default function AdminCRMPage() {
 
   const [clientsData, setClientsData] = useState<Client[] | []>([]);
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     (async () => {
       const client = await getAllClients();
       setClientsData(client.clients ?? []);
+      setIsLoading(false)
     })();
   }, []);
 
@@ -251,98 +253,117 @@ export default function AdminCRMPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {paginatedClients.map((client, index) => (
-                <tr
-                  key={client.id}
-                  onClick={() => setSelectedClient(client.id || null)}
-                  className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${client.id && favorites.includes(client.id) ? "bg-amber-50/30" : ""
-                    }`}
-                >
-                  <td className="py-4 px-6 text-sm font-medium text-slate-500">
-                    {(currentPage - 1) * itemsPerPage + index + 1}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-4">
-                      {client.img ? (
-                        <img
-                          src={client.img}
-                          alt={client.name}
-                          className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-sm">
-                          {client.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 group-hover:text-ocean-light transition-colors">
-                          {client.name}
-                        </p>
-                        <p className="text-xs font-medium text-slate-500 mt-0.5">
-                          {client.corp}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <p className="text-slate-900 font-medium text-sm">
-                      {client.email}
-                    </p>
-                    <p className="text-xs font-medium text-slate-500 mt-0.5">
-                      {client.phone}
-                    </p>
-                  </td>
-                  <td className="py-4 px-6 text-sm font-medium text-slate-500">
-                    Okt 12, 2022
-                  </td>
-                  <td className="py-4 px-6 text-right text-sm font-bold text-slate-900">
-                    {client.productsCount}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center justify-center gap-2 transition-opacity duration-300">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (client.id) toggleFavorite(client.id);
-                        }}
-                        className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${client.id && favorites.includes(client.id)
-                          ? "text-amber-500 hover:text-slate-400 hover:bg-white"
-                          : "text-slate-400 hover:text-amber-500 hover:bg-white"
-                          }`}
-                      >
-                        <Star
-                          className={`w-4 h-4 ${client.id && favorites.includes(client.id) ? "fill-current" : ""
-                            }`}
-                        />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setContactClient(client.id || null);
-                        }}
-                        className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
-                        title="Hubungi"
-                      >
-                        <Phone className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedClient(client.id || null);
-                        }}
-                        className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </div>
+            {isLoading ? (
+              <tbody>
+                <tr>
+                  <td colSpan={6} className="h-[300px]">
+                    <Loading title="Memuat mitra" />
                   </td>
                 </tr>
-              ))}
-            </tbody>
+              </tbody>
+            ) : (
+              <tbody className="divide-y divide-slate-100">
+                {paginatedClients.map((client, index) => (
+                  <tr
+                    key={client.id}
+                    onClick={() => setSelectedClient(client.id || null)}
+                    className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${client.id && favorites.includes(client.id) ? "bg-amber-50/30" : ""
+                      }`}
+                  >
+                    <td className="py-4 px-6 text-sm font-medium text-slate-500">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-4">
+                        {client.img ? (
+                          <img
+                            src={client.img}
+                            alt={client.name}
+                            className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-sm">
+                            {client.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 group-hover:text-ocean-light transition-colors">
+                            {client.name}
+                          </p>
+                          <p className="text-xs font-medium text-slate-500 mt-0.5">
+                            {client.corp}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <p className="text-slate-900 font-medium text-sm">
+                        {client.email}
+                      </p>
+                      <p className="text-xs font-medium text-slate-500 mt-0.5">
+                        {client.phone}
+                      </p>
+                    </td>
+                    <td className="py-4 px-6 text-sm font-medium text-slate-500">
+                      Okt 12, 2022
+                    </td>
+                    <td className="py-4 px-6 text-right text-sm font-bold text-slate-900">
+                      {client.productsCount}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center justify-center gap-2 transition-opacity duration-300">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (client.id) toggleFavorite(client.id);
+                          }}
+                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${client.id && favorites.includes(client.id)
+                            ? "text-amber-500 hover:text-slate-400 hover:bg-white"
+                            : "text-slate-400 hover:text-amber-500 hover:bg-white"
+                            }`}
+                        >
+                          <Star
+                            className={`w-4 h-4 ${client.id && favorites.includes(client.id) ? "fill-current" : ""
+                              }`}
+                          />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setContactClient(client.id || null);
+                          }}
+                          className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
+                          title="Hubungi"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedClient(client.id || null);
+                          }}
+                          className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedClient(client.id || null);
+                          }}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
           </table>
         </div>
 

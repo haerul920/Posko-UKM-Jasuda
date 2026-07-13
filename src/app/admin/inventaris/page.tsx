@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Download,
   Plus,
@@ -9,23 +9,17 @@ import {
   Store,
   Search,
   Edit,
-  Trash2,
-  X,
   Image as ImageIcon,
   Check,
-  Filter,
-  Loader2,
   Star,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   List,
 } from "lucide-react";
-import {
-  useInventoryRealtime,
-  uploadProductImage,
-  addProduct,
-} from "@/lib/services/product";
+import { useInventoryRealtime } from "@/lib/services/product";
+import AddProductDrawer from "@/components/inventaris/addForm";
+import EditProductDrawer from "@/components/inventaris/editForm";
 
 const mockJasudaProducts = Array.from({ length: 10 }).map((_, i) => ({
   id: `JSD-${1000 + i}`,
@@ -120,8 +114,8 @@ function PaginationControls({
             key={num}
             onClick={() => onPageChange(num)}
             className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${isActive
-                ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
-                : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
+              ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
+              : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
               }`}
           >
             {num}
@@ -163,8 +157,8 @@ function FilterDropdown({
         onClick={() => setIsOpen(!isOpen)}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
         className={`inline-flex items-center justify-between gap-2 bg-white border rounded-xl h-10 px-4 min-w-[120px] text-sm font-semibold transition-all duration-200 shadow-sm cursor-pointer focus:outline-none ${isOpen
-            ? "border-ocean-light ring-2 ring-ocean-light/30 text-ocean-dark"
-            : "border-slate-200 text-slate-700 hover:border-slate-300"
+          ? "border-ocean-light ring-2 ring-ocean-light/30 text-ocean-dark"
+          : "border-slate-200 text-slate-700 hover:border-slate-300"
           }`}
       >
         <div className="flex items-center gap-2">
@@ -194,8 +188,8 @@ function FilterDropdown({
                   setIsOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-bold transition-colors hover:bg-slate-50 ${isSelected
-                    ? "text-ocean-dark bg-ocean-light/5"
-                    : "text-slate-600"
+                  ? "text-ocean-dark bg-ocean-light/5"
+                  : "text-slate-600"
                   }`}
               >
                 {opt.label}
@@ -221,11 +215,23 @@ export default function AdminInventoryPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [productsData, setProductsData] = useState<any[]>([]);
+
   // Mock data usage (replace when DB is ready)
   // const { products: allRealProducts, loading: inventoryLoading } = useInventoryRealtime();
-  const allProducts = [...mockJasudaProducts, ...mockTenantProducts];
-  const products =
-    activeTab === "jasuda" ? mockJasudaProducts : mockTenantProducts;
+
+  useEffect(() => {
+    setProductsData([...mockJasudaProducts, ...mockTenantProducts]);
+  }, []);
+
+  const allProducts = productsData;
+  const products = productsData.filter((p) => {
+    if (activeTab === "jasuda") {
+      return p.storeId === "jasuda" || p.store_name === "jasuda";
+    } else {
+      return p.storeId !== "jasuda" && p.store_name !== "jasuda";
+    }
+  });
 
   // Apply stock filter
   const filteredProducts = products.filter((p) => {
@@ -235,8 +241,8 @@ export default function AdminInventoryPage() {
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const aFav = favorites.includes(a.id);
-    const bFav = favorites.includes(b.id);
+    const aFav = a.id ? favorites.includes(a.id) : false;
+    const bFav = b.id ? favorites.includes(b.id) : false;
     if (aFav && !bFav) return -1;
     if (!aFav && bFav) return 1;
     return 0;
@@ -264,105 +270,6 @@ export default function AdminInventoryPage() {
   };
 
   const inventoryLoading = false;
-
-  // Form State
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Umum");
-  const [storeId, setStoreId] = useState("jasuda");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [commission, setCommission] = useState("10");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-
-  // Edit Form State
-  const [editStoreId, setEditStoreId] = useState("jasuda");
-  const [editCostPrice, setEditCostPrice] = useState("");
-  const [editCommission, setEditCommission] = useState("10");
-
-  const startEditing = (product: any) => {
-    setEditingProduct(product);
-    setEditStoreId(product.storeId || "jasuda");
-    setEditCostPrice(product.costPrice ? String(product.costPrice) : "");
-    setEditCommission(product.commission ? String(product.commission) : "10");
-  };
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setImageFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !price || !stock || !costPrice) {
-      setError("Harap isi semua field wajib.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      let imageUrl = "https://via.placeholder.com/150";
-
-      if (imageFile) {
-        imageUrl = await uploadProductImage(imageFile, (progress) => {
-          setUploadProgress(progress);
-        });
-      }
-
-      await addProduct({
-        name,
-        description: description || "Tanpa deskripsi",
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        category,
-        storeId,
-        imageUrl,
-        expiryDate: null,
-        ...(costPrice && { costPrice: parseFloat(costPrice) }),
-        ...(storeId !== "jasuda" && { commission: parseFloat(commission) }),
-      } as any);
-
-      // Reset form
-      setName("");
-      setDescription("");
-      setCategory("Umum");
-      setStoreId("jasuda");
-      setPrice("");
-      setStock("");
-      setCostPrice("");
-      setCommission("10");
-      setExpiryDate("");
-      setImageFile(null);
-      setUploadProgress(0);
-      setIsDrawerOpen(false);
-    } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan saat menyimpan produk.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const toggleFavorite = (productId: string) => {
     if (favorites.includes(productId)) {
@@ -539,8 +446,8 @@ export default function AdminInventoryPage() {
             <button
               onClick={() => handleTabChange("jasuda")}
               className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${activeTab === "jasuda"
-                  ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
+                ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
                 }`}
             >
               Produk Jasuda
@@ -548,8 +455,8 @@ export default function AdminInventoryPage() {
             <button
               onClick={() => handleTabChange("tenant")}
               className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors ${activeTab === "tenant"
-                  ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
+                ? "text-ocean-dark border-b-2 border-ocean-dark bg-white"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-b-2 border-transparent"
                 }`}
             >
               Produk Mitra
@@ -637,10 +544,10 @@ export default function AdminInventoryPage() {
                     <td className="py-4 px-6">
                       <span
                         className={`text-sm font-bold ${product.stock === 0
-                            ? "text-slate-400"
-                            : product.stock < lowStockThreshold
-                              ? "text-rose-600"
-                              : "text-slate-900"
+                          ? "text-slate-400"
+                          : product.stock < lowStockThreshold
+                            ? "text-rose-600"
+                            : "text-slate-900"
                           }`}
                       >
                         {product.stock === 0 ? (
@@ -655,21 +562,21 @@ export default function AdminInventoryPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-2 transition-opacity duration-300">
                         <button
-                          onClick={() => toggleFavorite(product.id)}
-                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${favorites.includes(product.id)
-                              ? "text-amber-500 hover:text-slate-400 hover:bg-white"
-                              : "text-slate-400 hover:text-amber-500 hover:bg-white"
+                          onClick={() => product.id && toggleFavorite(product.id)}
+                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${product.id && favorites.includes(product.id)
+                            ? "text-amber-500 hover:text-slate-400 hover:bg-white"
+                            : "text-slate-400 hover:text-amber-500 hover:bg-white"
                             }`}
                         >
                           <Star
-                            className={`w-4 h-4 ${favorites.includes(product.id)
-                                ? "fill-current"
-                                : ""
+                            className={`w-4 h-4 ${product.id && favorites.includes(product.id)
+                              ? "fill-current"
+                              : ""
                               }`}
                           />
                         </button>
                         <button
-                          onClick={() => startEditing(product)}
+                          onClick={() => setEditingProduct(product)}
                           className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
                         >
                           <Edit className="w-4 h-4" />
@@ -710,449 +617,34 @@ export default function AdminInventoryPage() {
         )}
       </section>
 
-      {/* Add Product Drawer (Right) */}
-      {isDrawerOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 animate-fade-in"
-            onClick={() => setIsDrawerOpen(false)}
-          ></div>
+      <AddProductDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onAddSuccess={(newId, newProductPayload) => {
+          setProductsData((prev) => [
+            {
+              id: newId,
+              ...newProductPayload,
+              storeId: newProductPayload.store_name,
+            },
+            ...prev,
+          ]);
+        }}
+      />
 
-          <div className="fixed top-0 right-0 h-full w-full sm:w-[480px] md:w-[600px] bg-white z-50 shadow-2xl flex flex-col border-l border-slate-200 animate-slide-in-right">
-            <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Tambah Produk Baru
-                </h2>
-                <p className="text-sm font-medium text-slate-500">
-                  Buat entri baru di katalog global.
-                </p>
-              </div>
-              <button
-                className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors active:scale-[0.98]"
-                onClick={() => setIsDrawerOpen(false)}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-6">
-              <form
-                id="add-product-form"
-                onSubmit={handleSubmit}
-                className="space-y-6"
-              >
-                {error && (
-                  <div className="bg-rose-100 text-rose-700 p-4 rounded-xl text-sm font-bold border border-rose-200 shadow-sm">
-                    {error}
-                  </div>
-                )}
-
-                <div
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-slate-50 rounded-2xl border-dashed border-2 border-slate-300 p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-ocean-light hover:bg-ocean-light/5 transition-colors duration-300 group relative overflow-hidden"
-                >
-                  {imageFile ? (
-                    <div className="flex flex-col items-center">
-                      <ImageIcon className="w-10 h-10 text-ocean-light mb-2" />
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {imageFile.name}
-                      </h4>
-                      <p className="text-xs font-medium text-slate-500 mt-1">
-                        Klik untuk mengganti gambar
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <ImageIcon className="w-10 h-10 text-slate-400 mb-2 group-hover:text-ocean-light transition-colors" />
-                      <h4 className="text-sm font-bold text-slate-900">
-                        Tarik gambar produk ke sini
-                      </h4>
-                      <p className="text-xs font-medium text-slate-500 mt-1">
-                        JPEG, PNG hingga 5MB.
-                      </p>
-                      <button
-                        type="button"
-                        className="mt-4 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-900 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm relative z-10"
-                      >
-                        Telusuri File
-                      </button>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                </div>
-
-                {uploadProgress > 0 && uploadProgress < 100 && (
-                  <div className="w-full bg-slate-200 rounded-full h-2 mt-2 overflow-hidden">
-                    <div
-                      className="bg-ocean-light h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 gap-5">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                      Nama Produk <span className="text-rose-600">*</span>
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Nama Produk Anda"
-                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                      Toko <span className="text-rose-600">*</span>
-                    </label>
-                    <select
-                      required
-                      value={storeId}
-                      onChange={(e) => setStoreId(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm appearance-none"
-                    >
-                      <option value="jasuda">Jasuda (Internal)</option>
-                      <option value="tenant_a">Tenant A</option>
-                      <option value="tenant_b">Tenant B</option>
-                    </select>
-                  </div>
-
-                  <div className="border-t border-slate-200 pt-5 mt-2">
-                    <h4 className="text-sm font-bold text-slate-900 mb-4">
-                      Harga & Inventaris
-                    </h4>
-
-                    {/* Baris 1: Harga Modal & Harga Jual */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Harga Modal <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
-                            Rp
-                          </span>
-                          <input
-                            required
-                            type="number"
-                            value={costPrice}
-                            onChange={(e) => setCostPrice(e.target.value)}
-                            placeholder="0"
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Harga Jual <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
-                            Rp
-                          </span>
-                          <input
-                            required
-                            type="number"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            placeholder="0"
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Baris 2: Stok Awal */}
-                    <div className="grid grid-cols-1 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Stok Awal <span className="text-rose-600">*</span>
-                        </label>
-                        <input
-                          required
-                          type="number"
-                          value={stock}
-                          onChange={(e) => setStock(e.target.value)}
-                          placeholder="0"
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Bagian tambahan: Komisi jika Toko bukan Jasuda */}
-                    {storeId !== "jasuda" && (
-                      <div className="border-t border-slate-100 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Persentase Komisi (%){" "}
-                          <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative w-32">
-                          <input
-                            required
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={commission}
-                            onChange={(e) => setCommission(e.target.value)}
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-4 pr-8 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm font-semibold"
-                          />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">
-                            %
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400 mt-1.5 font-medium">
-                          Batas komisi adalah 1% hingga 100%.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="px-6 py-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
-              <button
-                type="button"
-                className="px-5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all duration-300 active:scale-[0.98] shadow-sm"
-                onClick={() => setIsDrawerOpen(false)}
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                form="add-product-form"
-                disabled={isSubmitting}
-                className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Check className="w-4 h-4" />
-                )}
-                {isSubmitting ? "Menyimpan..." : "Simpan Produk"}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Edit Drawer (Right, slide from right) */}
-      {editingProduct && (
-        <>
-          <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 animate-fade-in"
-            onClick={() => setEditingProduct(null)}
-          ></div>
-
-          <div className="fixed top-0 right-0 h-full w-full sm:w-[480px] md:w-[600px] bg-white z-50 shadow-2xl flex flex-col border-l border-slate-200 animate-slide-in-right">
-            <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Edit Produk
-                </h2>
-                <p className="text-sm font-medium text-slate-500">
-                  Perbarui informasi produk ini.
-                </p>
-              </div>
-              <button
-                className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors active:scale-[0.98]"
-                onClick={() => setEditingProduct(null)}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-6">
-              <form
-                id="edit-product-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setEditingProduct(null);
-                }}
-                className="space-y-6"
-              >
-                <div className="flex flex-col items-center justify-center mb-6">
-                  <div className="w-32 h-32 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden mb-3 relative group cursor-pointer hover:border-ocean-light transition-colors">
-                    <img
-                      src={editingProduct.imageUrl}
-                      alt={editingProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ImageIcon className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-xs font-medium text-slate-500">
-                    Klik untuk mengganti gambar
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-5">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                      Nama Produk <span className="text-rose-600">*</span>
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      defaultValue={editingProduct.name}
-                      placeholder="Nama Produk Anda"
-                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                      Toko <span className="text-rose-600">*</span>
-                    </label>
-                    <select
-                      required
-                      value={editStoreId}
-                      onChange={(e) => setEditStoreId(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm appearance-none"
-                    >
-                      <option value="jasuda">Jasuda (Internal)</option>
-                      <option value="tenant_a">Tenant A</option>
-                      <option value="tenant_b">Tenant B</option>
-                    </select>
-                  </div>
-
-                  <div className="border-t border-slate-200 pt-5 mt-2">
-                    <h4 className="text-sm font-bold text-slate-900 mb-4">
-                      Harga & Inventaris
-                    </h4>
-
-                    {/* Baris 1: Harga Modal & Harga Jual */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Harga Modal <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
-                            Rp
-                          </span>
-                          <input
-                            required
-                            type="number"
-                            value={editCostPrice}
-                            onChange={(e) => setEditCostPrice(e.target.value)}
-                            placeholder="0"
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Harga Jual <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
-                            Rp
-                          </span>
-                          <input
-                            required
-                            type="number"
-                            defaultValue={editingProduct.price}
-                            placeholder="0"
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Baris 2: Stok */}
-                    <div className="grid grid-cols-1 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Stok <span className="text-rose-600">*</span>
-                        </label>
-                        <input
-                          required
-                          type="number"
-                          defaultValue={editingProduct.stock}
-                          placeholder="0"
-                          className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Bagian tambahan: Komisi jika Toko bukan Jasuda */}
-                    {editStoreId !== "jasuda" && (
-                      <div className="border-t border-slate-100 pt-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <label className="block text-sm font-bold text-slate-900 mb-1.5">
-                          Persentase Komisi (%){" "}
-                          <span className="text-rose-600">*</span>
-                        </label>
-                        <div className="relative w-32">
-                          <input
-                            required
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={editCommission}
-                            onChange={(e) => setEditCommission(e.target.value)}
-                            className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-4 pr-8 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm font-semibold"
-                          />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">
-                            %
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400 mt-1.5 font-medium">
-                          Batas komisi adalah 1% hingga 100%.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="px-6 py-5 border-t border-slate-200 bg-slate-50 flex justify-between gap-3">
-              <button
-                type="button"
-                className="flex items-center gap-2 px-5 py-2.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all duration-300 active:scale-[0.98] shadow-sm"
-                onClick={() => setEditingProduct(null)}
-              >
-                <Trash2 className="w-4 h-4" />
-                Hapus
-              </button>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  className="px-5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all duration-300 active:scale-[0.98] shadow-sm"
-                  onClick={() => setEditingProduct(null)}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  form="edit-product-form"
-                  className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0"
-                >
-                  <Check className="w-4 h-4" />
-                  Simpan
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      <EditProductDrawer
+        isOpen={!!editingProduct}
+        product={editingProduct}
+        onClose={() => setEditingProduct(null)}
+        onEditSuccess={(updatedProduct) => {
+          setProductsData((prev) =>
+            prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+          );
+        }}
+        onDeleteSuccess={(productId) => {
+          setProductsData((prev) => prev.filter((p) => p.id !== productId));
+        }}
+      />
 
       {/* Custom animation styles */}
       <style>{`
