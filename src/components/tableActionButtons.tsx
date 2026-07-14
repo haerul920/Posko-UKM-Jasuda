@@ -87,15 +87,15 @@ export default function TableActionButtons<T extends BaseItem>({
                     } />
                     <AlertDialogContent className="bg-white ring-0 shadow-md">
                         <AlertDialogHeader>
-                            <AlertDialogTitle className="text-xl mb-2">Yakin ingin menghapus data &quot;<span className="font-bold">{item.name}</span>&quot;?</AlertDialogTitle>
+                            <AlertDialogTitle className="text-xl mb-2">Yakin ingin menghapus &quot;<span className="font-bold">{item.name}</span>&quot;?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Aksi ini akan menghapus data secara permanen dari database sehingga kamu harus menambahkannya ulang secara manual.
+                                Aksi ini akan menghapus data secara permanen dari database sehingga kamu harus menambahkan ulang secara manual.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter className="border-0 mt-0 pt-0">
                             <AlertDialogCancel className="hover:bg-black/5 transition-all cursor-pointer">Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                                className="bg-red-600 hover:bg-red-500 transition-all cursor-pointer border border-red-800  text-white"
+                                className="bg-red-600 hover:bg-red-500 transition-all cursor-pointer border border-red-600  text-white"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onDelete(item)

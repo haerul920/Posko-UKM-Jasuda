@@ -1,3 +1,5 @@
+import { UserProfile } from "firebase/auth";
+
 export interface Product {
     id: string;
     name: string;
@@ -6,7 +8,7 @@ export interface Product {
     stock: number;
     category: string;
     imageUrl: string;
-    store_name: string; // 'jasuda' or specific tenant ID
+    client: Client;
     expiryDate: Date | null;
     createdAt: Date;
     updatedAt: Date;
@@ -32,4 +34,30 @@ export interface Client {
     favorite: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface AuditTarget {
+    collection: "products" | "clients" | string;
+    id: string;
+    name: string;
+}
+
+export interface AuditChanges {
+    before?: Record<string, any>;
+    after?: Record<string, any>;
+}
+
+export interface AuditMetadata {
+    ip_address: string;
+    user_agent: string;
+}
+
+export interface ActivityLog {
+    id: string;
+    actor: UserProfile;
+    action: "create" | "update" | "delete" | "login" | string;
+    target: AuditTarget;
+    changes: AuditChanges;
+    metadata: AuditMetadata;
+    createdAt: Date;
 }
