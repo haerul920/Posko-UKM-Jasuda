@@ -14,8 +14,8 @@ import {
 // Define a common interface for the item
 interface BaseItem {
     id: string;
-    name?: string;
-    favorite?: boolean;
+    name: string;
+    favorite: boolean;
 }
 
 interface ActionButtonsProps<T extends BaseItem> {
@@ -47,7 +47,7 @@ export default function TableActionButtons<T extends BaseItem>({
                         : "text-slate-400 hover:text-amber-500 hover:bg-white"
                         }`}
                 >
-                    <Star className="w-4 h-4" />
+                    <Star className={`w-4 h-4 ${item.favorite ? "fill-current" : ""}`} />
                 </button>
             )}
 

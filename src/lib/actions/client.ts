@@ -1,11 +1,31 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase/admin";
-import { Client } from "@/types/firebase";
 import { FieldValue } from "firebase-admin/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/lib/firebase/client";
 import { revalidatePath } from "next/cache";
+
+export interface Client {
+    id: string;
+    name: string;
+    corp: string;
+    email: string;
+    phone: string;
+    img: string | null;
+    productsCount: number;
+    bankName: string;
+    bankAccount: string;
+    businessDesc: string;
+    siupNumber?: string;
+    npwpNumber?: string;
+    tdpNumber?: string;
+    pirtNumber?: string;
+    googleMapsLink: string;
+    favorite: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export const uploadClientImage = async (
     file: File,

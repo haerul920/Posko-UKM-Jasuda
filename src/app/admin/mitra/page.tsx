@@ -8,15 +8,15 @@ import {
   Package,
   Search,
 } from "lucide-react";
-import { Client } from "@/types/firebase";
-import { deleteClient, getAllClients, toggleFavorite } from "@/lib/actions/client";
-import AddMitraDrawer from "@/components/mitra/addForm";
-import EditMitraDrawer from "@/components/mitra/editForm";
+
+import { Client, deleteClient, getAllClients, toggleFavorite } from "@/lib/actions/client";
+import AddMitraDrawer from "@/app/admin/mitra/_components/addForm";
+import EditMitraDrawer from "@/app/admin/mitra/_components/editForm";
 import Loading from "@/components/loading";
 import { format } from 'date-fns'
 import PaginationControls from "@/components/pagination";
 import TableActionButtons from "@/components/tableActionButtons";
-import ClientDetailSidebar from "@/components/mitra/clientDetailSidebar";
+import ClientDetailSidebar from "@/app/admin/mitra/_components/clientDetailSidebar";
 
 export default function AdminCRMPage() {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);

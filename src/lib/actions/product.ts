@@ -1,10 +1,24 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase/admin";
-import { Product } from "@/types/firebase";
 import { FieldValue } from "firebase-admin/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/lib/firebase/client";
+
+export interface Product {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    category: string;
+    imageUrl: string;
+    client_id: string;
+    client_name: string;
+    expiryDate: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export const uploadProductImage = async (
     file: File,
@@ -56,7 +70,8 @@ export async function getAllProduct() {
                 stock: data.stock,
                 category: data.category,
                 imageUrl: data.imageUrl,
-                store_name: data.store_name,
+                client_id: data.client_id,
+                client_name: data.client_name,
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
                     : data.expiryDate,
@@ -102,7 +117,8 @@ export async function getProductsByStore(store_name: string) {
                 stock: data.stock,
                 category: data.category,
                 imageUrl: data.imageUrl,
-                store_name: data.store_name,
+                client_id: data.client_id,
+                client_name: data.client_id,
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
                     : data.expiryDate,
