@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { X, Camera, Check } from "lucide-react";
-import { addClient } from "@/lib/actions/client";
-import { Client } from "@/types/firebase";
+import { addClient, Client } from "@/lib/actions/client";
 
 interface AddMitraDrawerProps {
   isOpen: boolean;

@@ -1,6 +1,5 @@
-import React from "react";
 import { X, MapPin, Mail, Phone } from "lucide-react";
-import { Client } from "@/types/firebase";
+import { Client } from "@/lib/actions/client";
 
 interface ContactClientSidebarProps {
     isOpen: string | null;

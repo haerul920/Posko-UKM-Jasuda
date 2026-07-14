@@ -5,7 +5,7 @@ import { UserCircle, Mail, Lock, Camera, ShieldCheck, Save } from 'lucide-react'
 import { useStore } from '@/components/context/StoreContext';
 
 export default function AdminAccountPage() {
-  const { user, isAdmin } = useStore();
+  const { user, role } = useStore();
   const [email, setEmail] = useState(user?.email || 'admin@jasuda.com');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,7 +25,7 @@ export default function AdminAccountPage() {
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 text-ocean-light text-sm font-bold border border-blue-100 shadow-sm">
             <ShieldCheck className="w-5 h-5" />
-            Peran: {isAdmin ? 'Super Admin' : 'Staff / Tenant'}
+            Peran: {role === 'admin' ? 'Super Admin' : role === 'editor' ? 'Editor' : 'Staff / Tenant'}
           </span>
         </div>
       </div>

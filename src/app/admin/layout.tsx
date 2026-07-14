@@ -9,7 +9,7 @@ import AdminRouteGuard from '@/components/auth/AdminRouteGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { logout } = useStore();
+  const { logout, isEditor } = useStore();
 
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
@@ -19,7 +19,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Mitra', path: '/admin/mitra', icon: <Users className="w-5 h-5" /> },
     { name: 'Pengaturan Sistem', path: '/admin/pengaturan', icon: <Settings className="w-5 h-5" /> },
     { name: 'Riwayat Aktivitas', path: '/admin/riwayat', icon: <History className="w-5 h-5" /> },
-  ];
+  ].filter(item => {
+    if (isEditor) {
+      return !['/admin/dashboard', '/admin/keuangan', '/admin/pengaturan', '/admin/riwayat'].includes(item.path);
+    }
+    return true;
+  });
 
   return (
     <AdminRouteGuard>

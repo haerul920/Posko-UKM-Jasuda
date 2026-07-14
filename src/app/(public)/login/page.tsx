@@ -21,13 +21,9 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
-      // Wait for state to settle, then redirect
-      // Since StoreContext updates role asynchronously, we might just redirect to / 
-      // and let the AdminRouteGuard handle it, or we can check the db directly here.
-      // But for simplicity, we just push to / and if they are admin, they can navigate to /admin.
-      // To redirect admin to /admin properly, we'll check the email for now or just wait for `isAdmin` state.
-      if (email.toLowerCase().includes('admin')) {
+      const userRole = await login(email, password);
+
+      if (userRole === 'admin' || userRole === 'editor') {
         router.push('/admin');
       } else {
         router.push('/');
@@ -164,9 +160,9 @@ export default function LoginPage() {
             Masuk dengan Google
           </button>
 
-          <p className="mt-6 text-center text-xs text-on-surface-variant">
+          {/* <p className="mt-6 text-center text-xs text-on-surface-variant">
             Belum punya akun? <Link href="/signup" className="text-primary font-bold hover:text-primary-container transition-colors ml-1">Daftar di sini</Link>
-          </p>
+          </p> */}
         </div>
       </div>
     </main>

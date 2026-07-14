@@ -27,9 +27,11 @@ interface StoreContextType {
   setActiveNav: (nav: number) => void;
   isLoggedIn: boolean;
   isAdmin: boolean;
+  isEditor: boolean;
+  role: string | null;
   user: User | null;
   loading: boolean;
-  login: (email: string, password?: string) => Promise<void>;
+  login: (email: string, password?: string) => Promise<string | null>;
   signup: (email: string, password?: string, name?: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -42,6 +44,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [activeNav, setActiveNavState] = useState<number>(1);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditor, setIsEditor] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,17 +77,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           // Check role in Firestore
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists() && userDoc.data().role === 'admin') {
-            setIsAdmin(true);
+          if (userDoc.exists()) {
+            const userRole = userDoc.data().role;
+            setRole(userRole);
+            setIsAdmin(userRole === 'admin');
+            setIsEditor(userRole === 'editor');
           } else {
+            setRole(null);
             setIsAdmin(false);
+            setIsEditor(false);
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
+          setRole(null);
           setIsAdmin(false);
+          setIsEditor(false);
         }
       } else {
+        setRole(null);
         setIsAdmin(false);
+        setIsEditor(false);
       }
       setLoading(false);
     });
@@ -140,15 +153,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('jasuda_nav', nav.toString());
   };
 
-  const login = async (email: string, password?: string) => {
+  const login = async (email: string, password?: string): Promise<string | null> => {
     if (!password) {
       if (email.toLowerCase() === 'admin') {
         setIsLoggedIn(true);
         setIsAdmin(true);
+        setIsEditor(false);
+        setRole('admin');
+        return 'admin';
+      } else if (email.toLowerCase() === 'editor') {
+        setIsLoggedIn(true);
+        setIsAdmin(false);
+        setIsEditor(true);
+        setRole('editor');
+        return 'editor';
       }
-      return;
+      return null;
     }
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        return userDoc.data().role || 'user';
+      }
+    } catch (error) {
+      console.error("Error fetching user role on login redirect:", error);
+    }
+    return 'user';
   };
 
   const signup = async (email: string, password?: string, name?: string) => {
@@ -194,6 +226,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     await signOut(auth);
     setIsLoggedIn(false);
     setIsAdmin(false);
+    setIsEditor(false);
+    setRole(null);
     setUser(null);
   };
 
@@ -214,6 +248,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setActiveNav,
         isLoggedIn,
         isAdmin,
+        isEditor,
+        role,
         user,
         loading,
         login,

@@ -39,7 +39,7 @@ export default function GlobalHeader({
         setShowProfileMenu(false);
       }
     }
-    
+
     if (showProfileMenu) {
       document.addEventListener("mousedown", handleClickOutside);
     }
@@ -55,20 +55,18 @@ export default function GlobalHeader({
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="flex items-center gap-2 group">
             <span
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
-                isPremium
-                  ? "bg-linear-to-br from-primary to-secondary"
-                  : "bg-primary"
-              }`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${isPremium
+                ? "bg-linear-to-br from-primary to-secondary"
+                : "bg-primary"
+                }`}
             >
               <Waves className="w-4 h-4" />
             </span>
             <span
-              className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 hidden sm:block ${
-                isPremium
-                  ? "bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent"
-                  : "text-primary"
-              }`}
+              className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 hidden sm:block ${isPremium
+                ? "bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent"
+                : "text-primary"
+                }`}
             >
               {isPremium ? "Jasuda Premium" : "Posko Jasuda"}
             </span>
@@ -154,7 +152,7 @@ export default function GlobalHeader({
               </Link>
 
               <div className="relative" ref={profileMenuRef}>
-                <div 
+                <div
                   className="w-8 h-8 rounded-full border border-outline-variant overflow-hidden cursor-pointer shadow-sm hover:border-primary transition-colors"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                 >
@@ -196,20 +194,28 @@ export default function GlobalHeader({
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <MagneticButton>
+              {/* <MagneticButton>
                 <Link
                   href="/login"
                   className="text-xs font-bold text-primary hover:text-primary-container px-3 py-1.5 transition-colors"
                 >
                   Masuk
                 </Link>
-              </MagneticButton>
-              <MagneticButton>
+              </MagneticButton> */}
+              {/* <MagneticButton>
                 <Link
                   href="/signup"
                   className="text-xs font-bold text-white bg-secondary hover:bg-secondary-container hover:text-on-secondary-container px-4 py-2 rounded-lg transition-all shadow-sm block"
                 >
                   Daftar
+                </Link>
+              </MagneticButton> */}
+              <MagneticButton>
+                <Link
+                  href="/login"
+                  className="text-xs font-bold text-white bg-secondary hover:bg-secondary-container hover:text-on-secondary-container px-4 py-2 rounded-lg transition-all shadow-sm block"
+                >
+                  Masuk
                 </Link>
               </MagneticButton>
             </div>
