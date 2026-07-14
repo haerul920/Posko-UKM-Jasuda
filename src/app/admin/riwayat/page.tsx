@@ -1,84 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { History, Download, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-
-// --- Pagination Controls Component ---
-function PaginationControls({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  const pages: (number | string)[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i);
-  } else {
-    if (currentPage <= 4) {
-      pages.push(1, 2, 3, 4, 5, "...", totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      pages.push(
-        1,
-        "...",
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      );
-    } else {
-      pages.push(
-        1,
-        "...",
-        currentPage - 1,
-        currentPage,
-        currentPage + 1,
-        "...",
-        totalPages,
-      );
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-1">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-2 rounded-lg text-slate-400 bg-transparent hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-
-      {pages.map((page, index) => (
-        <button
-          key={index}
-          onClick={() => typeof page === "number" && onPageChange(page)}
-          disabled={page === "..."}
-          className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${
-            page === currentPage
-              ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
-              : page === "..."
-              ? "text-slate-400 cursor-default"
-              : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
-          }`}
-        >
-          {page}
-        </button>
-      ))}
-
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors active:scale-[0.95] disabled:opacity-50 disabled:hover:bg-transparent"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-    </div>
-  );
-}
+import { useState } from 'react';
+import { History, Download, Search, Filter } from 'lucide-react';
+import PaginationControls from '@/components/pagination';
 
 export default function AdminHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,7 +61,7 @@ export default function AdminHistoryPage() {
   const filteredActivities = activities.filter((act) => {
     const matchSearch = act.user.toLowerCase().includes(searchQuery.toLowerCase());
     const matchUser = userFilter ? act.user === userFilter : true;
-    
+
     let matchAction = true;
     if (actionFilter === "Produk") matchAction = act.action.toLowerCase().includes("produk");
     else if (actionFilter === "Mitra") matchAction = act.action.toLowerCase().includes("mitra");
@@ -151,7 +75,7 @@ export default function AdminHistoryPage() {
     else if (timeFilter === "14 Hari lalu") matchTime = false;
     else if (timeFilter === "1 Bulan lalu") matchTime = false;
     else if (timeFilter === "6 Bulan lalu") matchTime = false;
-    
+
     return matchSearch && matchUser && matchAction && matchTime;
   });
 
@@ -184,7 +108,7 @@ export default function AdminHistoryPage() {
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-20">
         <div className="relative w-full sm:w-96">
           <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-          <input 
+          <input
             type="text"
             placeholder="Cari user pengelola..."
             value={searchQuery}
@@ -203,19 +127,19 @@ export default function AdminHistoryPage() {
               <span className="text-sm font-bold">{timeFilter || "Semua Waktu"}</span>
             </div>
           </button>
-          
+
           {activeFilterPopup === "time" && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setActiveFilterPopup(null)}></div>
               <div className="absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl w-48 py-2 z-50 overflow-hidden">
-                <button 
+                <button
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${!timeFilter ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                   onClick={() => { setTimeFilter(""); setActiveFilterPopup(null); }}
                 >
                   Semua Waktu
                 </button>
                 {timeOptions.map(t => (
-                  <button 
+                  <button
                     key={t}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${timeFilter === t ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                     onClick={() => { setTimeFilter(t); setActiveFilterPopup(null); }}
@@ -243,14 +167,14 @@ export default function AdminHistoryPage() {
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setActiveFilterPopup(null)}></div>
                       <div className="absolute top-full mt-2 left-4 bg-white border border-slate-200 rounded-xl shadow-xl w-48 py-2 z-50 overflow-hidden">
-                        <button 
+                        <button
                           className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${!userFilter ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                           onClick={() => { setUserFilter(""); setActiveFilterPopup(null); }}
                         >
                           Semua Pengelola
                         </button>
                         {uniqueUsers.map(u => (
-                          <button 
+                          <button
                             key={u}
                             className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${userFilter === u ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                             onClick={() => { setUserFilter(u); setActiveFilterPopup(null); }}
@@ -271,14 +195,14 @@ export default function AdminHistoryPage() {
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setActiveFilterPopup(null)}></div>
                       <div className="absolute top-full mt-2 left-4 bg-white border border-slate-200 rounded-xl shadow-xl w-48 py-2 z-50 overflow-hidden">
-                        <button 
+                        <button
                           className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${!actionFilter ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                           onClick={() => { setActionFilter(""); setActiveFilterPopup(null); }}
                         >
                           Semua Aktifitas
                         </button>
                         {actionCategories.map(a => (
-                          <button 
+                          <button
                             key={a}
                             className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${actionFilter === a ? 'font-bold text-ocean-light bg-blue-50/50' : 'text-slate-700'}`}
                             onClick={() => { setActionFilter(a); setActiveFilterPopup(null); }}
@@ -310,7 +234,7 @@ export default function AdminHistoryPage() {
             </tbody>
           </table>
         </div>
-        
+
         <div className="bg-slate-50 border-t border-slate-200 p-5 flex items-center justify-between rounded-b-2xl">
           <p className="text-sm font-medium text-slate-500">
             Menampilkan{" "}

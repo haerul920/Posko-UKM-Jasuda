@@ -15,13 +15,11 @@ import {
   Copy,
   Check,
   X,
-  Mail,
-  Phone,
-  Clock,
   Package,
   FileText,
   List,
 } from "lucide-react";
+import PaginationControls from "@/components/pagination";
 
 const monthsList = [
   "Januari",
@@ -79,9 +77,8 @@ function RowsPerPageSelect({
                   onChange(opt);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-sm font-bold transition-colors hover:bg-slate-50 ${
-                  isSelected ? "text-ocean-dark bg-ocean-light/5" : "text-slate-600"
-                }`}
+                className={`w-full text-left px-4 py-2 text-sm font-bold transition-colors hover:bg-slate-50 ${isSelected ? "text-ocean-dark bg-ocean-light/5" : "text-slate-600"
+                  }`}
               >
                 {opt} Baris
               </button>
@@ -89,95 +86,6 @@ function RowsPerPageSelect({
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-function PaginationControls({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  const pages = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (currentPage <= 4) {
-      pages.push(1, 2, 3, 4, 5, "...", totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      pages.push(
-        1,
-        "...",
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages
-      );
-    } else {
-      pages.push(
-        1,
-        "...",
-        currentPage - 1,
-        currentPage,
-        currentPage + 1,
-        "...",
-        totalPages
-      );
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-1.5 rounded-lg text-slate-400 bg-transparent disabled:opacity-50 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-
-      {pages.map((p, i) => {
-        if (p === "...") {
-          return (
-            <span
-              key={`ellipsis-${i}`}
-              className="px-2 text-slate-400 font-bold tracking-widest"
-            >
-              ...
-            </span>
-          );
-        }
-        const num = p as number;
-        const isActive = num === currentPage;
-        return (
-          <button
-            key={num}
-            onClick={() => onPageChange(num)}
-            className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${
-              isActive
-                ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
-                : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
-            }`}
-          >
-            {num}
-          </button>
-        );
-      })}
-
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-1.5 rounded-lg text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark transition-colors active:scale-[0.95] disabled:opacity-50"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
     </div>
   );
 }
@@ -250,11 +158,10 @@ function CustomMonthSelect({
                     onChange(optionValue);
                     setIsOpen(false);
                   }}
-                  className={`px-2 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center ${
-                    isSelected
-                      ? "bg-ocean-gradient text-white shadow-sm"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`px-2 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center ${isSelected
+                    ? "bg-ocean-gradient text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
                   {m.substring(0, 3)}
                 </button>
@@ -342,9 +249,8 @@ function ColumnFilterDropdown({
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2 text-sm font-bold transition-colors hover:bg-slate-50 ${
-                  isSelected ? "text-ocean-dark" : "text-slate-600"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm font-bold transition-colors hover:bg-slate-50 ${isSelected ? "text-ocean-dark" : "text-slate-600"
+                  }`}
               >
                 {opt.label}
                 {isSelected && <Check className="w-4 h-4" />}
@@ -492,13 +398,12 @@ function OrderDetailsSidebar({
                 Status
               </p>
               <span
-                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${
-                  order.status === "Selesai"
-                    ? "bg-green-100 text-green-700 border-green-200"
-                    : order.status === "Diproses"
-                      ? "bg-amber-100 text-amber-700 border-amber-200"
-                      : "bg-rose-100 text-rose-700 border-rose-200"
-                }`}
+                className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${order.status === "Selesai"
+                  ? "bg-green-100 text-green-700 border-green-200"
+                  : order.status === "Diproses"
+                    ? "bg-amber-100 text-amber-700 border-amber-200"
+                    : "bg-rose-100 text-rose-700 border-rose-200"
+                  }`}
               >
                 {order.status}
               </span>
@@ -734,68 +639,66 @@ export default function AdminOrdersPage() {
               {filteredOrders
                 .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
                 .map((order) => (
-                <tr
-                  key={order.id}
-                  className="hover:bg-slate-50/80 transition-colors duration-300 group"
-                >
-                  <td className="py-4 px-6">
-                    <div className="flex flex-col">
-                      <CopyableOrderId id={order.id} />
-                      <span className="text-xs font-medium text-slate-500 mt-1">
-                        {order.dateStr}
+                  <tr
+                    key={order.id}
+                    className="hover:bg-slate-50/80 transition-colors duration-300 group"
+                  >
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col">
+                        <CopyableOrderId id={order.id} />
+                        <span className="text-xs font-medium text-slate-500 mt-1">
+                          {order.dateStr}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="text-sm font-bold text-slate-900">
+                        {order.customerName}
                       </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="text-sm font-bold text-slate-900">
-                      {order.customerName}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span
-                      className={`text-sm font-bold ${order.storeType === "flagship" ? "text-ocean-dark" : "text-slate-700"}`}
-                    >
-                      {order.storeName}
-                    </span>
-                  </td>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span
+                        className={`text-sm font-bold ${order.storeType === "flagship" ? "text-ocean-dark" : "text-slate-700"}`}
+                      >
+                        {order.storeName}
+                      </span>
+                    </td>
 
-                  <td className="py-4 px-6 text-right text-sm text-slate-900 font-bold">
-                    {order.totalAmount}
-                  </td>
-                  <td className="py-4 px-6 text-center">
-                    <span
-                      className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${
-                        order.paymentMethod === "QRIS"
+                    <td className="py-4 px-6 text-right text-sm text-slate-900 font-bold">
+                      {order.totalAmount}
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span
+                        className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${order.paymentMethod === "QRIS"
                           ? "bg-slate-100 text-slate-700 border-slate-200"
                           : "bg-blue-50 text-blue-700 border-blue-200"
-                      }`}
-                    >
-                      {order.paymentMethod}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-center">
-                    <span
-                      className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${
-                        order.status === "Selesai"
+                          }`}
+                      >
+                        {order.paymentMethod}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span
+                        className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold border ${order.status === "Selesai"
                           ? "bg-green-100 text-green-700 border-green-200"
                           : order.status === "Diproses"
                             ? "bg-amber-100 text-amber-700 border-amber-200"
                             : "bg-rose-100 text-rose-700 border-rose-200"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="text-slate-400 hover:text-ocean-light transition-all duration-300 active:scale-[0.98] opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white hover:shadow-sm"
-                    >
-                      <MoreVertical className="w-5 h-5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                          }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <button
+                        onClick={() => setSelectedOrder(order)}
+                        className="text-slate-400 hover:text-ocean-light transition-all duration-300 active:scale-[0.98] opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white hover:shadow-sm"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

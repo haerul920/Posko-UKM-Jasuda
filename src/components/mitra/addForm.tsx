@@ -59,7 +59,7 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
 
   const handleAddMitra = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newMitra: Client = {
+    const newMitra: Omit<Client, "id" | "updatedAt" | "createdAt" | "productsCount"> = {
       name: addMitraName,
       corp: addMitraCorp,
       email: addMitraEmail,
@@ -74,15 +74,22 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
       pirtNumber: addMitraPirtNumber,
       googleMapsLink: addMitraGoogleMapsLink,
       favorite: false,
-      createdAt: new Date()
     };
 
     try {
       const res = await addClient(newMitra);
       if (res.success) {
+        if (!res.productId) {
+          throw new Error("Product ID was not returned from the server.");
+        }
+
+        const now = new Date();
+
         onAddSuccess({
           ...newMitra,
           id: res.productId,
+          createdAt: now,
+          updatedAt: now,
           productsCount: 0,
         });
         onClose();

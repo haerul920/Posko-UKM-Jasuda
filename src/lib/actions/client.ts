@@ -46,33 +46,34 @@ export async function getAllClients() {
             .orderBy("createdAt", "desc")
             .get();
 
-        const clients: Client[] = clientsSnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                name: data.name ?? "",
-                corp: data.corp ?? "",
-                email: data.email ?? "",
-                phone: data.phone ?? "",
-                status: data.status ?? "",
-                img: data.img ?? null,
-                bankName: data.bankName ?? "",
-                bankAccount: data.bankAccount ?? "",
-                businessDesc: data.businessDesc ?? "",
-                siupNumber: data.siupNumber ?? "",
-                npwpNumber: data.npwpNumber ?? "",
-                tdpNumber: data.tdpNumber ?? "",
-                pirtNumber: data.pirtNumber ?? "",
-                googleMapsLink: data.googleMapsLink ?? "",
-                favorite: data.favorite ?? false,
-                createdAt: data.createdAt?.toDate
-                    ? data.createdAt.toDate()
-                    : data.createdAt,
-                updatedAt: data.updatedAt?.toDate
-                    ? data.updatedAt.toDate()
-                    : data.updatedAt,
-            };
-        });
+        const clients: Omit<Client, "productsCount">[] =
+            clientsSnapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    name: data.name ?? "",
+                    corp: data.corp ?? "",
+                    email: data.email ?? "",
+                    phone: data.phone ?? "",
+                    status: data.status ?? "",
+                    img: data.img ?? null,
+                    bankName: data.bankName ?? "",
+                    bankAccount: data.bankAccount ?? "",
+                    businessDesc: data.businessDesc ?? "",
+                    siupNumber: data.siupNumber ?? "",
+                    npwpNumber: data.npwpNumber ?? "",
+                    tdpNumber: data.tdpNumber ?? "",
+                    pirtNumber: data.pirtNumber ?? "",
+                    googleMapsLink: data.googleMapsLink ?? "",
+                    favorite: data.favorite ?? false,
+                    createdAt: data.createdAt?.toDate
+                        ? data.createdAt.toDate()
+                        : data.createdAt,
+                    updatedAt: data.updatedAt?.toDate
+                        ? data.updatedAt.toDate()
+                        : data.updatedAt,
+                };
+            });
 
         const clientsWithCount = await Promise.all(
             clients.map(async (client) => {
@@ -103,7 +104,10 @@ export async function getAllClients() {
 }
 
 export async function addClient(
-    clientData: Omit<Client, "id" | "createdAt" | "updatedAt">,
+    clientData: Omit<
+        Client,
+        "id" | "createdAt" | "updatedAt" | "productsCount"
+    >,
 ) {
     try {
         const clientsRef = adminDb.collection("clients");
@@ -132,7 +136,9 @@ export async function addClient(
 
 export async function updateClient(
     clientId: string,
-    data: Partial<Omit<Client, "id" | "createdAt">>,
+    data: Partial<
+        Omit<Client, "id" | "favorite" | "createdAt" | "productsCount">
+    >,
 ) {
     try {
         const clientRef = adminDb.collection("clients").doc(clientId);

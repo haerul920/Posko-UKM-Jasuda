@@ -4,7 +4,7 @@ import { updateClient } from "@/lib/actions/client";
 import { Client } from "@/types/firebase";
 
 interface EditMitraDrawerProps {
-  client: Client | null;
+  client: Client | undefined;
   isOpen: boolean;
   onClose: () => void;
   onEditSuccess: (updatedClient: Client) => void;
@@ -62,7 +62,7 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
     e.preventDefault();
     if (!client || !client.id) return;
 
-    const updatedData: Omit<Client, "id" | "favorite"> = {
+    const updatedData: Omit<Client, "id" | "favorite" | "productsCount" | "updatedAt" | "createdAt"> = {
       name: editMitraName,
       corp: editMitraCorp,
       email: editMitraEmail,

@@ -8,18 +8,16 @@ import {
   AlertTriangle,
   Store,
   Search,
-  Edit,
   Image as ImageIcon,
   Check,
-  Star,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   List,
 } from "lucide-react";
 import { useInventoryRealtime } from "@/lib/services/product";
 import AddProductDrawer from "@/components/inventaris/addForm";
 import EditProductDrawer from "@/components/inventaris/editForm";
+import PaginationControls from "@/components/pagination";
+import TableActionButtons from "@/components/tableActionButtons";
 
 const mockJasudaProducts = Array.from({ length: 10 }).map((_, i) => ({
   id: `JSD-${1000 + i}`,
@@ -47,91 +45,6 @@ const mockTenantProducts = Array.from({ length: 10 }).map((_, i) => ({
   imageUrl: `https://picsum.photos/seed/tenant${i}/150/150`,
   expiryDate: { seconds: new Date(2026, i % 12, 20).getTime() / 1000 },
 }));
-
-// --- Pagination Component ---
-function PaginationControls({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  const pages: (number | string)[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i);
-  } else {
-    if (currentPage <= 4) {
-      pages.push(1, 2, 3, 4, 5, "...", totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      pages.push(
-        1,
-        "...",
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      );
-    } else {
-      pages.push(
-        1,
-        "...",
-        currentPage - 1,
-        currentPage,
-        currentPage + 1,
-        "...",
-        totalPages,
-      );
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-1.5 rounded-lg text-slate-400 bg-transparent disabled:opacity-50 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      {pages.map((p, i) => {
-        if (p === "...") {
-          return (
-            <span
-              key={`ellipsis-${i}`}
-              className="px-2 text-slate-400 font-bold tracking-widest"
-            >
-              ...
-            </span>
-          );
-        }
-        const num = p as number;
-        const isActive = num === currentPage;
-        return (
-          <button
-            key={num}
-            onClick={() => onPageChange(num)}
-            className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-200 active:scale-[0.95] ${isActive
-              ? "bg-ocean-dark text-white shadow-md shadow-ocean-dark/20"
-              : "text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark"
-              }`}
-          >
-            {num}
-          </button>
-        );
-      })}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-1.5 rounded-lg text-slate-600 hover:bg-ocean-light/10 hover:text-ocean-dark transition-colors active:scale-[0.95] disabled:opacity-50"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-    </div>
-  );
-}
 
 // --- Custom Filter Dropdown ---
 function FilterDropdown({
@@ -277,6 +190,22 @@ export default function AdminInventoryPage() {
     } else {
       setFavorites([...favorites, productId]);
     }
+  };
+
+  const handleDeleteInventaris = async (itemId: string) => {
+    // setIsLoading(true);
+
+    // const result = await deleteClient(clientId);
+
+    // if (result.success) {
+    //   setClientsData((prevClients) =>
+    //     prevClients.filter((client) => client.id !== clientId)
+    //   );
+    // } else {
+    //   console.error(result.error);
+    // }
+
+    // setIsLoading(false);
   };
 
   return (
@@ -560,28 +489,7 @@ export default function AdminInventoryPage() {
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="flex items-center justify-center gap-2 transition-opacity duration-300">
-                        <button
-                          onClick={() => product.id && toggleFavorite(product.id)}
-                          className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${product.id && favorites.includes(product.id)
-                            ? "text-amber-500 hover:text-slate-400 hover:bg-white"
-                            : "text-slate-400 hover:text-amber-500 hover:bg-white"
-                            }`}
-                        >
-                          <Star
-                            className={`w-4 h-4 ${product.id && favorites.includes(product.id)
-                              ? "fill-current"
-                              : ""
-                              }`}
-                          />
-                        </button>
-                        <button
-                          onClick={() => setEditingProduct(product)}
-                          className="p-2 text-slate-400 hover:text-ocean-light hover:bg-white rounded-lg transition-all active:scale-[0.98] shadow-sm"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <TableActionButtons onToggleFavorite={(item) => toggleFavorite(item.id)} onEdit={(item) => setEditingProduct(item)} onDelete={(item) => handleDeleteInventaris(item.id)} item={product} />
                     </td>
                   </tr>
                 ))

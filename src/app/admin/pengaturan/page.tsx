@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   UserPlus,
-  MoreVertical,
   Shield,
   FileEdit,
   Info,
@@ -35,23 +34,23 @@ type Staff = {
 export default function AdminRBACPage() {
   const [isRoleInfoOpen, setIsRoleInfoOpen] = useState(false);
   const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
-  
+
   const [contactStaff, setContactStaff] = useState<Staff | null>(null);
   const [editStaff, setEditStaff] = useState<Staff | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
-  
+
   const toggleFavorite = (id: string) => {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
   };
-  
+
   const [newStaffName, setNewStaffName] = useState("");
   const [newStaffEmail, setNewStaffEmail] = useState("");
   const [newStaffRole, setNewStaffRole] = useState<"Administrator" | "Editor">("Editor");
-  
+
   const [newStaffBirthPlace, setNewStaffBirthPlace] = useState("");
   const [newStaffBirthDate, setNewStaffBirthDate] = useState("");
   const [newStaffAddress, setNewStaffAddress] = useState("");
@@ -96,7 +95,7 @@ export default function AdminRBACPage() {
   const handleAddStaff = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStaffName || !newStaffEmail) return;
-    
+
     const initials = newStaffName
       .split(" ")
       .map((n) => n[0])
@@ -188,7 +187,7 @@ export default function AdminRBACPage() {
                   <Info className="w-5 h-5" />
                   Informasi
                 </button>
-                <button 
+                <button
                   onClick={() => setIsAddStaffOpen(true)}
                   className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center gap-2"
                 >
@@ -201,7 +200,7 @@ export default function AdminRBACPage() {
             <div className="mb-6">
               <div className="relative w-full md:w-96">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                <input 
+                <input
                   type="text"
                   placeholder="Cari nama atau email pengelola..."
                   value={searchQuery}
@@ -231,12 +230,11 @@ export default function AdminRBACPage() {
                     return (
                       <tr key={staff.id} className="hover:bg-slate-50/80 transition-colors duration-300 group">
                         <td className="py-4 px-4 flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform ${
-                            staff.color === 'blue' ? 'bg-blue-50 text-ocean-light border border-blue-100' :
-                            staff.color === 'amber' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                            staff.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                            'bg-purple-50 text-purple-600 border border-purple-100'
-                          }`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform ${staff.color === 'blue' ? 'bg-blue-50 text-ocean-light border border-blue-100' :
+                              staff.color === 'amber' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                                staff.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                  'bg-purple-50 text-purple-600 border border-purple-100'
+                            }`}>
                             {staff.initials}
                           </div>
                           <div>
@@ -249,11 +247,10 @@ export default function AdminRBACPage() {
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                            staff.role === 'Administrator' 
-                              ? 'bg-purple-100 text-purple-700' 
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${staff.role === 'Administrator'
+                              ? 'bg-purple-100 text-purple-700'
                               : 'bg-slate-100 text-slate-600 border border-slate-200'
-                          }`}>
+                            }`}>
                             {staff.role}
                           </span>
                         </td>
@@ -280,16 +277,14 @@ export default function AdminRBACPage() {
                                 e.stopPropagation();
                                 toggleFavorite(staff.id);
                               }}
-                              className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${
-                                favorites.includes(staff.id)
+                              className={`p-2 rounded-lg transition-all active:scale-[0.98] shadow-sm ${favorites.includes(staff.id)
                                   ? "text-amber-500 hover:text-slate-400 hover:bg-white"
                                   : "text-slate-400 hover:text-amber-500 hover:bg-white"
-                              }`}
+                                }`}
                             >
                               <Star
-                                className={`w-4 h-4 ${
-                                  favorites.includes(staff.id) ? "fill-current" : ""
-                                }`}
+                                className={`w-4 h-4 ${favorites.includes(staff.id) ? "fill-current" : ""
+                                  }`}
                               />
                             </button>
                             <button
@@ -345,7 +340,7 @@ export default function AdminRBACPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Admin */}
@@ -413,7 +408,7 @@ export default function AdminRBACPage() {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleAddStaff} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
             <div>
@@ -558,7 +553,7 @@ export default function AdminRBACPage() {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="flex-1 p-6 space-y-4">
           <a
             href={`mailto:${contactStaff?.email}`}
@@ -572,7 +567,7 @@ export default function AdminRBACPage() {
               <p className="text-xs font-medium text-slate-500 mt-0.5">{contactStaff?.email}</p>
             </div>
           </a>
-          
+
           <a
             href={`tel:${contactStaff?.phone || ""}`}
             className={`w-full flex items-center gap-3 bg-white border border-slate-300 hover:border-ocean-light rounded-xl p-4 text-left transition-all group hover:shadow-md ${!contactStaff?.phone ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -617,7 +612,7 @@ export default function AdminRBACPage() {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         {editStaff && (
           <form onSubmit={handleUpdateStaff} className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
