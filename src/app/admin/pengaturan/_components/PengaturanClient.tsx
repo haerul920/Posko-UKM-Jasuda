@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { UserPlus, Info } from "lucide-react";
 import { deleteStaffUser, toggleStaffFavorite } from "@/lib/actions/staff";
 import type { StaffUser } from "@/lib/actions/staff";
@@ -16,20 +16,13 @@ interface Props {
 }
 
 export default function PengaturanClient({ initialStaff }: Props) {
-  // Staff list state — initialised from server-fetched data
   const [staffList, setStaffList] = useState<StaffUser[]>(initialStaff);
 
-  // UI state
   const [searchQuery, setSearchQuery] = useState("");
   const [isRoleInfoOpen, setIsRoleInfoOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [contactStaff, setContactStaff] = useState<StaffUser | null>(null);
   const [editStaff, setEditStaff] = useState<StaffUser | null>(null);
-
-  // -------------------------------------------------------------------------
-  // Handlers
-  // -------------------------------------------------------------------------
-
 
   const handleToggleFavorite = async (uid: string, currentStatus: boolean) => {
     setStaffList((prev) =>
@@ -50,7 +43,7 @@ export default function PengaturanClient({ initialStaff }: Props) {
   }
 
   const handleAddSuccess = (newStaff: StaffUser) => {
-    setStaffList((prev) => [newStaff, ...prev]);
+    setStaffList((prev) => [...prev, newStaff]);
     setIsAddOpen(false);
   };
 
@@ -72,83 +65,67 @@ export default function PengaturanClient({ initialStaff }: Props) {
   };
 
   return (
-    <>
-      {/* Page Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">
-          Pengaturan Sistem
-        </h2>
-        <p className="text-sm font-medium text-slate-500 max-w-3xl">
-          Konfigurasi keamanan platform dan kelola peran staf.
-        </p>
-      </div>
-
-      {/* Staff Management Card */}
-      <section>
-        <div className="bg-white border border-slate-100/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-          {/* Card Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="text-2xl font-bold text-slate-900">
-                Manajemen Staf
-              </h3>
-              <p className="text-sm font-medium text-slate-500 mt-1">
-                Kelola admin dan editor platform.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsRoleInfoOpen(true)}
-                className="bg-white border border-slate-300 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center gap-2"
-              >
-                <Info className="w-5 h-5" />
-                Informasi
-              </button>
-              <button
-                onClick={() => setIsAddOpen(true)}
-                className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center gap-2"
-              >
-                <UserPlus className="w-5 h-5" />
-                Tambah Pengelola
-              </button>
-            </div>
+    <section>
+      <div className="bg-white border border-slate-100/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Card Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-900">
+              Manajemen Staf
+            </h3>
+            <p className="text-sm font-medium text-slate-500 mt-1">
+              Kelola admin dan editor platform.
+            </p>
           </div>
-
-          {/* Staff Table */}
-          <StaffTable
-            staff={staffList}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onToggleFavorite={handleToggleFavorite}
-            onContact={setContactStaff}
-            onEdit={setEditStaff}
-            onDelete={handleDeleteFromTable}
-          />
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsRoleInfoOpen(true)}
+              className="bg-white border border-slate-300 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center gap-2"
+            >
+              <Info className="w-5 h-5" />
+              Informasi
+            </button>
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white font-bold text-sm rounded-lg px-5 transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0 cursor-pointer"
+            >
+              <UserPlus className="w-5 h-5" />
+              Tambah Pengelola
+            </button>
+          </div>
         </div>
-      </section>
 
-      {/* Modals & Drawers */}
-      <ModalRoleInfo
-        isOpen={isRoleInfoOpen}
-        onClose={() => setIsRoleInfoOpen(false)}
-      />
+        {/* Staff Table */}
+        <StaffTable
+          staff={staffList}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onToggleFavorite={handleToggleFavorite}
+          onContact={setContactStaff}
+          onEdit={setEditStaff}
+          onDelete={handleDeleteFromTable}
+        />
+        <ModalRoleInfo
+          isOpen={isRoleInfoOpen}
+          onClose={() => setIsRoleInfoOpen(false)}
+        />
+        <DrawerAddStaff
+          isOpen={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          onSuccess={handleAddSuccess}
+        />
 
-      <DrawerAddStaff
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        onSuccess={handleAddSuccess}
-      />
+        <DrawerContact
+          staff={contactStaff}
+          onClose={() => setContactStaff(null)}
+        />
 
-      <DrawerContact
-        staff={contactStaff}
-        onClose={() => setContactStaff(null)}
-      />
-
-      <DrawerEditStaff
-        staff={editStaff}
-        onClose={() => setEditStaff(null)}
-        onUpdated={handleUpdated}
-      />
-    </>
+        <DrawerEditStaff
+          staff={editStaff}
+          onClose={() => setEditStaff(null)}
+          onUpdated={handleUpdated}
+        />
+      </div>
+    </section>
   );
 }

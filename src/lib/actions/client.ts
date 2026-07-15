@@ -17,10 +17,10 @@ export interface Client {
     bankName: string;
     bankAccount: string;
     businessDesc: string;
-    siupNumber?: string;
-    npwpNumber?: string;
-    tdpNumber?: string;
-    pirtNumber?: string;
+    siupNumber: string | undefined;
+    npwpNumber: string | undefined;
+    tdpNumber: string | undefined;
+    pirtNumber: string | undefined;
     googleMapsLink: string;
     favorite: boolean;
     createdAt: Date;

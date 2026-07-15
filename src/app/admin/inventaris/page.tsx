@@ -226,7 +226,7 @@ export default function AdminInventoryPage() {
           </button>
           <button
             onClick={() => setIsDrawerOpen(true)}
-            className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white font-bold text-sm rounded-lg px-5 transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0"
+            className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white font-bold text-sm rounded-lg px-5 transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span className="whitespace-nowrap">Tambah Produk</span>
