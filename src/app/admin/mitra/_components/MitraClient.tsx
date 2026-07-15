@@ -13,8 +13,8 @@ import { Client, deleteClient, toggleFavorite } from "@/lib/actions/client";
 import AddMitraDrawer from "@/app/admin/mitra/_components/AddForm";
 import EditMitraDrawer from "@/app/admin/mitra/_components/EditForm";
 import { format } from 'date-fns'
-import PaginationControls from "@/components/pagination";
-import TableActionButtons from "@/components/tableActionButtons";
+import PaginationControls from "@/components/Pagination";
+import TableActionButtons from "@/components/TableActionButtons";
 import ClientDetailSidebar from "@/app/admin/mitra/_components/ClientDetailSidebar";
 
 interface Props {

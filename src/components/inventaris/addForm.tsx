@@ -1,15 +1,18 @@
 import React, { useRef, useState, useEffect } from "react";
-import { X, Image as ImageIcon, Check, Loader2 } from "lucide-react";
-import { uploadProductImage, addProduct } from "@/lib/services/product";
-import { Product } from "@/types/firebase";
+import { X, Image as ImageIcon, Check, Loader2, Store } from "lucide-react";
+import { addNewProduct } from "@/lib/actions/product";
+import { uploadFileToStorage } from "@/lib/firebase/storage";
+import { Product } from "@/lib/actions/product";
+import type { ClientSelectOption } from "@/lib/actions/client";
 
 interface AddProductDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  clients?: ClientSelectOption[];
   onAddSuccess?: (productId: string, product: Omit<Product, "id" | "createdAt" | "updatedAt">) => void;
 }
 
-export default function AddProductDrawer({ isOpen, onClose, onAddSuccess }: AddProductDrawerProps) {
+export default function AddProductDrawer({ isOpen, onClose, clients = [], onAddSuccess }: AddProductDrawerProps) {
   // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -72,13 +75,18 @@ export default function AddProductDrawer({ isOpen, onClose, onAddSuccess }: AddP
     setError(null);
 
     try {
-      let imageUrl = "https://via.placeholder.com/150";
+      let imageUrl = null;
 
       if (imageFile) {
-        imageUrl = await uploadProductImage(imageFile, (progress) => {
+        imageUrl = await uploadFileToStorage(imageFile, "products", (progress) => {
           setUploadProgress(progress);
         });
       }
+
+      const corpName =
+        storeId === "jasuda"
+          ? "Jasuda"
+          : clients.find((c) => c.id === storeId)?.corp ?? storeId;
 
       const productPayload = {
         name,
@@ -86,19 +94,22 @@ export default function AddProductDrawer({ isOpen, onClose, onAddSuccess }: AddP
         price: parseFloat(price),
         stock: parseInt(stock, 10),
         category,
-        store_name: storeId, // map storeId to store_name for database schema compatibility
+        client_id: storeId,
+        corp_name: corpName,
         imageUrl,
         expiryDate: null,
         ...(costPrice && { costPrice: parseFloat(costPrice) }),
         ...(storeId !== "jasuda" && { commission: parseFloat(commission) }),
       };
 
-      const newProductId = await addProduct(productPayload as any);
-
+      const res = await addNewProduct(productPayload as any);
+      if (!res.success || !res.productId) {
+        throw new Error(res.error || "Gagal menambahkan produk.");
+      }
+      const newProductId = res.productId;
       if (onAddSuccess) {
         onAddSuccess(newProductId, productPayload as any);
       }
-
       onClose();
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan saat menyimpan produk.");
@@ -216,16 +227,32 @@ export default function AddProductDrawer({ isOpen, onClose, onAddSuccess }: AddP
                     <label className="block text-sm font-bold text-slate-900 mb-1.5">
                       Toko <span className="text-rose-600">*</span>
                     </label>
-                    <select
-                      required
-                      value={storeId}
-                      onChange={(e) => setStoreId(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm appearance-none"
-                    >
-                      <option value="jasuda">Jasuda (Internal)</option>
-                      <option value="tenant_a">Tenant A</option>
-                      <option value="tenant_b">Tenant B</option>
-                    </select>
+                    <div className="relative">
+                      <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                      <select
+                        required
+                        value={storeId}
+                        onChange={(e) => setStoreId(e.target.value)}
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm appearance-none cursor-pointer"
+                      >
+                        {/* Jasuda is always first — hardcoded, not from client DB */}
+                        <option value="jasuda">⭐ Jasuda (Internal)</option>
+                        {clients.length > 0 && (
+                          <optgroup label="─── Mitra / Klien ───">
+                            {clients.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}{c.corp ? ` — ${c.corp}` : ""}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                      </select>
+                    </div>
+                    {storeId !== "jasuda" && clients.length === 0 && (
+                      <p className="text-xs text-slate-400 mt-1.5 font-medium">
+                        Belum ada data klien. Tambah klien di menu Mitra terlebih dahulu.
+                      </p>
+                    )}
                   </div>
 
                   <div className="border-t border-slate-200 pt-5 mt-2">
@@ -349,4 +376,4 @@ export default function AddProductDrawer({ isOpen, onClose, onAddSuccess }: AddP
       )}
     </>
   );
-}
+};

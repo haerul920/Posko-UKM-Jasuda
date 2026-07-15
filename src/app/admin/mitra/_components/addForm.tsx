@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { X, Camera, Check } from "lucide-react";
+import { X, Camera, Check, Loader2 } from "lucide-react";
 import { addClient, Client } from "@/lib/actions/client";
+import { uploadFileToStorage } from "@/lib/firebase/storage";
 
 interface AddMitraDrawerProps {
   isOpen: boolean;
@@ -11,6 +12,9 @@ interface AddMitraDrawerProps {
 export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMitraDrawerProps) {
   // Add Form State
   const [addMitraImg, setAddMitraImg] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [addMitraName, setAddMitraName] = useState("");
   const [addMitraCorp, setAddMitraCorp] = useState("");
   const [addMitraEmail, setAddMitraEmail] = useState("");
@@ -30,6 +34,9 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
   useEffect(() => {
     if (isOpen) {
       setAddMitraImg(null);
+      setImageFile(null);
+      setIsSubmitting(false);
+      setUploadProgress(0);
       setAddMitraName("");
       setAddMitraCorp("");
       setAddMitraEmail("");
@@ -48,6 +55,7 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
   const handleAddMitraFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setAddMitraImg(reader.result as string);
@@ -58,24 +66,34 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
 
   const handleAddMitra = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newMitra: Omit<Client, "id" | "updatedAt" | "createdAt" | "productsCount"> = {
-      name: addMitraName,
-      corp: addMitraCorp,
-      email: addMitraEmail,
-      phone: addMitraPhone,
-      img: addMitraImg,
-      bankName: addMitraBankName,
-      bankAccount: addMitraBankAccount,
-      businessDesc: addMitraBusinessDesc,
-      siupNumber: addMitraSiupNumber,
-      npwpNumber: addMitraNpwpNumber,
-      tdpNumber: addMitraTdpNumber,
-      pirtNumber: addMitraPirtNumber,
-      googleMapsLink: addMitraGoogleMapsLink,
-      favorite: false,
-    };
+    setIsSubmitting(true);
+    setUploadProgress(0);
 
     try {
+      let finalImgUrl = null;
+      if (imageFile) {
+        finalImgUrl = await uploadFileToStorage(imageFile, "clients", (progress) => {
+          setUploadProgress(progress);
+        });
+      }
+
+      const newMitra: Omit<Client, "id" | "updatedAt" | "createdAt" | "productsCount"> = {
+        name: addMitraName,
+        corp: addMitraCorp,
+        email: addMitraEmail,
+        phone: addMitraPhone,
+        img: finalImgUrl,
+        bankName: addMitraBankName,
+        bankAccount: addMitraBankAccount,
+        businessDesc: addMitraBusinessDesc,
+        siupNumber: addMitraSiupNumber,
+        npwpNumber: addMitraNpwpNumber,
+        tdpNumber: addMitraTdpNumber,
+        pirtNumber: addMitraPirtNumber,
+        googleMapsLink: addMitraGoogleMapsLink,
+        favorite: false,
+      };
+
       const res = await addClient(newMitra);
       if (res.success) {
         if (!res.productId) {
@@ -98,6 +116,8 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan saat menambahkan mitra.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -163,6 +183,14 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
                 <p className="text-xs font-medium text-slate-500">
                   Tarik atau pilih foto profil
                 </p>
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <div className="w-28 bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div
+                      className="bg-ocean-light h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                )}
               </div>
 
               {/* Form Fields */}
@@ -347,10 +375,15 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
               </button>
               <button
                 type="submit"
-                className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0"
+                disabled={isSubmitting}
+                className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check className="w-4 h-4" />
-                Simpan Mitra
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+                {isSubmitting ? "Menyimpan..." : "Simpan Mitra"}
               </button>
             </div>
           </form>

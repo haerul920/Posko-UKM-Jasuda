@@ -25,5 +25,3 @@ export interface ActivityLog {
     metadata: AuditMetadata;
     createdAt: Date;
 }
-
-export type { Product } from "@/lib/actions/product";

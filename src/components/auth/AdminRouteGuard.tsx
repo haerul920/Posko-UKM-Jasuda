@@ -19,7 +19,7 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
       '/admin/pengaturan',
       '/admin/riwayat'
     ];
-    return restrictedPaths.some(path => 
+    return restrictedPaths.some(path =>
       pathname === path || pathname.startsWith(path + '/')
     );
   })();

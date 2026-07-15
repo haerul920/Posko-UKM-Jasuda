@@ -3,7 +3,7 @@
 import React, { useRef, MouseEvent, useEffect, useState } from "react";
 import { useStore } from "@/components/context/StoreContext";
 import { getProductsByStore } from '@/lib/actions/product';
-import { Product } from '@/types/firebase';
+import type { Product } from '@/lib/actions/product';
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import {
   Compass,
@@ -286,7 +286,9 @@ export default function HomeLandingPage() {
     const fetchProducts = async () => {
       try {
         const data = await getProductsByStore('jasuda');
-        setJasudaProducts(data);
+        if (data.success && data.products) {
+          setJasudaProducts(data.products);
+        }
       } catch (e) {
         console.error("Error fetching Jasuda products:", e);
       }

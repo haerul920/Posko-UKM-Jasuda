@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { X, Camera, Check } from "lucide-react";
+import { X, Camera, Check, Loader2 } from "lucide-react";
 import { Client, updateClient } from "@/lib/actions/client";
+import { uploadFileToStorage } from "@/lib/firebase/storage";
 
 interface EditMitraDrawerProps {
   client: Client | undefined;
@@ -12,6 +13,9 @@ interface EditMitraDrawerProps {
 export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess }: EditMitraDrawerProps) {
   // Edit Form State
   const [editMitraImg, setEditMitraImg] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [editMitraName, setEditMitraName] = useState("");
   const [editMitraCorp, setEditMitraCorp] = useState("");
   const [editMitraEmail, setEditMitraEmail] = useState("");
@@ -31,6 +35,9 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
   useEffect(() => {
     if (client) {
       setEditMitraImg(client.img);
+      setImageFile(null);
+      setIsSubmitting(false);
+      setUploadProgress(0);
       setEditMitraName(client.name);
       setEditMitraCorp(client.corp);
       setEditMitraEmail(client.email);
@@ -49,6 +56,7 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
   const handleMitraFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setEditMitraImg(reader.result as string);
@@ -61,23 +69,33 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
     e.preventDefault();
     if (!client || !client.id) return;
 
-    const updatedData: Omit<Client, "id" | "favorite" | "productsCount" | "updatedAt" | "createdAt"> = {
-      name: editMitraName,
-      corp: editMitraCorp,
-      email: editMitraEmail,
-      phone: editMitraPhone,
-      img: editMitraImg,
-      bankName: editMitraBankName,
-      bankAccount: editMitraBankAccount,
-      businessDesc: editMitraBusinessDesc,
-      siupNumber: editMitraSiupNumber,
-      npwpNumber: editMitraNpwpNumber,
-      tdpNumber: editMitraTdpNumber,
-      pirtNumber: editMitraPirtNumber,
-      googleMapsLink: editMitraGoogleMapsLink,
-    };
+    setIsSubmitting(true);
+    setUploadProgress(0);
 
     try {
+      let finalImgUrl = editMitraImg;
+      if (imageFile) {
+        finalImgUrl = await uploadFileToStorage(imageFile, "clients", (progress) => {
+          setUploadProgress(progress);
+        });
+      }
+
+      const updatedData: Omit<Client, "id" | "favorite" | "productsCount" | "updatedAt" | "createdAt"> = {
+        name: editMitraName,
+        corp: editMitraCorp,
+        email: editMitraEmail,
+        phone: editMitraPhone,
+        img: finalImgUrl,
+        bankName: editMitraBankName,
+        bankAccount: editMitraBankAccount,
+        businessDesc: editMitraBusinessDesc,
+        siupNumber: editMitraSiupNumber,
+        npwpNumber: editMitraNpwpNumber,
+        tdpNumber: editMitraTdpNumber,
+        pirtNumber: editMitraPirtNumber,
+        googleMapsLink: editMitraGoogleMapsLink,
+      };
+
       const res = await updateClient(client.id, updatedData);
       if (res.success) {
         onEditSuccess({
@@ -91,6 +109,8 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan saat memperbarui mitra.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -158,6 +178,14 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
                 <p className="text-xs font-medium text-slate-500">
                   Klik untuk mengganti foto profil
                 </p>
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <div className="w-28 bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div
+                      className="bg-ocean-light h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                )}
               </div>
 
               {/* Form Fields */}
@@ -338,9 +366,14 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
               </button>
               <button
                 type="submit"
-                className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0"
+                disabled={isSubmitting}
+                className="flex h-10 items-center justify-center gap-2 bg-linear-to-r from-ocean-light to-seaweed-dark text-white rounded-lg px-5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:shadow-lg hover:shadow-ocean-light/20 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check className="w-4 h-4" />
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
                 Simpan Perubahan
               </button>
             </div>

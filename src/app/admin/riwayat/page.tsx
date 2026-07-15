@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { History, Download, Search, Filter } from 'lucide-react';
-import PaginationControls from '@/components/pagination';
+import PaginationControls from '@/components/Pagination';
 
 export default function AdminHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");

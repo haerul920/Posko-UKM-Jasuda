@@ -26,7 +26,7 @@ export default function GlobalHeader({
   storeName = "Posko Jasuda",
   isPremium = false,
 }: HeaderProps) {
-  const { cartCount, isLoggedIn, isAdmin, logout } = useStore();
+  const { cartCount, isLoggedIn, isAdmin, isEditor, logout } = useStore();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -168,6 +168,12 @@ export default function GlobalHeader({
                   <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-outline-variant/30 rounded-xl shadow-lg py-2 flex flex-col z-50 animate-in fade-in slide-in-from-top-2">
                     {isAdmin && (
                       <Link href="/admin" className="flex items-center gap-3 px-4 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-colors text-left w-full border-b border-outline-variant/20 mb-1 pb-3">
+                        <Shield className="w-4 h-4 text-primary" />
+                        Admin Panel
+                      </Link>
+                    )}
+                    {isEditor && (
+                      <Link href="/admin/pesanan" className="flex items-center gap-3 px-4 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-colors text-left w-full border-b border-outline-variant/20 mb-1 pb-3">
                         <Shield className="w-4 h-4 text-primary" />
                         Admin Panel
                       </Link>

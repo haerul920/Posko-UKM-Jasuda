@@ -2,8 +2,6 @@
 
 import { adminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "@/lib/firebase/client";
 import { revalidatePath } from "next/cache";
 
 export interface Client {
@@ -26,37 +24,6 @@ export interface Client {
     createdAt: Date;
     updatedAt: Date;
 }
-
-export const uploadClientImage = async (
-    file: File,
-    onProgress?: (progress: number) => void,
-): Promise<string> => {
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `clients/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const storageRef = ref(storage, fileName);
-
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise((resolve, reject) => {
-        uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                if (onProgress) onProgress(progress);
-            },
-            (error) => {
-                reject(error);
-            },
-            async () => {
-                const downloadURL = await getDownloadURL(
-                    uploadTask.snapshot.ref,
-                );
-                resolve(downloadURL);
-            },
-        );
-    });
-};
 
 export async function getAllClients() {
     try {
@@ -99,7 +66,7 @@ export async function getAllClients() {
             clients.map(async (client) => {
                 const countSnapshot = await adminDb
                     .collection("products")
-                    .where("clientId", "==", client.id)
+                    .where("client_id", "==", client.id)
                     .count()
                     .get();
 
@@ -120,6 +87,41 @@ export async function getAllClients() {
             success: false,
             error: "Failed to add client. Please try again.",
         };
+    }
+}
+
+// Lightweight fetch for use in dropdowns/selects — no product count query.
+export interface ClientSelectOption {
+    id: string;
+    name: string;
+    corp: string;
+}
+
+export async function getClientsForSelect(): Promise<
+    | { success: true; clients: ClientSelectOption[] }
+    | { success: false; error: string }
+> {
+    try {
+        const snapshot = await adminDb
+            .collection("clients")
+            .orderBy("name", "asc")
+            .get();
+
+        const clients: ClientSelectOption[] = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name ?? "",
+                corp: data.corp ?? "",
+            };
+        });
+
+        return { success: true, clients };
+    } catch (err: unknown) {
+        const message =
+            err instanceof Error ? err.message : "Gagal mengambil data klien.";
+        console.error("[getClientsForSelect]", err);
+        return { success: false, error: message };
     }
 }
 

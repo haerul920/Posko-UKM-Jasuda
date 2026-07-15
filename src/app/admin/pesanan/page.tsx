@@ -19,7 +19,7 @@ import {
   FileText,
   List,
 } from "lucide-react";
-import PaginationControls from "@/components/pagination";
+import PaginationControls from "@/components/Pagination";
 
 const monthsList = [
   "Januari",

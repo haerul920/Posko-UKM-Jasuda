@@ -2,8 +2,6 @@
 
 import { adminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "@/lib/firebase/client";
 
 export interface Product {
     id: string;
@@ -14,42 +12,14 @@ export interface Product {
     category: string;
     imageUrl: string;
     client_id: string;
-    client_name: string;
+    corp_name: string;
     expiryDate: Date | null;
     createdAt: Date;
     updatedAt: Date;
+    favorite: boolean;
+    costPrice?: number;
+    commission?: number;
 }
-
-export const uploadProductImage = async (
-    file: File,
-    onProgress?: (progress: number) => void,
-): Promise<string> => {
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const storageRef = ref(storage, fileName);
-
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise((resolve, reject) => {
-        uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                if (onProgress) onProgress(progress);
-            },
-            (error) => {
-                reject(error);
-            },
-            async () => {
-                const downloadURL = await getDownloadURL(
-                    uploadTask.snapshot.ref,
-                );
-                resolve(downloadURL);
-            },
-        );
-    });
-};
 
 export async function getAllProduct() {
     try {
@@ -71,7 +41,7 @@ export async function getAllProduct() {
                 category: data.category,
                 imageUrl: data.imageUrl,
                 client_id: data.client_id,
-                client_name: data.client_name,
+                corp_name: data.corp_name ?? data.client_name ?? "",
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
                     : data.expiryDate,
@@ -81,6 +51,9 @@ export async function getAllProduct() {
                 updatedAt: data.updatedAt?.toDate
                     ? data.updatedAt.toDate()
                     : data.updatedAt,
+                favorite: data.favorite ?? false,
+                costPrice: data.costPrice,
+                commission: data.commission,
             });
         });
 
@@ -118,7 +91,7 @@ export async function getProductsByStore(store_name: string) {
                 category: data.category,
                 imageUrl: data.imageUrl,
                 client_id: data.client_id,
-                client_name: data.client_id,
+                corp_name: data.corp_name ?? data.client_name ?? "",
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
                     : data.expiryDate,
@@ -128,6 +101,9 @@ export async function getProductsByStore(store_name: string) {
                 updatedAt: data.updatedAt?.toDate
                     ? data.updatedAt.toDate()
                     : data.updatedAt,
+                favorite: data.favorite ?? false,
+                costPrice: data.costPrice,
+                commission: data.commission,
             });
         });
 
@@ -150,8 +126,11 @@ export async function addNewProduct(
     try {
         const productsRef = adminDb.collection("products");
 
+        console.log(productData);
+
         const docRef = await productsRef.add({
             ...productData,
+            favorite: false,
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
         });
@@ -192,5 +171,44 @@ export async function updateProduct(
             success: false,
             error: "Failed to update product.",
         };
+    }
+}
+
+export async function deleteProduct(
+    productId: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+    try {
+        await adminDb.collection("products").doc(productId).delete();
+
+        const { revalidatePath } = await import("next/cache");
+        revalidatePath("/admin/inventaris");
+
+        return { success: true };
+    } catch (err: unknown) {
+        const message =
+            err instanceof Error ? err.message : "Gagal menghapus produk.";
+        console.error("[deleteProduct]", err);
+        return { success: false, error: message };
+    }
+}
+
+export async function toggleProductFavorite(
+    productId: string,
+    currentStatus: boolean,
+): Promise<{ success: true } | { success: false; error: string }> {
+    try {
+        const productRef = adminDb.collection("products").doc(productId);
+
+        await productRef.update({
+            favorite: !currentStatus,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        return { success: true };
+    } catch (err: unknown) {
+        const message =
+            err instanceof Error ? err.message : "Gagal memperbarui status favorit produk.";
+        console.error("[toggleProductFavorite]", err);
+        return { success: false, error: message };
     }
 }
