@@ -1,21 +1,21 @@
 import { X, MapPin, Mail, Phone } from "lucide-react";
-import { Client } from "@/lib/actions/client";
+import { Mitra } from "@/lib/actions/mitra";
 
-interface ContactClientSidebarProps {
+interface ContactMitraSidebarProps {
     isOpen: string | null;
-    activeContactClient: Client | undefined;
+    activeContactMitra: Mitra | undefined;
     onClose: () => void;
 }
 
-export default function ClientDetailSidebar({
+export default function MitraDetailSidebar({
     isOpen,
-    activeContactClient,
+    activeContactMitra,
     onClose,
-}: ContactClientSidebarProps) {
+}: ContactMitraSidebarProps) {
 
     const handleCopyBankAccount = () => {
-        if (activeContactClient?.bankAccount) {
-            navigator.clipboard.writeText(activeContactClient.bankAccount);
+        if (activeContactMitra?.bankAccount) {
+            navigator.clipboard.writeText(activeContactMitra.bankAccount);
             alert("Nomor rekening berhasil disalin!");
         }
     };
@@ -33,7 +33,7 @@ export default function ClientDetailSidebar({
             className={`fixed top-0 right-0 h-full w-full sm:w-112.5 bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"
                 }`}
         >
-            {activeContactClient && (
+            {activeContactMitra && (
                 <div className="flex-1 flex flex-col h-full">
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
@@ -52,40 +52,40 @@ export default function ClientDetailSidebar({
                         <div className="space-y-8">
                             {/* Profile Card Header */}
                             <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
-                                {activeContactClient.img ? (
+                                {activeContactMitra.img ? (
                                     <img
-                                        src={activeContactClient.img}
+                                        src={activeContactMitra.img}
                                         className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md mb-4"
-                                        alt={activeContactClient.name}
+                                        alt={activeContactMitra.name}
                                     />
                                 ) : (
                                     <div className="w-24 h-24 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-3xl border-4 border-white shadow-md mb-4">
-                                        {getInitials(activeContactClient.name)}
+                                        {getInitials(activeContactMitra.name)}
                                     </div>
                                 )}
                                 <h3 className="text-xl font-bold text-slate-900 mb-1">
-                                    {activeContactClient.name}
+                                    {activeContactMitra.name}
                                 </h3>
                                 <p className="text-sm font-semibold text-slate-500">
-                                    {activeContactClient.corp}
+                                    {activeContactMitra.corp}
                                 </p>
                             </div>
 
                             {/* Bank Account Info Card */}
-                            {(activeContactClient.bankName || activeContactClient.bankAccount) && (
+                            {(activeContactMitra.bankName || activeContactMitra.bankAccount) && (
                                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-left text-sm shadow-inner">
                                     <div>
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">
                                             Informasi Bank &amp; No. Rekening
                                         </p>
                                         <p className="font-bold text-slate-800">
-                                            {activeContactClient.bankName || "-"}
+                                            {activeContactMitra.bankName || "-"}
                                         </p>
                                         <p className="font-mono text-slate-600 text-xs mt-0.5">
-                                            No. Rek: {activeContactClient.bankAccount || "-"}
+                                            No. Rek: {activeContactMitra.bankAccount || "-"}
                                         </p>
                                     </div>
-                                    {activeContactClient.bankAccount && (
+                                    {activeContactMitra.bankAccount && (
                                         <button
                                             type="button"
                                             onClick={handleCopyBankAccount}
@@ -103,64 +103,64 @@ export default function ClientDetailSidebar({
                                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                                     Legalitas &amp; Jenis Usaha
                                 </h4>
-                                {activeContactClient.businessDesc && (
+                                {activeContactMitra.businessDesc && (
                                     <div>
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase">
                                             Deskripsi Jenis Usaha
                                         </p>
                                         <p className="text-sm font-medium text-slate-700 mt-0.5">
-                                            {activeContactClient.businessDesc}
+                                            {activeContactMitra.businessDesc}
                                         </p>
                                     </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-4">
-                                    {activeContactClient.siupNumber && (
+                                    {activeContactMitra.siupNumber && (
                                         <div>
                                             <p className="text-[10px] font-semibold text-slate-400 uppercase">
                                                 No. SIUP
                                             </p>
                                             <p className="text-xs font-medium text-slate-800 mt-0.5">
-                                                {activeContactClient.siupNumber}
+                                                {activeContactMitra.siupNumber}
                                             </p>
                                         </div>
                                     )}
-                                    {activeContactClient.npwpNumber && (
+                                    {activeContactMitra.npwpNumber && (
                                         <div>
                                             <p className="text-[10px] font-semibold text-slate-400 uppercase">
                                                 NPWP
                                             </p>
                                             <p className="text-xs font-medium text-slate-800 mt-0.5">
-                                                {activeContactClient.npwpNumber}
+                                                {activeContactMitra.npwpNumber}
                                             </p>
                                         </div>
                                     )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {activeContactClient.tdpNumber && (
+                                    {activeContactMitra.tdpNumber && (
                                         <div>
                                             <p className="text-[10px] font-semibold text-slate-400 uppercase">
                                                 No. TDP
                                             </p>
                                             <p className="text-xs font-medium text-slate-800 mt-0.5">
-                                                {activeContactClient.tdpNumber}
+                                                {activeContactMitra.tdpNumber}
                                             </p>
                                         </div>
                                     )}
-                                    {activeContactClient.pirtNumber && (
+                                    {activeContactMitra.pirtNumber && (
                                         <div>
                                             <p className="text-[10px] font-semibold text-slate-400 uppercase">
                                                 No. PIRT
                                             </p>
                                             <p className="text-xs font-medium text-slate-800 mt-0.5">
-                                                {activeContactClient.pirtNumber}
+                                                {activeContactMitra.pirtNumber}
                                             </p>
                                         </div>
                                     )}
                                 </div>
-                                {activeContactClient.googleMapsLink && (
+                                {activeContactMitra.googleMapsLink && (
                                     <div className="pt-2 border-t border-slate-200/60">
                                         <a
-                                            href={activeContactClient.googleMapsLink}
+                                            href={activeContactMitra.googleMapsLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-600 hover:text-sky-800 transition-colors"
@@ -179,9 +179,9 @@ export default function ClientDetailSidebar({
                                 </p>
 
                                 {/* Email Button */}
-                                {activeContactClient.email && (
+                                {activeContactMitra.email && (
                                     <a
-                                        href={`mailto:${activeContactClient.email}`}
+                                        href={`mailto:${activeContactMitra.email}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-between p-5 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all duration-300 group shadow-sm hover:shadow-md cursor-pointer"
@@ -195,7 +195,7 @@ export default function ClientDetailSidebar({
                                                     Kirim Email Resmi
                                                 </h4>
                                                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                                                    {activeContactClient.email}
+                                                    {activeContactMitra.email}
                                                 </p>
                                             </div>
                                         </div>
@@ -206,9 +206,9 @@ export default function ClientDetailSidebar({
                                 )}
 
                                 {/* Phone Button */}
-                                {activeContactClient.phone && (
+                                {activeContactMitra.phone && (
                                     <a
-                                        href={`tel:${activeContactClient.phone}`}
+                                        href={`tel:${activeContactMitra.phone}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-between p-5 bg-white border border-slate-200 rounded-2xl hover:border-emerald-300 hover:bg-emerald-50/30 transition-all duration-300 group shadow-sm hover:shadow-md cursor-pointer"
@@ -222,7 +222,7 @@ export default function ClientDetailSidebar({
                                                     Hubungi Telepon / HP
                                                 </h4>
                                                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                                                    {activeContactClient.phone}
+                                                    {activeContactMitra.phone}
                                                 </p>
                                             </div>
                                         </div>

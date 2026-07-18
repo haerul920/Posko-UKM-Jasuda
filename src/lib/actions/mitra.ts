@@ -4,7 +4,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
 
-export interface Client {
+export interface Mitra {
     id: string;
     name: string;
     corp: string;
@@ -25,16 +25,16 @@ export interface Client {
     updatedAt: Date;
 }
 
-export async function getAllClients() {
+export async function getAllMitra() {
     try {
-        const clientsSnapshot = await adminDb
-            .collection("clients")
+        const mitraSnapshot = await adminDb
+            .collection("mitra")
             .orderBy("favorite", "desc")
             .orderBy("createdAt", "desc")
             .get();
 
-        const clients: Omit<Client, "productsCount">[] =
-            clientsSnapshot.docs.map((doc) => {
+        const mitra: Omit<Mitra, "productsCount">[] = mitraSnapshot.docs.map(
+            (doc) => {
                 const data = doc.data();
                 return {
                     id: doc.id,
@@ -60,18 +60,19 @@ export async function getAllClients() {
                         ? data.updatedAt.toDate()
                         : data.updatedAt,
                 };
-            });
+            },
+        );
 
-        const clientsWithCount = await Promise.all(
-            clients.map(async (client) => {
+        const mitraWithCount = await Promise.all(
+            mitra.map(async (mitra) => {
                 const countSnapshot = await adminDb
                     .collection("products")
-                    .where("client_id", "==", client.id)
+                    .where("mitra_id", "==", mitra.id)
                     .count()
                     .get();
 
                 return {
-                    ...client,
+                    ...mitra,
                     productsCount: countSnapshot.data().count,
                 };
             }),
@@ -79,35 +80,35 @@ export async function getAllClients() {
 
         return {
             success: true,
-            clients: clientsWithCount,
+            mitra: mitraWithCount,
         };
     } catch (error) {
-        console.error("Error fetching clients with count:", error);
+        console.error("Error fetching mitras with count:", error);
         return {
             success: false,
-            error: "Failed to add client. Please try again.",
+            error: "Failed to add mitra. Please try again.",
         };
     }
 }
 
 // Lightweight fetch for use in dropdowns/selects — no product count query.
-export interface ClientSelectOption {
+export interface MitraSelectOption {
     id: string;
     name: string;
     corp: string;
 }
 
-export async function getClientsForSelect(): Promise<
-    | { success: true; clients: ClientSelectOption[] }
+export async function getMitraForSelect(): Promise<
+    | { success: true; mitra: MitraSelectOption[] }
     | { success: false; error: string }
 > {
     try {
         const snapshot = await adminDb
-            .collection("clients")
+            .collection("mitras")
             .orderBy("name", "asc")
             .get();
 
-        const clients: ClientSelectOption[] = snapshot.docs.map((doc) => {
+        const mitra: MitraSelectOption[] = snapshot.docs.map((doc) => {
             const data = doc.data();
             return {
                 id: doc.id,
@@ -116,26 +117,23 @@ export async function getClientsForSelect(): Promise<
             };
         });
 
-        return { success: true, clients };
+        return { success: true, mitra };
     } catch (err: unknown) {
         const message =
             err instanceof Error ? err.message : "Gagal mengambil data klien.";
-        console.error("[getClientsForSelect]", err);
+        console.error("[getMitraForSelect]", err);
         return { success: false, error: message };
     }
 }
 
-export async function addClient(
-    clientData: Omit<
-        Client,
-        "id" | "createdAt" | "updatedAt" | "productsCount"
-    >,
+export async function addMitra(
+    mitraData: Omit<Mitra, "id" | "createdAt" | "updatedAt" | "productsCount">,
 ) {
     try {
-        const clientsRef = adminDb.collection("clients");
+        const mitraRef = adminDb.collection("mitra");
 
-        const docRef = await clientsRef.add({
-            ...clientData,
+        const docRef = await mitraRef.add({
+            ...mitraData,
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
         });
@@ -145,68 +143,68 @@ export async function addClient(
         return {
             success: true,
             productId: docRef.id,
-            message: "Client added successfully!",
+            message: "Mitra added successfully!",
         };
     } catch (error) {
-        console.error("Error adding client to Firebase:", error);
+        console.error("Error adding mitra to Firebase:", error);
         return {
             success: false,
-            error: "Failed to add client. Please try again.",
+            error: "Failed to add mitra. Please try again.",
         };
     }
 }
 
-export async function updateClient(
-    clientId: string,
+export async function updateMitra(
+    mitraId: string,
     data: Partial<
-        Omit<Client, "id" | "favorite" | "createdAt" | "productsCount">
+        Omit<Mitra, "id" | "favorite" | "createdAt" | "productsCount">
     >,
 ) {
     try {
-        const clientRef = adminDb.collection("clients").doc(clientId);
+        const mitraRef = adminDb.collection("mitra").doc(mitraId);
 
-        await clientRef.update({
+        await mitraRef.update({
             ...data,
             updatedAt: FieldValue.serverTimestamp(),
         });
 
         return {
             success: true,
-            message: "Client updated successfully!",
+            message: "Mitra updated successfully!",
         };
     } catch (error) {
-        console.error("Error updating client:", error);
+        console.error("Error updating mitra:", error);
         return {
             success: false,
-            error: "Failed to update client.",
+            error: "Failed to update mitra.",
         };
     }
 }
 
-export async function deleteClient(clientId: string) {
+export async function deleteMitra(mitraId: string) {
     try {
-        const clientRef = adminDb.collection("clients").doc(clientId);
+        const mitraRef = adminDb.collection("mitra").doc(mitraId);
 
-        await clientRef.delete();
+        await mitraRef.delete();
 
         return {
             success: true,
-            message: "Client deleted successfully!",
+            message: "Mitra deleted successfully!",
         };
     } catch (error) {
-        console.error("Error deleting client:", error);
+        console.error("Error deleting mitra:", error);
         return {
             success: false,
-            error: "Failed to delete client.",
+            error: "Failed to delete mitra.",
         };
     }
 }
 
-export async function toggleFavorite(clientId: string, currentStatus: boolean) {
+export async function toggleFavorite(mitraId: string, currentStatus: boolean) {
     try {
-        const clientRef = adminDb.collection("clients").doc(clientId);
+        const mitraRef = adminDb.collection("mitra").doc(mitraId);
 
-        await clientRef.update({
+        await mitraRef.update({
             favorite: !currentStatus,
             updatedAt: FieldValue.serverTimestamp(),
         });

@@ -1,16 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { X, Camera, Check, Loader2 } from "lucide-react";
-import { Client, updateClient } from "@/lib/actions/client";
+import { Mitra, updateMitra } from "@/lib/actions/mitra";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
 
 interface EditMitraDrawerProps {
-  client: Client | undefined;
+  mitra: Mitra | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onEditSuccess: (updatedClient: Client) => void;
+  onEditSuccess: (updatedMitra: Mitra) => void;
 }
 
-export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess }: EditMitraDrawerProps) {
+export default function EditMitraDrawer({ mitra, isOpen, onClose, onEditSuccess }: EditMitraDrawerProps) {
   // Edit Form State
   const [editMitraImg, setEditMitraImg] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -33,25 +33,25 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
 
   // Initialize/Reset form states when client prop changes
   useEffect(() => {
-    if (client) {
-      setEditMitraImg(client.img);
+    if (mitra) {
+      setEditMitraImg(mitra.img);
       setImageFile(null);
       setIsSubmitting(false);
       setUploadProgress(0);
-      setEditMitraName(client.name);
-      setEditMitraCorp(client.corp);
-      setEditMitraEmail(client.email);
-      setEditMitraPhone(client.phone);
-      setEditMitraBankName(client.bankName || "");
-      setEditMitraBankAccount(client.bankAccount || "");
-      setEditMitraBusinessDesc(client.businessDesc || "");
-      setEditMitraSiupNumber(client.siupNumber || "");
-      setEditMitraNpwpNumber(client.npwpNumber || "");
-      setEditMitraTdpNumber(client.tdpNumber || "");
-      setEditMitraPirtNumber(client.pirtNumber || "");
-      setEditMitraGoogleMapsLink(client.googleMapsLink || "");
+      setEditMitraName(mitra.name);
+      setEditMitraCorp(mitra.corp);
+      setEditMitraEmail(mitra.email);
+      setEditMitraPhone(mitra.phone);
+      setEditMitraBankName(mitra.bankName || "");
+      setEditMitraBankAccount(mitra.bankAccount || "");
+      setEditMitraBusinessDesc(mitra.businessDesc || "");
+      setEditMitraSiupNumber(mitra.siupNumber || "");
+      setEditMitraNpwpNumber(mitra.npwpNumber || "");
+      setEditMitraTdpNumber(mitra.tdpNumber || "");
+      setEditMitraPirtNumber(mitra.pirtNumber || "");
+      setEditMitraGoogleMapsLink(mitra.googleMapsLink || "");
     }
-  }, [client]);
+  }, [mitra]);
 
   const handleMitraFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,7 +67,7 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
 
   const handleSaveMitra = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client || !client.id) return;
+    if (!mitra || !mitra.id) return;
 
     setIsSubmitting(true);
     setUploadProgress(0);
@@ -75,12 +75,12 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
     try {
       let finalImgUrl = editMitraImg;
       if (imageFile) {
-        finalImgUrl = await uploadFileToStorage(imageFile, "clients", (progress) => {
+        finalImgUrl = await uploadFileToStorage(imageFile, "mitra", (progress) => {
           setUploadProgress(progress);
         });
       }
 
-      const updatedData: Omit<Client, "id" | "favorite" | "productsCount" | "updatedAt" | "createdAt"> = {
+      const updatedData: Omit<Mitra, "id" | "favorite" | "productsCount" | "updatedAt" | "createdAt"> = {
         name: editMitraName,
         corp: editMitraCorp,
         email: editMitraEmail,
@@ -96,10 +96,10 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
         googleMapsLink: editMitraGoogleMapsLink,
       };
 
-      const res = await updateClient(client.id, updatedData);
+      const res = await updateMitra(mitra.id, updatedData);
       if (res.success) {
         onEditSuccess({
-          ...client,
+          ...mitra,
           ...updatedData,
         });
         onClose();
@@ -128,7 +128,7 @@ export default function EditMitraDrawer({ client, isOpen, onClose, onEditSuccess
       <aside
         className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        {client && (
+        {mitra && (
           <form onSubmit={handleSaveMitra} className="flex-1 flex flex-col h-full">
             <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
               <h2 className="text-xl font-bold text-slate-900">Edit Profil Mitra</h2>

@@ -9,23 +9,23 @@ import {
     Search,
 } from "lucide-react";
 
-import { Client, deleteClient, toggleFavorite } from "@/lib/actions/client";
+import { deleteMitra, Mitra, toggleFavorite } from "@/lib/actions/mitra";
 import AddMitraDrawer from "@/app/admin/mitra/_components/AddForm";
 import EditMitraDrawer from "@/app/admin/mitra/_components/EditForm";
 import { format } from 'date-fns'
 import PaginationControls from "@/components/Pagination";
 import TableActionButtons from "@/components/TableActionButtons";
-import ClientDetailSidebar from "@/app/admin/mitra/_components/ClientDetailSidebar";
+import MitraDetailSidebar from "@/app/admin/mitra/_components/MitraDetailSidebar";
 
 interface Props {
-    initialClient: Client[];
+    initialMitra: Mitra[];
 }
 
-export default function MitraClient({ initialClient }: Props) {
-    const [clients, setClients] = useState<Client[]>(initialClient);
+export default function Mitramitra({ initialMitra }: Props) {
+    const [mitra, setmitra] = useState<Mitra[]>(initialMitra);
 
 
-    const [selectedClient, setSelectedClient] = useState<string | null>(null);
+    const [selectedmitra, setSelectedmitra] = useState<string | null>(null);
     const [favorites, _] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -33,15 +33,15 @@ export default function MitraClient({ initialClient }: Props) {
 
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
-    const activeClient = clients.find((c) => c.id === selectedClient);
+    const activeMitra = mitra.find((c) => c.id === selectedmitra);
 
-    const [contactClient, setContactClient] = useState<string | null>(null);
-    const activeContactClient = clients.find((c) => c.id === contactClient);
+    const [contactMitra, setContactMitra] = useState<string | null>(null);
+    const activeContactmitra = mitra.find((c) => c.id === contactMitra);
 
-    const filteredAndSortedClients = clients
-        .filter((client) =>
-            client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            client.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredAndSortedMitra = mitra
+        .filter((mitra) =>
+            mitra.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            mitra.email.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .sort((a, b) => {
             const aFav = a.id ? favorites.includes(a.id) : false;
@@ -51,37 +51,37 @@ export default function MitraClient({ initialClient }: Props) {
             return 0;
         });
 
-    const totalPages = Math.max(1, Math.ceil(filteredAndSortedClients.length / itemsPerPage));
-    const paginatedClients = filteredAndSortedClients.slice(
+    const totalPages = Math.max(1, Math.ceil(filteredAndSortedMitra.length / itemsPerPage));
+    const paginatedmitra = filteredAndSortedMitra.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage,
     );
 
-    const handleDeleteMitra = async (clientId: string) => {
-        const result = await deleteClient(clientId);
+    const handleDeleteMitra = async (mitraId: string) => {
+        const result = await deleteMitra(mitraId);
 
         if (result.success) {
-            setClients((prevClients) =>
-                prevClients.filter((client) => client.id !== clientId)
+            setmitra((prevMitra) =>
+                prevMitra.filter((mitra) => mitra.id !== mitraId)
             );
         } else {
             console.error(result.error);
         }
     };
 
-    const handleToggleFavorite = async (client: Client) => {
-        setClients((prev) =>
+    const handleToggleFavorite = async (mitra: Mitra) => {
+        setmitra((prev) =>
             prev.map((c) =>
-                c.id === client.id ? { ...c, favorite: !c.favorite } : c
+                c.id === mitra.id ? { ...c, favorite: !c.favorite } : c
             ).sort((a, b) => Number(b.favorite) - Number(a.favorite))
         );
 
-        const result = await toggleFavorite(client.id, client.favorite);
+        const result = await toggleFavorite(mitra.id, mitra.favorite);
 
         if (!result.success) {
-            setClients((prev) =>
+            setmitra((prev) =>
                 prev.map((c) =>
-                    c.id === client.id ? { ...c, favorite: client.favorite } : c
+                    c.id === mitra.id ? { ...c, favorite: mitra.favorite } : c
                 )
             );
         }
@@ -117,7 +117,7 @@ export default function MitraClient({ initialClient }: Props) {
                         <p className="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">
                             Total Mitra
                         </p>
-                        <p className="text-3xl font-bold text-slate-900">{clients.length}</p>
+                        <p className="text-3xl font-bold text-slate-900">{mitra.length}</p>
                         <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-1">
                             +5.2% bulan ini
                         </p>
@@ -182,13 +182,13 @@ export default function MitraClient({ initialClient }: Props) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {paginatedClients.map((client, index) => (
+                            {paginatedmitra.map((mitra, index) => (
                                 <tr
-                                    key={client.id}
+                                    key={mitra.id}
                                     onClick={() => {
-                                        setContactClient(client.id);
+                                        setContactMitra(mitra.id);
                                     }}
-                                    className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${favorites.includes(client.id) ? "bg-amber-50/30" : ""
+                                    className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${favorites.includes(mitra.id) ? "bg-amber-50/30" : ""
                                         }`}
                                 >
                                     <td className="py-4 px-6 text-sm font-medium text-slate-500">
@@ -196,15 +196,15 @@ export default function MitraClient({ initialClient }: Props) {
                                     </td>
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-4">
-                                            {client.img ? (
+                                            {mitra.img ? (
                                                 <img
-                                                    src={client.img}
-                                                    alt={client.name}
+                                                    src={mitra.img}
+                                                    alt={mitra.name}
                                                     className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm"
                                                 />
                                             ) : (
                                                 <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-sm">
-                                                    {client.name
+                                                    {mitra.name
                                                         .split(" ")
                                                         .map((n) => n[0])
                                                         .join("")}
@@ -212,35 +212,35 @@ export default function MitraClient({ initialClient }: Props) {
                                             )}
                                             <div>
                                                 <p className="text-sm font-bold text-slate-900 group-hover:text-ocean-light transition-colors">
-                                                    {client.name}
+                                                    {mitra.name}
                                                 </p>
                                                 <p className="text-xs font-medium text-slate-500 mt-0.5">
-                                                    {client.corp}
+                                                    {mitra.corp}
                                                 </p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
                                         <p className="text-slate-900 font-medium text-sm">
-                                            {client.email}
+                                            {mitra.email}
                                         </p>
                                         <p className="text-xs font-medium text-slate-500 mt-0.5">
-                                            {client.phone}
+                                            {mitra.phone}
                                         </p>
                                     </td>
                                     <td className="py-4 px-6 text-sm font-medium text-slate-500">
-                                        {format(client.createdAt?.toDateString() || "", "d-M-y")}
+                                        {format(mitra.createdAt?.toDateString() || "", "d-M-y")}
                                     </td>
                                     <td className="py-4 px-6 text-right text-sm font-bold text-slate-900">
-                                        {client.productsCount}
+                                        {mitra.productsCount}
                                     </td>
                                     <td className="py-4 px-6">
                                         <TableActionButtons
                                             onToggleFavorite={(item) => handleToggleFavorite(item)}
                                             onDelete={(item) => handleDeleteMitra(item.id)}
-                                            onEdit={(item) => setSelectedClient(item.id)}
-                                            onContact={(item) => setSelectedClient(item.id)}
-                                            item={client}
+                                            onEdit={(item) => setSelectedmitra(item.id)}
+                                            onContact={(item) => setSelectedmitra(item.id)}
+                                            item={mitra}
                                         />
                                     </td>
                                 </tr>
@@ -257,10 +257,10 @@ export default function MitraClient({ initialClient }: Props) {
                         </span>
                         –
                         <span className="font-bold text-slate-700">
-                            {Math.min(currentPage * itemsPerPage, clients.length)}
+                            {Math.min(currentPage * itemsPerPage, mitra.length)}
                         </span>{" "}
                         dari{" "}
-                        <span className="font-bold text-slate-700">{clients.length}</span>{" "}
+                        <span className="font-bold text-slate-700">{mitra.length}</span>{" "}
                         mitra
                     </p>
                     <PaginationControls
@@ -272,12 +272,12 @@ export default function MitraClient({ initialClient }: Props) {
             </div>
 
             <EditMitraDrawer
-                isOpen={!!selectedClient}
-                client={activeClient}
-                onClose={() => setSelectedClient(null)}
-                onEditSuccess={(updatedClient) => {
-                    setClients((prev) =>
-                        prev.map((c) => (c.id === updatedClient.id ? updatedClient : c))
+                isOpen={!!selectedmitra}
+                mitra={activeMitra}
+                onClose={() => setSelectedmitra(null)}
+                onEditSuccess={(updatedmitra) => {
+                    setmitra((prev) =>
+                        prev.map((c) => (c.id === updatedmitra.id ? updatedmitra : c))
                     );
                 }}
             />
@@ -286,19 +286,19 @@ export default function MitraClient({ initialClient }: Props) {
                 isOpen={isAddDrawerOpen}
                 onClose={() => setIsAddDrawerOpen(false)}
                 onAddSuccess={(newMitra) => {
-                    setClients((prev) => [...prev, newMitra]);
+                    setmitra((prev) => [...prev, newMitra]);
                 }}
             />
             {/* Contact Mitra Drawer Overlay */}
-            {contactClient && (
+            {contactMitra && (
                 <div
                     className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity duration-300"
-                    onClick={() => setContactClient(null)}
+                    onClick={() => setContactMitra(null)}
                 ></div>
             )}
 
             {/* Contact Mitra Drawer */}
-            <ClientDetailSidebar isOpen={contactClient} activeContactClient={activeContactClient} onClose={() => setContactClient(null)} />
+            <MitraDetailSidebar isOpen={contactMitra} activeContactMitra={activeContactmitra} onClose={() => setContactMitra(null)} />
         </div>
     );
 }

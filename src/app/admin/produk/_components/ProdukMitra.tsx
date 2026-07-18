@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 import { deleteProduct, toggleProductFavorite } from "@/lib/actions/product";
 import type { Product } from "@/lib/actions/product";
-import type { ClientSelectOption } from "@/lib/actions/client";
+import type { MitraSelectOption } from "@/lib/actions/mitra";
 
-import InventarisTable from "./InventarisTable";
-import AddProductDrawer from "@/components/inventaris/addForm";
-import EditProductDrawer from "@/components/inventaris/editForm";
+import InventarisTable from "./ProdukTable";
+import AddProductDrawer from "@/app/admin/produk/_components/AddForm";
+import EditProductDrawer from "@/app/admin/produk/_components/EditForm";
 import PaginationControls from "@/components/Pagination";
 
 // --- Custom Filter Dropdown ---
@@ -93,10 +93,10 @@ function FilterDropdown({
 
 interface Props {
     initialProducts: Product[];
-    initialClients: ClientSelectOption[];
+    initialMitra: MitraSelectOption[];
 }
 
-export default function InventarisClient({ initialProducts, initialClients }: Props) {
+export default function InventarisClient({ initialProducts, initialMitra }: Props) {
     const [productsData, setProductsData] = useState<Product[]>(initialProducts);
     const [activeTab, setActiveTab] = useState<"jasuda" | "tenant">("jasuda");
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -163,7 +163,7 @@ export default function InventarisClient({ initialProducts, initialClients }: Pr
 
     const handleToggleFavorite = async (id: string) => {
         const currentStatus = favorites.includes(id);
-        
+
         // Optimistic update
         setFavorites((prev) =>
             prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
@@ -211,7 +211,7 @@ export default function InventarisClient({ initialProducts, initialClients }: Pr
             <header id="inventory-page-header" className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">
-                        Manajemen Inventaris
+                        Manajemen Produk
                     </h2>
                     <p className="text-sm font-medium text-slate-500">
                         Kelola katalog utama Anda dan tingkat stok vendor.
@@ -441,7 +441,7 @@ export default function InventarisClient({ initialProducts, initialClients }: Pr
             <AddProductDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                clients={initialClients}
+                mitra={initialMitra}
                 onAddSuccess={(newId, newProductPayload) => {
                     setProductsData((prev) => [
                         {
@@ -458,7 +458,7 @@ export default function InventarisClient({ initialProducts, initialClients }: Pr
                 isOpen={!!editingProduct}
                 product={editingProduct}
                 onClose={() => setEditingProduct(null)}
-                clients={initialClients}
+                mitra={initialMitra}
                 onEditSuccess={(updatedProduct) => {
                     setProductsData((prev) =>
                         prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))

@@ -17,6 +17,7 @@ export interface Product {
     createdAt: Date;
     updatedAt: Date;
     favorite: boolean;
+    countBuyer: number;
     costPrice?: number;
     commission?: number;
 }
@@ -41,6 +42,7 @@ export async function getAllProduct() {
                 category: data.category,
                 imageUrl: data.imageUrl,
                 client_id: data.client_id,
+                countBuyer: 0,
                 corp_name: data.corp_name ?? data.client_name ?? "",
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
@@ -91,6 +93,7 @@ export async function getProductsByStore(store_name: string) {
                 category: data.category,
                 imageUrl: data.imageUrl,
                 client_id: data.client_id,
+                countBuyer: data.countBuyer,
                 corp_name: data.corp_name ?? data.client_name ?? "",
                 expiryDate: data.expiryDate?.toDate
                     ? data.expiryDate.toDate()
@@ -125,8 +128,6 @@ export async function addNewProduct(
 ) {
     try {
         const productsRef = adminDb.collection("products");
-
-        console.log(productData);
 
         const docRef = await productsRef.add({
             ...productData,
@@ -207,7 +208,9 @@ export async function toggleProductFavorite(
         return { success: true };
     } catch (err: unknown) {
         const message =
-            err instanceof Error ? err.message : "Gagal memperbarui status favorit produk.";
+            err instanceof Error
+                ? err.message
+                : "Gagal memperbarui status favorit produk.";
         console.error("[toggleProductFavorite]", err);
         return { success: false, error: message };
     }

@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { X, Camera, Check, Loader2 } from "lucide-react";
-import { addClient, Client } from "@/lib/actions/client";
+import { addMitra, Mitra } from "@/lib/actions/mitra";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
 
 interface AddMitraDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddSuccess: (newMitra: Client) => void;
+  onAddSuccess: (newMitra: Mitra) => void;
 }
 
 export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMitraDrawerProps) {
@@ -77,7 +77,7 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
         });
       }
 
-      const newMitra: Omit<Client, "id" | "updatedAt" | "createdAt" | "productsCount"> = {
+      const newMitra: Omit<Mitra, "id" | "updatedAt" | "createdAt" | "productsCount"> = {
         name: addMitraName,
         corp: addMitraCorp,
         email: addMitraEmail,
@@ -94,7 +94,7 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
         favorite: false,
       };
 
-      const res = await addClient(newMitra);
+      const res = await addMitra(newMitra);
       if (res.success) {
         if (!res.productId) {
           throw new Error("Product ID was not returned from the server.");

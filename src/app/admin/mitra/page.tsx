@@ -1,5 +1,5 @@
 
-import { getAllClients } from "@/lib/actions/client";
+import { getAllMitra } from "@/lib/actions/mitra";
 import MitraClient from "./_components/MitraClient";
 import { Suspense } from "react";
 import Loading from "@/components/loading";
@@ -7,10 +7,10 @@ import Loading from "@/components/loading";
 export const dynamic = "force-dynamic";
 
 async function ClientListSection() {
-  const result = await getAllClients();
-  const initialClient = result.clients ?? [];
+  const result = await getAllMitra();
+  const initialMitra = result.mitra ?? [];
 
-  return <MitraClient initialClient={initialClient} />;
+  return <MitraClient initialMitra={initialMitra} />;
 }
 
 export default async function AdminPengaturanPage() {

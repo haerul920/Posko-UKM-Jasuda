@@ -3,16 +3,16 @@ import { X, Image as ImageIcon, Check, Loader2, Store } from "lucide-react";
 import { addNewProduct } from "@/lib/actions/product";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
 import { Product } from "@/lib/actions/product";
-import type { ClientSelectOption } from "@/lib/actions/client";
+import type { MitraSelectOption } from "@/lib/actions/mitra";
 
 interface AddProductDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  clients?: ClientSelectOption[];
+  mitra?: MitraSelectOption[];
   onAddSuccess?: (productId: string, product: Omit<Product, "id" | "createdAt" | "updatedAt">) => void;
 }
 
-export default function AddProductDrawer({ isOpen, onClose, clients = [], onAddSuccess }: AddProductDrawerProps) {
+export default function AddProductDrawer({ isOpen, onClose, mitra = [], onAddSuccess }: AddProductDrawerProps) {
   // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -86,7 +86,7 @@ export default function AddProductDrawer({ isOpen, onClose, clients = [], onAddS
       const corpName =
         storeId === "jasuda"
           ? "Jasuda"
-          : clients.find((c) => c.id === storeId)?.corp ?? storeId;
+          : mitra.find((c) => c.id === storeId)?.corp ?? storeId;
 
       const productPayload = {
         name,
@@ -237,9 +237,9 @@ export default function AddProductDrawer({ isOpen, onClose, clients = [], onAddS
                       >
                         {/* Jasuda is always first — hardcoded, not from client DB */}
                         <option value="jasuda">⭐ Jasuda (Internal)</option>
-                        {clients.length > 0 && (
+                        {mitra.length > 0 && (
                           <optgroup label="─── Mitra / Klien ───">
-                            {clients.map((c) => (
+                            {mitra.map((c) => (
                               <option key={c.id} value={c.id}>
                                 {c.name}{c.corp ? ` — ${c.corp}` : ""}
                               </option>
@@ -248,7 +248,7 @@ export default function AddProductDrawer({ isOpen, onClose, clients = [], onAddS
                         )}
                       </select>
                     </div>
-                    {storeId !== "jasuda" && clients.length === 0 && (
+                    {storeId !== "jasuda" && mitra.length === 0 && (
                       <p className="text-xs text-slate-400 mt-1.5 font-medium">
                         Belum ada data klien. Tambah klien di menu Mitra terlebih dahulu.
                       </p>

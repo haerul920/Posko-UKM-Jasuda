@@ -84,8 +84,8 @@ export default function InventarisTable({
                                 <tr
                                     key={product.id}
                                     className={`hover:bg-slate-50/80 transition-colors duration-300 group ${favorites.includes(product.id)
-                                            ? "bg-amber-50/30"
-                                            : ""
+                                        ? "bg-amber-50/30"
+                                        : ""
                                         }`}
                                 >
                                     {/* Row number */}

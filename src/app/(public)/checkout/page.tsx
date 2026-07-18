@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import GlobalHeader from "@/components/shared/GlobalHeader";
+import { paymentProduct } from "@/lib/actions/payment";
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart, addToCart, updateQuantity } = useStore();
@@ -77,6 +78,19 @@ export default function CheckoutPage() {
       clearCart();
     }
   };
+
+  // const checkout = async () => {
+  //   const data = {
+  //     id: product.id,
+  //     productName: product.name,
+  //     price: product.price,
+  //     quantity,
+  //   };
+
+  //   const requestData = await paymentProduct()
+
+  //   window.snap.pay(requestData.token);
+  // };
 
   const grandTotal = cartTotal;
 
@@ -224,11 +238,10 @@ export default function CheckoutPage() {
                 <div className="flex flex-col gap-4">
                   {/* BCA Virtual Account */}
                   <div
-                    className={`border rounded-2xl p-4 transition-all duration-300 ${
-                      paymentMethod === "bca"
-                        ? "border-primary bg-primary/5"
-                        : "border-outline-variant/20 hover:bg-surface-container-low/50 cursor-pointer"
-                    }`}
+                    className={`border rounded-2xl p-4 transition-all duration-300 ${paymentMethod === "bca"
+                      ? "border-primary bg-primary/5"
+                      : "border-outline-variant/20 hover:bg-surface-container-low/50 cursor-pointer"
+                      }`}
                     onClick={() => setPaymentMethod("bca")}
                   >
                     <div className="flex justify-between items-center mb-2">
@@ -297,11 +310,10 @@ export default function CheckoutPage() {
 
                   {/* QRIS Option */}
                   <div
-                    className={`border rounded-2xl p-4 transition-all duration-300 ${
-                      paymentMethod === "qris"
-                        ? "border-primary bg-primary/5"
-                        : "border-outline-variant/20 hover:bg-surface-container-low/50 cursor-pointer"
-                    }`}
+                    className={`border rounded-2xl p-4 transition-all duration-300 ${paymentMethod === "qris"
+                      ? "border-primary bg-primary/5"
+                      : "border-outline-variant/20 hover:bg-surface-container-low/50 cursor-pointer"
+                      }`}
                     onClick={() => setPaymentMethod("qris")}
                   >
                     <div className="flex justify-between items-center mb-2">
