@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { X, Camera, Check, Loader2 } from "lucide-react";
 import { addMitra, Mitra } from "@/lib/actions/mitra";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
+import { useStore } from "@/components/context/StoreContext";
 
 interface AddMitraDrawerProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface AddMitraDrawerProps {
 }
 
 export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMitraDrawerProps) {
+  const { user, role } = useStore();
   // Add Form State
   const [addMitraImg, setAddMitraImg] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -94,7 +96,11 @@ export default function AddMitraDrawer({ isOpen, onClose, onAddSuccess }: AddMit
         favorite: false,
       };
 
-      const res = await addMitra(newMitra);
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
+      const res = await addMitra(newMitra, actor);
       if (res.success) {
         if (!res.productId) {
           throw new Error("Product ID was not returned from the server.");

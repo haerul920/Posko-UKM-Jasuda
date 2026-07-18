@@ -4,6 +4,7 @@ import { addNewProduct } from "@/lib/actions/product";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
 import { Product } from "@/lib/actions/product";
 import type { MitraSelectOption } from "@/lib/actions/mitra";
+import { useStore } from "@/components/context/StoreContext";
 
 interface AddProductDrawerProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface AddProductDrawerProps {
 }
 
 export default function AddProductDrawer({ isOpen, onClose, mitra = [], onAddSuccess }: AddProductDrawerProps) {
+  const { user, role } = useStore();
   // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -102,7 +104,10 @@ export default function AddProductDrawer({ isOpen, onClose, mitra = [], onAddSuc
         ...(storeId !== "jasuda" && { commission: parseFloat(commission) }),
       };
 
-      const res = await addNewProduct(productPayload as any);
+      const res = await addNewProduct(
+        productPayload as any,
+        user ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" } : undefined,
+      );
       if (!res.success || !res.productId) {
         throw new Error(res.error || "Gagal menambahkan produk.");
       }

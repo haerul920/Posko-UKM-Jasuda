@@ -3,6 +3,7 @@
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { revalidatePath } from "next/cache";
 import { FieldValue } from "firebase-admin/firestore";
+import { logActivity, type ActivityActor } from "@/lib/actions/activity-log";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,6 +52,7 @@ interface UpdateStaffInput {
 
 export async function registerStaffUser(
     input: RegisterStaffInput,
+    actor?: ActivityActor,
 ): Promise<{ success: true; uid: string } | { success: false; error: string }> {
     try {
         // 1. Create the Firebase Auth user
@@ -80,6 +82,17 @@ export async function registerStaffUser(
             });
 
         revalidatePath("/admin/pengaturan");
+
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "CREATE_STAFF",
+                module: "Staf",
+                description: `Menambah pengelola baru "${input.displayName}" (${input.role})`,
+                targetId: userRecord.uid,
+                targetName: input.displayName,
+            });
+        }
 
         return { success: true, uid: userRecord.uid };
     } catch (err: unknown) {
@@ -155,6 +168,7 @@ export async function getStaffUsers(): Promise<
 export async function updateStaffUser(
     uid: string,
     input: UpdateStaffInput,
+    actor?: ActivityActor,
 ): Promise<{ success: true } | { success: false; error: string }> {
     try {
         // Update Firebase Auth display name if provided
@@ -180,6 +194,17 @@ export async function updateStaffUser(
 
         revalidatePath("/admin/pengaturan");
 
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "UPDATE_STAFF",
+                module: "Staf",
+                description: `Memperbarui data pengelola "${input.displayName ?? uid}"`,
+                targetId: uid,
+                targetName: input.displayName,
+            });
+        }
+
         return { success: true };
     } catch (err: unknown) {
         const message =
@@ -195,12 +220,25 @@ export async function updateStaffUser(
 
 export async function deleteStaffUser(
     uid: string,
+    actor?: ActivityActor,
+    staffName?: string,
 ): Promise<{ success: true } | { success: false; error: string }> {
     try {
         await adminAuth.deleteUser(uid);
         await adminDb.collection("users").doc(uid).delete();
 
         revalidatePath("/admin/pengaturan");
+
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "DELETE_STAFF",
+                module: "Staf",
+                description: `Menghapus pengelola "${staffName ?? uid}"`,
+                targetId: uid,
+                targetName: staffName,
+            });
+        }
 
         return { success: true };
     } catch (err: unknown) {

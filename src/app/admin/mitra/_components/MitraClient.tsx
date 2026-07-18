@@ -16,12 +16,14 @@ import { format } from 'date-fns'
 import PaginationControls from "@/components/Pagination";
 import TableActionButtons from "@/components/TableActionButtons";
 import MitraDetailSidebar from "@/app/admin/mitra/_components/MitraDetailSidebar";
+import { useStore } from "@/components/context/StoreContext";
 
 interface Props {
     initialMitra: Mitra[];
 }
 
 export default function Mitramitra({ initialMitra }: Props) {
+    const { user, role } = useStore();
     const [mitra, setmitra] = useState<Mitra[]>(initialMitra);
 
 
@@ -58,7 +60,11 @@ export default function Mitramitra({ initialMitra }: Props) {
     );
 
     const handleDeleteMitra = async (mitraId: string) => {
-        const result = await deleteMitra(mitraId);
+        const mitraToDelete = mitra.find((m) => m.id === mitraId);
+        const actor = user
+            ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+            : undefined;
+        const result = await deleteMitra(mitraId, actor, mitraToDelete?.name);
 
         if (result.success) {
             setmitra((prevMitra) =>

@@ -3,6 +3,7 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
+import { logActivity, type ActivityActor } from "@/lib/actions/activity-log";
 
 export interface Mitra {
     id: string;
@@ -104,7 +105,7 @@ export async function getMitraForSelect(): Promise<
 > {
     try {
         const snapshot = await adminDb
-            .collection("mitras")
+            .collection("mitra")
             .orderBy("name", "asc")
             .get();
 
@@ -128,6 +129,7 @@ export async function getMitraForSelect(): Promise<
 
 export async function addMitra(
     mitraData: Omit<Mitra, "id" | "createdAt" | "updatedAt" | "productsCount">,
+    actor?: ActivityActor,
 ) {
     try {
         const mitraRef = adminDb.collection("mitra");
@@ -139,6 +141,17 @@ export async function addMitra(
         });
 
         revalidatePath("/admin/mitra");
+
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "CREATE_MITRA",
+                module: "Mitra",
+                description: `Menambah mitra baru "${mitraData.name}" (${mitraData.corp})`,
+                targetId: docRef.id,
+                targetName: mitraData.name,
+            });
+        }
 
         return {
             success: true,
@@ -159,6 +172,7 @@ export async function updateMitra(
     data: Partial<
         Omit<Mitra, "id" | "favorite" | "createdAt" | "productsCount">
     >,
+    actor?: ActivityActor,
 ) {
     try {
         const mitraRef = adminDb.collection("mitra").doc(mitraId);
@@ -167,6 +181,17 @@ export async function updateMitra(
             ...data,
             updatedAt: FieldValue.serverTimestamp(),
         });
+
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "UPDATE_MITRA",
+                module: "Mitra",
+                description: `Memperbarui data mitra "${data.name ?? mitraId}"`,
+                targetId: mitraId,
+                targetName: data.name,
+            });
+        }
 
         return {
             success: true,
@@ -181,11 +206,26 @@ export async function updateMitra(
     }
 }
 
-export async function deleteMitra(mitraId: string) {
+export async function deleteMitra(
+    mitraId: string,
+    actor?: ActivityActor,
+    mitraName?: string,
+) {
     try {
         const mitraRef = adminDb.collection("mitra").doc(mitraId);
 
         await mitraRef.delete();
+
+        if (actor) {
+            await logActivity({
+                actor,
+                action: "DELETE_MITRA",
+                module: "Mitra",
+                description: `Menghapus mitra "${mitraName ?? mitraId}"`,
+                targetId: mitraId,
+                targetName: mitraName,
+            });
+        }
 
         return {
             success: true,

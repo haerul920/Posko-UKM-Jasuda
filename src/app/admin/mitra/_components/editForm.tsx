@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { X, Camera, Check, Loader2 } from "lucide-react";
 import { Mitra, updateMitra } from "@/lib/actions/mitra";
 import { uploadFileToStorage } from "@/lib/firebase/storage";
+import { useStore } from "@/components/context/StoreContext";
 
 interface EditMitraDrawerProps {
   mitra: Mitra | undefined;
@@ -11,6 +12,7 @@ interface EditMitraDrawerProps {
 }
 
 export default function EditMitraDrawer({ mitra, isOpen, onClose, onEditSuccess }: EditMitraDrawerProps) {
+  const { user, role } = useStore();
   // Edit Form State
   const [editMitraImg, setEditMitraImg] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -96,7 +98,11 @@ export default function EditMitraDrawer({ mitra, isOpen, onClose, onEditSuccess 
         googleMapsLink: editMitraGoogleMapsLink,
       };
 
-      const res = await updateMitra(mitra.id, updatedData);
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
+      const res = await updateMitra(mitra.id, updatedData, actor);
       if (res.success) {
         onEditSuccess({
           ...mitra,

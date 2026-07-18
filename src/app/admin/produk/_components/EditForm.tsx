@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { X, Image as ImageIcon, Check, Trash2, Loader2, Store } from "lucide-react";
-import { updateProduct } from "@/lib/actions/product";
+import { updateProduct, deleteProduct } from "@/lib/actions/product";
 import type { Product } from "@/lib/actions/product";
 import type { MitraSelectOption } from "@/lib/actions/mitra";
+import { useStore } from "@/components/context/StoreContext";
 
 interface EditProductDrawerProps {
   product: Product | null;
@@ -21,6 +22,7 @@ export default function EditProductDrawer({
   onEditSuccess,
   onDeleteSuccess,
 }: EditProductDrawerProps) {
+  const { user, role } = useStore();
   // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -81,9 +83,13 @@ export default function EditProductDrawer({
     };
 
     try {
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
       // Try to save to Firestore. If it's a mock product, it might fail or we can catch it.
       if (product.id && !product.id.startsWith("JSD-") && !product.id.startsWith("TNT-")) {
-        await updateProduct(product.id, updatedPayload as any);
+        await updateProduct(product.id, updatedPayload as any, actor);
       }
 
       if (onEditSuccess) {
@@ -103,6 +109,10 @@ export default function EditProductDrawer({
   const handleDelete = () => {
     if (!product || !product.id) return;
     if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+      deleteProduct(product.id, actor, product.name).catch(console.error);
       if (onDeleteSuccess) {
         onDeleteSuccess(product.id);
       }

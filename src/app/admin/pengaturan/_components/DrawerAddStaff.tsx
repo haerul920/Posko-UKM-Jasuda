@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import { X, Check, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { registerStaffUser } from "@/lib/actions/staff";
 import type { StaffRole, StaffUser } from "@/lib/actions/staff";
+import { useStore } from "@/components/context/StoreContext";
 
 interface Props {
   isOpen: boolean;
@@ -39,6 +40,7 @@ const DEFAULT_FORM: FormState = {
 };
 
 export default function DrawerAddStaff({ isOpen, onClose, onSuccess }: Props) {
+  const { user, role } = useStore();
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,10 @@ export default function DrawerAddStaff({ isOpen, onClose, onSuccess }: Props) {
     setError(null);
 
     startTransition(async () => {
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
       const result = await registerStaffUser({
         displayName: form.displayName,
         email: form.email,
@@ -69,7 +75,7 @@ export default function DrawerAddStaff({ isOpen, onClose, onSuccess }: Props) {
         address: form.address,
         birthPlace: form.birthPlace,
         birthDate: form.birthDate,
-      });
+      }, actor);
 
       if (!result.success) {
         setError(result.error);

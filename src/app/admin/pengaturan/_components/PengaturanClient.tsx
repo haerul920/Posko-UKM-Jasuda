@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { UserPlus, Info } from "lucide-react";
 import { deleteStaffUser, toggleStaffFavorite } from "@/lib/actions/staff";
 import type { StaffUser } from "@/lib/actions/staff";
+import { useStore } from "@/components/context/StoreContext";
 
 import StaffTable from "./StaffTable";
 import DrawerAddStaff from "./DrawerAddStaff";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function PengaturanClient({ initialStaff }: Props) {
+  const { user, role } = useStore();
   const [staffList, setStaffList] = useState<StaffUser[]>(initialStaff);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,8 +58,13 @@ export default function PengaturanClient({ initialStaff }: Props) {
 
   const [, startDeleteTransition] = useTransition();
   const handleDeleteFromTable = (uid: string) => {
+    const staffToDelete = staffList.find((s) => s.uid === uid);
     startDeleteTransition(async () => {
-      const result = await deleteStaffUser(uid);
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
+      const result = await deleteStaffUser(uid, actor, staffToDelete?.displayName);
       if (result.success) {
         setStaffList((prev) => prev.filter((s) => s.uid !== uid));
       }

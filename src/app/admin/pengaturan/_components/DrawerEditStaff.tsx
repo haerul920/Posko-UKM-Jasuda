@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import { X, Check, Loader2, AlertCircle } from "lucide-react";
 import { updateStaffUser } from "@/lib/actions/staff";
 import type { StaffRole, StaffUser } from "@/lib/actions/staff";
+import { useStore } from "@/components/context/StoreContext";
 
 interface Props {
   staff: StaffUser | null;
@@ -17,6 +18,7 @@ const INPUT_CLASS =
 const LABEL_CLASS = "block text-sm font-bold text-slate-900 mb-1.5";
 
 export default function DrawerEditStaff({ staff, onClose, onUpdated }: Props) {
+  const { user, role } = useStore();
   const isOpen = !!staff;
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -43,6 +45,10 @@ export default function DrawerEditStaff({ staff, onClose, onUpdated }: Props) {
     setError(null);
 
     startTransition(async () => {
+      const actor = user
+        ? { actorId: user.uid, actorName: user.displayName ?? user.email ?? "Unknown", actorRole: role ?? "admin" }
+        : undefined;
+
       const result = await updateStaffUser(staff.uid, {
         displayName: merged?.displayName,
         role: merged?.role,
@@ -50,7 +56,7 @@ export default function DrawerEditStaff({ staff, onClose, onUpdated }: Props) {
         address: merged?.address,
         birthPlace: merged?.birthPlace,
         birthDate: merged?.birthDate,
-      });
+      }, actor);
 
       if (!result.success) {
         setError(result.error);
