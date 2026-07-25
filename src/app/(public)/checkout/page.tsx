@@ -97,7 +97,7 @@ export default function CheckoutPage() {
   if (orderPlaced) {
     return (
       <div className="flex-1 flex flex-col min-h-screen">
-        <GlobalHeader storeName="Posko Jasuda" />
+        <GlobalHeader storeName="Posko UKM Jasuda" />
         <div className="flex-1 flex items-center justify-center p-6 bg-surface">
           <div className="max-w-md w-full glass-panel rounded-3xl p-8 text-center border border-white/50 shadow-2xl flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-secondary-container text-secondary flex items-center justify-center mb-2">
@@ -133,7 +133,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-surface-bright flex flex-col font-body-md selection:bg-primary/20 selection:text-primary">
       {/* Unified Global Header */}
-      <GlobalHeader storeName="Posko Jasuda" />
+      <GlobalHeader storeName="Posko UKM Jasuda" />
 
       {/* Checkout Content */}
       <main className="grow max-w-3xl mx-auto w-full px-6 py-12 flex flex-col gap-8">

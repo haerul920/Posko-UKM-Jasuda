@@ -8,7 +8,7 @@ import GlobalHeader from "@/components/shared/GlobalHeader";
 export default function NotFound() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-surface">
-      <GlobalHeader storeName="Jasuda Premium" />
+      <GlobalHeader storeName="Posko UKM Jasuda" />
       
       <main className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
         {/* Background elements */}

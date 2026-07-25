@@ -39,7 +39,7 @@ export default function JasudaAllProducts() {
       price: parseInt(product.price.replace(/\D/g, "")),
       image: product.image,
       unit: "Kemasan Standar",
-      seller: "Jasuda Premium",
+      seller: "Posko UKM Jasuda",
     });
   };
 
@@ -47,7 +47,7 @@ export default function JasudaAllProducts() {
 
   return (
     <div className="flex-1 flex flex-col min-h-screen">
-      <ActiveNavigation isPremium={true} storeName="Jasuda Premium" />
+      <ActiveNavigation isPremium={true} storeName="Posko UKM Jasuda" />
 
       {isHeaderOnlyNav ? (
         <main id="jasuda-products-main" className="flex-1 w-full bg-surface pb-24">

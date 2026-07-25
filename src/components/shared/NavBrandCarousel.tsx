@@ -10,7 +10,7 @@ interface NavProps {
   isPremium?: boolean;
 }
 
-export default function NavBrandCarousel({ storeName = "OceanicMarket", isPremium = false }: NavProps) {
+export default function NavBrandCarousel({ storeName = "Posko UKM Jasuda", isPremium = false }: NavProps) {
   const { cartCount } = useStore();
 
   const brandLogos = [
@@ -31,17 +31,13 @@ export default function NavBrandCarousel({ storeName = "OceanicMarket", isPremiu
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
-                isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
-              }`}>
-                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
-              </span>
+              <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-8 h-8 rounded-full object-cover shadow-xs border border-slate-200/50" />
               <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
                 isPremium 
                   ? 'bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent' 
                   : 'text-primary'
               }`}>
-                {isPremium ? "Jasuda Premium" : storeName}
+                {isPremium ? "Jasuda" : storeName}
               </span>
             </Link>
           </div>

@@ -16,7 +16,7 @@ import ActiveNavigation from "@/components/shared/ActiveNavigation";
 export default function KontakPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
-      <ActiveNavigation storeName="Posko Jasuda" />
+      <ActiveNavigation storeName="Posko UKM Jasuda" />
       <main className="grow pt-16 pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
         {/* Background Decorations */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">

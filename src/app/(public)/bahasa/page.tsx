@@ -15,7 +15,7 @@ export default function BahasaPage() {
 
   return (
     <div className="min-h-screen bg-surface-bright flex flex-col font-body-md selection:bg-primary/20 selection:text-primary">
-      <GlobalHeader storeName="Posko Jasuda" />
+      <GlobalHeader storeName="Posko UKM Jasuda" />
 
       <main className="grow max-w-3xl mx-auto w-full px-6 py-12 flex flex-col gap-8">
         <div>

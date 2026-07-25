@@ -86,7 +86,7 @@ export default function SignupPage() {
         
         <div className="w-full max-w-md z-10 bg-white/70 backdrop-blur-xl border border-white/40 p-6 lg:p-8 rounded-2xl shadow-xl flex flex-col">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-primary tracking-tight mb-1">Posko Jasuda</h2>
+            <h2 className="text-2xl font-bold text-primary tracking-tight mb-1">Posko UKM Jasuda</h2>
             <p className="text-xs text-on-surface-variant">Buat akun Anda untuk memulai</p>
           </div>
 

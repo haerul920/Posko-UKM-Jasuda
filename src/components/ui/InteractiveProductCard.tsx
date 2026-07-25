@@ -80,7 +80,7 @@ export default function InteractiveProductCard({
       price: 25.00,
       image: imageSrc,
       unit: "1 Pack",
-      seller: "Jasuda Premium"
+      seller: "Posko UKM Jasuda"
     });
   };
 

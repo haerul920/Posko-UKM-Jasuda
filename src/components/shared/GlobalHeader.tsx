@@ -23,7 +23,7 @@ interface HeaderProps {
 }
 
 export default function GlobalHeader({
-  storeName = "Posko Jasuda",
+  storeName = "Posko UKM Jasuda",
   isPremium = false,
 }: HeaderProps) {
   const { cartCount, isLoggedIn, isAdmin, isEditor, logout } = useStore();
@@ -54,21 +54,14 @@ export default function GlobalHeader({
         {/* Left Side: Logo & Search */}
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="flex items-center gap-2 group">
-            <span
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${isPremium
-                ? "bg-linear-to-br from-primary to-secondary"
-                : "bg-primary"
-                }`}
-            >
-              <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
-            </span>
+            <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-8 h-8 rounded-full object-cover shadow-xs border border-slate-200/50" />
             <span
               className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 hidden sm:block ${isPremium
                 ? "bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent"
                 : "text-primary"
                 }`}
             >
-              {isPremium ? "Jasuda Premium" : "Posko Jasuda"}
+              {storeName || "Posko UKM Jasuda"}
             </span>
           </Link>
 
@@ -116,106 +109,89 @@ export default function GlobalHeader({
           </MagneticButton>
 
           {isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <Link
-                href="/checkout"
-                className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center"
-              >
-                <motion.div
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 2,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                </motion.div>
-                <AnimatePresence>
-                  {cartCount > 0 && (
-                    <motion.span
-                      key={cartCount}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 10,
-                      }}
-                      className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
-                    >
-                      {cartCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
-
-              <div className="relative" ref={profileMenuRef}>
-                <div
-                  className="w-8 h-8 rounded-full border border-outline-variant overflow-hidden cursor-pointer shadow-sm hover:border-primary transition-colors"
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                >
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuASY8N_y3WZ4Bae61cgncAZPM-aR6DOTbqmQe6UKxLMkqkxP8AKyTuKynNzdsADYNEWtQo1IZMnrwGF8ItkjcLfpeND5LU7w-2kpNzZCCtJEoJwqUCWqKmh-jOYGbCeoSXmQfL4h0dHAxuICBHlQKsjH4ce0veD0LYLeJGT-sZWOZ95rVGR0Qjra8MuNR9EvzrDrRTRsJpt_zUgQc8JMGKSv__90fmhP0pzvLN2fAsZtzs9mmiRJXPQaw"
-                    alt="Profil Pengguna"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Profile Popup */}
-                {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-outline-variant/30 rounded-xl shadow-lg py-2 flex flex-col z-50 animate-in fade-in slide-in-from-top-2">
-                    {isAdmin && (
-                      <Link href="/admin" className="flex items-center gap-3 px-4 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-colors text-left w-full border-b border-outline-variant/20 mb-1 pb-3">
-                        <Shield className="w-4 h-4 text-primary" />
-                        Admin Panel
-                      </Link>
-                    )}
-                    {isEditor && (
-                      <Link href="/admin/pesanan" className="flex items-center gap-3 px-4 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-colors text-left w-full border-b border-outline-variant/20 mb-1 pb-3">
-                        <Shield className="w-4 h-4 text-primary" />
-                        Admin Panel
-                      </Link>
-                    )}
-                    <Link href="/pengaturan" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
-                      <Settings className="w-4 h-4 text-outline" />
-                      Pengaturan
-                    </Link>
-                    <Link href="/bahasa" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
-                      <Globe className="w-4 h-4 text-outline" />
-                      Bahasa
-                    </Link>
-                    <div className="w-full h-px bg-outline-variant/30 my-1"></div>
-                    <button
-                      onClick={() => logout()}
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-error hover:bg-red-50 hover:text-red-600 transition-colors text-left w-full group cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4 group-hover:text-red-600 transition-colors" />
-                      Keluar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              {/* <MagneticButton>
+            (isAdmin || isEditor) ? (
+              <MagneticButton>
                 <Link
-                  href="/login"
-                  className="text-xs font-bold text-primary hover:text-primary-container px-3 py-1.5 transition-colors"
-                >
-                  Masuk
-                </Link>
-              </MagneticButton> */}
-              {/* <MagneticButton>
-                <Link
-                  href="/signup"
+                  href={isEditor ? "/admin/pesanan" : "/admin"}
                   className="text-xs font-bold text-white bg-secondary hover:bg-secondary-container hover:text-on-secondary-container px-4 py-2 rounded-lg transition-all shadow-sm block"
                 >
-                  Daftar
+                  Admin
                 </Link>
-              </MagneticButton> */}
+              </MagneticButton>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/checkout"
+                  className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center"
+                >
+                  <motion.div
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 2,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                  </motion.div>
+                  <AnimatePresence>
+                    {cartCount > 0 && (
+                      <motion.span
+                        key={cartCount}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 10,
+                        }}
+                        className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
+                      >
+                        {cartCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+
+                <div className="relative" ref={profileMenuRef}>
+                  <div
+                    className="w-8 h-8 rounded-full border border-outline-variant overflow-hidden cursor-pointer shadow-sm hover:border-primary transition-colors"
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  >
+                    <img
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuASY8N_y3WZ4Bae61cgncAZPM-aR6DOTbqmQe6UKxLMkqkxP8AKyTuKynNzdsADYNEWtQo1IZMnrwGF8ItkjcLfpeND5LU7w-2kpNzZCCtJEoJwqUCWqKmh-jOYGbCeoSXmQfL4h0dHAxuICBHlQKsjH4ce0veD0LYLeJGT-sZWOZ95rVGR0Qjra8MuNR9EvzrDrRTRsJpt_zUgQc8JMGKSv__90fmhP0pzvLN2fAsZtzs9mmiRJXPQaw"
+                      alt="Profil Pengguna"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Profile Popup */}
+                  {showProfileMenu && (
+                    <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-outline-variant/30 rounded-xl shadow-lg py-2 flex flex-col z-50 animate-in fade-in slide-in-from-top-2">
+                      <Link href="/pengaturan" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
+                        <Settings className="w-4 h-4 text-outline" />
+                        Pengaturan
+                      </Link>
+                      <Link href="/bahasa" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
+                        <Globe className="w-4 h-4 text-outline" />
+                        Bahasa
+                      </Link>
+                      <div className="w-full h-px bg-outline-variant/30 my-1"></div>
+                      <button
+                        onClick={() => logout()}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-error hover:bg-red-50 hover:text-red-600 transition-colors text-left w-full group cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4 group-hover:text-red-600 transition-colors" />
+                        Keluar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="flex items-center gap-2">
               <MagneticButton>
                 <Link
                   href="/login"

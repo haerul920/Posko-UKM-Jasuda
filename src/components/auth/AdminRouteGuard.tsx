@@ -38,11 +38,12 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
     }
   }, [isLoggedIn, isAdmin, isEditor, loading, router, isRestrictedForEditor]);
 
-  // Show nothing while loading or redirecting
+  // Show skeleton while loading or redirecting
   if (loading || !isLoggedIn || (!isAdmin && !isEditor) || isRestrictedForEditor) {
     return (
-      <div className="h-screen">
-        <Loading title='Meriksa otorisasi' />
+      <div className="w-full h-full p-6 animate-pulse flex flex-col gap-6">
+        <div className="h-8 w-48 bg-slate-200 rounded-lg"></div>
+        <div className="h-64 bg-slate-100 rounded-2xl"></div>
       </div>
     );
   }

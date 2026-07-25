@@ -4,7 +4,7 @@ import { StoreProvider } from "@/components/context/StoreContext";
 import ClientFooter from "@/components/shared/ClientFooter";
 
 export const metadata: Metadata = {
-  title: "Jasuda Marketplace | B2B/B2C Sustainable Marine Platform",
+  title: "Posko UKM Jasuda | B2B/B2C Sustainable Marine Platform",
   description: "Enterprise-grade multi-vendor seaweed and marine commodity marketplace powered by the Jasuda network.",
 };
 

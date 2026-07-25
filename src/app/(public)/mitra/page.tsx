@@ -168,7 +168,7 @@ function InfiniteCarousel() {
 export default function TenantDirectoryPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-surface">
-      <ActiveNavigation isPremium={false} storeName="Posko Jasuda" />
+      <ActiveNavigation isPremium={false} storeName="Posko UKM Jasuda" />
 
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden">

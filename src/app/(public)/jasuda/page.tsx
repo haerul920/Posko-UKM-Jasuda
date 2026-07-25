@@ -52,7 +52,7 @@ export default function JasudaStore() {
       image:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuC8eyCvqCqC_TmP3jEq3wL1-d0e6koXCzZ00XER1IqzbrF9BXnNNKWSz3pUguftUDvN9_bwnEqGWFdlC2F6nw0XKxAy7eq7dZ5cTSlbw9jLOlB262fgunkpMNTFcVKLhzMlqtsjHVqQK9izWFEDGcNRZv19DqIrr_yexwMSscJgUxTIYtvV5bfegClIiM9Nr2oA8y5gNkNRusVuop6aNWcpsCpITJZ0tXlQP-_IKNxj98eWim4mOloJRw",
       unit: "Kemasan 500g",
-      seller: "Jasuda Premium",
+      seller: "Posko UKM Jasuda",
     });
   };
 
@@ -111,7 +111,7 @@ export default function JasudaStore() {
 
   return (
     <div className="flex-1 flex flex-col min-h-screen">
-      <ActiveNavigation isPremium={true} storeName="Jasuda Premium" />
+      <ActiveNavigation isPremium={true} storeName="Posko UKM Jasuda" />
 
       {isHeaderOnlyNav ? (
         <main id="jasuda-main-content" className="flex-1 w-full relative bg-surface">
