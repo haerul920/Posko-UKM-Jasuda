@@ -120,7 +120,7 @@ export default function JasudaStore() {
             id="3d-hero-banner"
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            className="relative w-full min-h-[640px] flex items-center overflow-hidden"
+            className="relative w-full min-h-160 flex items-center overflow-hidden"
           >
             <div className="absolute inset-0 z-0">
               <div
@@ -134,7 +134,7 @@ export default function JasudaStore() {
 
             {/* Fluid gradient orb tracking cursor */}
             <motion.div
-              className="absolute w-[500px] h-[500px] bg-secondary-container rounded-full blur-[120px] opacity-20 pointer-events-none z-0"
+              className="absolute w-125 h-125 bg-secondary-container rounded-full blur-[120px] opacity-20 pointer-events-none z-0"
               style={{
                 x: smoothX,
                 y: smoothY,
@@ -143,7 +143,7 @@ export default function JasudaStore() {
               }}
             />
 
-            <div className="relative z-10 max-w-[1280px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-16">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-16">
               <motion.div
                 className="lg:col-span-6 flex flex-col gap-6"
                 variants={containerVariants}
@@ -197,7 +197,7 @@ export default function JasudaStore() {
 
               {/* Graphical floating cards layout with 3D Tilt */}
               <div
-                className="lg:col-span-6 relative h-[420px] hidden lg:block select-none"
+                className="lg:col-span-6 relative h-105 hidden lg:block select-none"
                 style={{ perspective: 1000 }}
               >
                 <motion.div
@@ -240,7 +240,7 @@ export default function JasudaStore() {
           </section>
 
           {/* Curated Collections Section */}
-          <section id="bento-grid-collection" className="py-16 max-w-[1280px] mx-auto px-6">
+          <section id="bento-grid-collection" className="py-16 max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
               <div className="flex flex-col gap-2">
                 <h2 className="font-bold text-2xl text-on-surface tracking-tight">
@@ -262,7 +262,7 @@ export default function JasudaStore() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-50">
               {COLLECTION_ITEMS.map((item, index) => (
                 <motion.div
                   key={index}

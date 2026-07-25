@@ -73,7 +73,7 @@ export default function TenantStorePage({ params }: PageProps) {
       <ActiveNavigation isPremium={false} storeName={tenantName} />
 
       {isHeaderOnlyNav ? (
-        <main className="flex-1 w-full max-w-[1280px] mx-auto px-6 py-12">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12">
           {/* Store Header Banner */}
           <header className="mb-12 text-center flex flex-col items-center gap-3">
             <h1 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight">{tenantName}</h1>

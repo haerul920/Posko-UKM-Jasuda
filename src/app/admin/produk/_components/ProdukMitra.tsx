@@ -19,7 +19,7 @@ import type { MitraSelectOption } from "@/lib/actions/mitra";
 import InventarisTable from "./ProdukTable";
 import AddProductDrawer from "@/app/admin/produk/_components/AddForm";
 import EditProductDrawer from "@/app/admin/produk/_components/EditForm";
-import PaginationControls from "@/components/Pagination";
+import PaginationControls from "@/components/pagination";
 
 // --- Custom Filter Dropdown ---
 function FilterDropdown({
@@ -44,7 +44,7 @@ function FilterDropdown({
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-                className={`inline-flex items-center justify-between gap-2 bg-white border rounded-xl h-10 px-4 min-w-[120px] text-sm font-semibold transition-all duration-200 shadow-sm cursor-pointer focus:outline-none ${isOpen
+                className={`inline-flex items-center justify-between gap-2 bg-white border rounded-xl h-10 px-4 min-w-30 text-sm font-semibold transition-all duration-200 shadow-sm cursor-pointer focus:outline-none ${isOpen
                     ? "border-ocean-light ring-2 ring-ocean-light/30 text-ocean-dark"
                     : "border-slate-200 text-slate-700 hover:border-slate-300"
                     }`}

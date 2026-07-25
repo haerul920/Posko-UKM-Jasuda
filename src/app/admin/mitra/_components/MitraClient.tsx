@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 
 import { deleteMitra, Mitra, toggleFavorite } from "@/lib/actions/mitra";
-import AddMitraDrawer from "@/app/admin/mitra/_components/AddForm";
-import EditMitraDrawer from "@/app/admin/mitra/_components/EditForm";
+import AddMitraDrawer from "@/app/admin/mitra/_components/addForm";
+import EditMitraDrawer from "@/app/admin/mitra/_components/editForm";
 import { format } from 'date-fns'
-import PaginationControls from "@/components/Pagination";
-import TableActionButtons from "@/components/TableActionButtons";
+import PaginationControls from "@/components/pagination";
+import TableActionButtons from "@/components/tableActionButtons";
 import MitraDetailSidebar from "@/app/admin/mitra/_components/MitraDetailSidebar";
 import { useStore } from "@/components/context/StoreContext";
 

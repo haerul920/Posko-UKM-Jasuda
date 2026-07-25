@@ -217,7 +217,7 @@ export default function AdminSettlementPage() {
               Pilih Bulan:
             </span>
             <CustomMonthSelect value={jasudaMonth} onChange={setJasudaMonth} />
-            <button className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md whitespace-nowrap h-full max-h-[38px]">
+            <button className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md whitespace-nowrap h-full max-h-9.5">
               <Download className="w-4 h-4" />
               Ekspor
             </button>
@@ -293,7 +293,7 @@ export default function AdminSettlementPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[700px]">
+            <table className="w-full text-left border-collapse min-w-175">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">
@@ -387,7 +387,7 @@ export default function AdminSettlementPage() {
               Pilih Bulan:
             </span>
             <CustomMonthSelect value={mitraMonth} onChange={setMitraMonth} />
-            <button className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md whitespace-nowrap h-full max-h-[38px]">
+            <button className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md whitespace-nowrap h-full max-h-9.5">
               <Download className="w-4 h-4" />
               Ekspor
             </button>
@@ -470,7 +470,7 @@ export default function AdminSettlementPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-200">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">

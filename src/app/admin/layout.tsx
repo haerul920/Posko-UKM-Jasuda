@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Main Content Area */}
         <div id="admin-main-wrapper" className="ml-64 flex-1 flex flex-col min-h-screen relative bg-slate-50 min-w-0">
           {/* Content Render */}
-          <main id="admin-dashboard-content" className="flex-1 p-6 max-w-[1280px] mx-auto w-full">
+          <main id="admin-dashboard-content" className="flex-1 p-6 max-w-7xl mx-auto w-full">
             {children}
           </main>
         </div>

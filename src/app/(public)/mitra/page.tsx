@@ -122,7 +122,7 @@ function InfiniteCarousel() {
   });
 
   return (
-    <section className="sticky top-[72px] z-40 bg-surface/90 backdrop-blur-md border-y border-white/30 py-4 shadow-[0_4px_20px_-10px_rgba(0,119,190,0.08)] overflow-hidden">
+    <section className="sticky top-18 z-40 bg-surface/90 backdrop-blur-md border-y border-white/30 py-4 shadow-[0_4px_20px_-10px_rgba(0,119,190,0.08)] overflow-hidden">
       <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r from-surface to-transparent z-10 pointer-events-none"></div>
       <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-surface to-transparent z-10 pointer-events-none"></div>
 
@@ -181,7 +181,7 @@ export default function TenantDirectoryPage() {
           <div className="absolute inset-0 bg-linear-to-b from-surface/80 via-surface/60 to-surface"></div>
         </div>
 
-        <div className="relative z-10 px-6 py-16 md:py-24 max-w-[1280px] mx-auto text-center flex flex-col items-center">
+        <div className="relative z-10 px-6 py-16 md:py-24 max-w-7xl mx-auto text-center flex flex-col items-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -211,7 +211,7 @@ export default function TenantDirectoryPage() {
       <InfiniteCarousel />
 
       {/* Featured Products Grid */}
-      <section className="flex-1 max-w-[1280px] mx-auto w-full px-6 py-12 md:py-16">
+      <section className="flex-1 max-w-7xl mx-auto w-full px-6 py-12 md:py-16">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-on-surface">

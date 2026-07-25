@@ -78,7 +78,7 @@ export default function LoginPage() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-fixed rounded-full mix-blend-multiply blur-3xl opacity-30 -z-10 translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary-fixed rounded-full mix-blend-multiply blur-3xl opacity-30 -z-10 -translate-x-1/2 translate-y-1/2 lg:hidden"></div>
 
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl w-full max-w-[440px] rounded-2xl p-6 lg:p-8 flex flex-col">
+        <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl w-full max-w-110 rounded-2xl p-6 lg:p-8 flex flex-col">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-on-surface mb-1">Masuk</h2>
             <p className="text-xs text-on-surface-variant">Masukkan detail Anda untuk mengakses akun.</p>

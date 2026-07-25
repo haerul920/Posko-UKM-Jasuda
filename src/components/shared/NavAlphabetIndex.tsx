@@ -59,13 +59,13 @@ export default function NavAlphabetIndex({ storeName = "OceanicMarket", isPremiu
     <div className="w-full flex flex-col min-h-screen">
       {/* Top Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
                 isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
               }`}>
-                <Waves className="w-4 h-4" />
+                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
               </span>
               <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
                 isPremium 
@@ -108,9 +108,9 @@ export default function NavAlphabetIndex({ storeName = "OceanicMarket", isPremiu
       </nav>
 
       {/* A-Z Index Directory Sidebar and Content */}
-      <div className="grow max-w-[1280px] mx-auto w-full flex flex-col md:flex-row relative">
+      <div className="grow max-w-7xl mx-auto w-full flex flex-col md:flex-row relative">
         {/* Double-Sidebar for A-Z (collapsible jump bar and list) */}
-        <aside className="w-full md:w-80 bg-surface-container-low/70 backdrop-blur-2xl border-r border-outline-variant/20 flex sticky top-[61px] h-auto md:h-[calc(100vh-61px)] overflow-hidden z-40">
+        <aside className="w-full md:w-80 bg-surface-container-low/70 backdrop-blur-2xl border-r border-outline-variant/20 flex sticky top-15.25 h-auto md:h-[calc(100vh-61px)] overflow-hidden z-40">
           
           {/* Quick-Jump Alphabet Strip */}
           <div className="w-10 bg-white/40 border-r border-outline-variant/20 flex flex-col items-center py-4 overflow-y-auto premium-scrollbar gap-1 text-[11px] font-bold text-on-surface-variant select-none shrink-0">
@@ -168,12 +168,12 @@ export default function NavAlphabetIndex({ storeName = "OceanicMarket", isPremiu
                           <li key={item.name} className="p-2 rounded-lg hover:bg-white/60 hover:translate-x-0.5 transition-all duration-300 cursor-pointer group">
                             <Link href={`/mitra/${item.slug}`} className="block">
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors truncate max-w-[150px]">{item.name}</span>
+                                <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors truncate max-w-37.5">{item.name}</span>
                                 <ChevronRight className="w-3.5 h-3.5 text-outline-variant opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                               <div className="flex justify-between items-center mt-1">
                                 <span className="text-[9px] text-outline font-medium">{item.location}</span>
-                                <span className={`px-1.5 py-0.25 rounded text-[8px] font-bold ${
+                                <span className={`px-1.5 py-px rounded text-[8px] font-bold ${
                                   item.tag === 'Red Algae' ? 'bg-red-50 text-red-600' :
                                   item.tag === 'Kelp Forest' ? 'bg-blue-50 text-blue-600' :
                                   'bg-green-50 text-green-600'
@@ -205,7 +205,7 @@ export default function NavAlphabetIndex({ storeName = "OceanicMarket", isPremiu
           {/* Bento Grid layout */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Hero Image Card */}
-            <div className="md:col-span-2 row-span-2 rounded-2xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all duration-500 min-h-[360px]">
+            <div className="md:col-span-2 row-span-2 rounded-2xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all duration-500 min-h-90">
               <div 
                 className="absolute inset-0 bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-[2s] ease-out"
                 style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOzhUW90mHD_dS65kzo0dzpnsz3JjLaJUcHg8Mn20_vqT2xIMtJYvrrNllQTBpL_RZiW9bs9j37JzNziuT6Pb5qKZSU8JxJuM8wI9mqGon3hCTgsH99yjlXJZDjODiX1zZ1BTrqRn6y9Wlz-IT2rIdlh1a7aSiTE6kIV-0edN0gnSXN0rPXcSX5aVPA-yGBPNj1_ovUgyef6hQgd69XU3nlc6ng1IwsBYudCXWEKxGWzAua6AvOgk3WQ')` }}

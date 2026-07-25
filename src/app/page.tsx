@@ -59,7 +59,7 @@ function AnimatedCounter({
   return (
     <div
       ref={containerRef}
-      className="glass-panel p-6 rounded-2xl flex flex-col justify-center items-center text-center group transition-all hover:scale-[1.02] border border-white/40 shadow-sm min-h-[220px] w-full relative overflow-hidden"
+      className="glass-panel p-6 rounded-2xl flex flex-col justify-center items-center text-center group transition-all hover:scale-[1.02] border border-white/40 shadow-sm min-h-55 w-full relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-all pointer-events-none"></div>
       <h3
@@ -72,7 +72,7 @@ function AnimatedCounter({
         {title}
       </div>
       {description && (
-        <p className="text-xs text-on-surface-variant max-w-[200px] leading-relaxed">
+        <p className="text-xs text-on-surface-variant max-w-50 leading-relaxed">
           {description}
         </p>
       )}
@@ -220,7 +220,7 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
         {duplicatedProducts.map((product, i) => (
           <div
             key={i}
-            className="w-64 h-[320px] shrink-0 bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all flex flex-col group cursor-pointer hover:-translate-y-1"
+            className="w-64 h-80 shrink-0 bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all flex flex-col group cursor-pointer hover:-translate-y-1"
           >
             <div className="h-44 relative overflow-hidden bg-surface-container shrink-0">
               <img
@@ -316,13 +316,13 @@ export default function HomeLandingPage() {
       <ActiveNavigation storeName="OceanicMarket" isPremium={false} />
 
       {isHeaderOnlyNav ? (
-        <main id="home-main-content" className="flex-1 w-full max-w-[1280px] mx-auto px-6 py-12 flex flex-col gap-12">
+        <main id="home-main-content" className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 flex flex-col gap-12">
           {/* Main Hero Section with Parallax/Fluid Bg */}
           <section
             id="home-hero-banner"
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            className="relative rounded-3xl overflow-hidden min-h-[380px] flex items-center glass-panel p-8 md:p-12 group"
+            className="relative rounded-3xl overflow-hidden min-h-95 flex items-center glass-panel p-8 md:p-12 group"
           >
             <div className="absolute inset-0 bg-linear-to-r from-surface-container-low/95 to-surface-container/60 opacity-90 z-0"></div>
 

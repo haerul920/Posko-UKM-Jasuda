@@ -1,6 +1,6 @@
 "use client";
 
-import TableActionButtons from "@/components/TableActionButtons";
+import TableActionButtons from "@/components/tableActionButtons";
 import { type StaffUser } from "@/lib/actions/staff";
 
 interface Props {

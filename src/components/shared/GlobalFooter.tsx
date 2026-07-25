@@ -14,13 +14,13 @@ import {
 export default function GlobalFooter() {
   return (
     <footer className="w-full bg-surface-dim/30 border-t border-outline-variant/20 pt-16 pb-8 mt-auto">
-      <div className="max-w-[1280px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand & Description */}
           <div className="col-span-1 md:col-span-1 flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow-sm">
-                <Waves className="w-4 h-4" />
+                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
               </span>
               <span className="font-bold text-xl text-primary tracking-tight">
                 Posko Jasuda

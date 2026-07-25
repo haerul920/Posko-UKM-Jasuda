@@ -17,7 +17,7 @@ export default function KontakPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
       <ActiveNavigation storeName="Posko Jasuda" />
-      <main className="grow pt-16 pb-24 px-6 max-w-[1280px] mx-auto w-full relative z-10">
+      <main className="grow pt-16 pb-24 px-6 max-w-7xl mx-auto w-full relative z-10">
         {/* Background Decorations */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
           <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-[#d9e3f6]/40 rounded-full blur-[100px]"></div>
@@ -102,7 +102,7 @@ export default function KontakPage() {
                   Pesan
                 </label>
                 <textarea
-                  className="w-full bg-surface-container/50 border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-outline focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all resize-none min-h-[150px]"
+                  className="w-full bg-surface-container/50 border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-outline focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all resize-none min-h-37.5"
                   id="message"
                   placeholder="Tuliskan detail pertanyaan atau kebutuhan Anda..."
                   required

@@ -19,7 +19,7 @@ import {
   FileText,
   List,
 } from "lucide-react";
-import PaginationControls from "@/components/Pagination";
+import PaginationControls from "@/components/pagination";
 
 const monthsList = [
   "Januari",
@@ -361,7 +361,7 @@ function OrderDetailsSidebar({
         className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-100 animate-in fade-in duration-300"
         onClick={onClose}
       />
-      <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-white shadow-2xl z-101 flex flex-col animate-in slide-in-from-right fade-in duration-300">
+      <div className="fixed inset-y-0 right-0 w-full md:w-112.5 bg-white shadow-2xl z-101 flex flex-col animate-in slide-in-from-right fade-in duration-300">
         <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-ocean-light/10 text-ocean-dark rounded-lg">
@@ -582,7 +582,7 @@ export default function AdminOrdersPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-collapse min-w-175">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
                 <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">

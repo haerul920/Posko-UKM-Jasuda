@@ -16,14 +16,14 @@ export default function NavMegaMenu({ storeName = "OceanicMarket", isPremium = f
 
   return (
     <header id="global-nav-mega-menu" className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-[0_10px_40px_-15px_rgba(0,119,190,0.08)]">
-      <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* Brand/Logo */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2 group">
             <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
               isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
             }`}>
-              <Waves className="w-4 h-4" />
+              <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
             </span>
             <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
               isPremium 
@@ -64,7 +64,7 @@ export default function NavMegaMenu({ storeName = "OceanicMarket", isPremium = f
 
             {/* Mega Menu Dropdown */}
             {showMega && (
-              <div className="absolute top-full right-[-150px] mt-2 w-[760px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/20 flex z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="absolute top-full -right-37.5 mt-2 w-190 bg-white rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/20 flex z-50 animate-in fade-in slide-in-from-top-2 duration-300">
                 {/* Left Promotional Banner (Jasuda) */}
                 <div className="w-5/12 relative group overflow-hidden bg-primary-container p-6 flex flex-col justify-end text-white">
                   <div 

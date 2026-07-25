@@ -1,7 +1,7 @@
 "use client";
 
 import { Store } from "lucide-react";
-import TableActionButtons from "@/components/TableActionButtons";
+import TableActionButtons from "@/components/tableActionButtons";
 import type { Product } from "@/lib/actions/product";
 
 interface InventarisTableProps {
@@ -29,7 +29,7 @@ export default function InventarisTable({
 }: InventarisTableProps) {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-200">
                 <thead>
                     <tr className="border-b border-slate-200 bg-white">
                         <th className="py-4 pl-8 pr-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-14">

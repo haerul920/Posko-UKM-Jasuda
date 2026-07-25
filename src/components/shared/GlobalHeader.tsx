@@ -50,7 +50,7 @@ export default function GlobalHeader({
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
-      <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
         {/* Left Side: Logo & Search */}
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="flex items-center gap-2 group">
@@ -60,7 +60,7 @@ export default function GlobalHeader({
                 : "bg-primary"
                 }`}
             >
-              <Waves className="w-4 h-4" />
+              <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
             </span>
             <span
               className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 hidden sm:block ${isPremium

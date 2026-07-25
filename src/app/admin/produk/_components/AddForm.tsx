@@ -132,7 +132,7 @@ export default function AddProductDrawer({ isOpen, onClose, mitra = [], onAddSuc
             onClick={onClose}
           ></div>
 
-          <div className="fixed top-0 right-0 h-full w-full sm:w-[480px] md:w-[600px] bg-white z-50 shadow-2xl flex flex-col border-l border-slate-200 animate-slide-in-right">
+          <div className="fixed top-0 right-0 h-full w-full sm:w-120 md:w-150 bg-white z-50 shadow-2xl flex flex-col border-l border-slate-200 animate-slide-in-right">
             <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">

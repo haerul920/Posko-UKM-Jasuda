@@ -54,13 +54,13 @@ export default function NavInteractiveMap({ storeName = "OceanicMarket", isPremi
     <div className="w-full flex flex-col h-screen overflow-hidden">
       {/* Top Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
                 isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
               }`}>
-                <Waves className="w-4 h-4" />
+                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
               </span>
               <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
                 isPremium 
@@ -113,7 +113,7 @@ export default function NavInteractiveMap({ storeName = "OceanicMarket", isPremi
         </div>
 
         {/* The 3D Grid */}
-        <div className="iso-grid w-[760px] h-[720px] relative border border-primary/5 rounded-[40px] shadow-2xl bg-surface-container-low/20 backdrop-blur-sm">
+        <div className="iso-grid w-190 h-180 relative border border-primary/5 rounded-[40px] shadow-2xl bg-surface-container-low/20 backdrop-blur-sm">
           {/* Grid lines */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#005e970a_1px,transparent_1px),linear-gradient(to_bottom,#005e970a_1px,transparent_1px)] bg-size-[80px_80px]"></div>
 

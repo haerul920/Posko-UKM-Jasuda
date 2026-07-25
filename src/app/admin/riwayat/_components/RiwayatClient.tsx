@@ -473,7 +473,7 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-collapse min-w-175">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
                 <th className="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">

@@ -114,13 +114,13 @@ export default function NavMasonryGrid({ storeName = "OceanicMarket", isPremium 
     <div className="w-full flex flex-col min-h-screen">
       {/* Top Navbar */}
       <nav className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
                 isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
               }`}>
-                <Waves className="w-4 h-4" />
+                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
               </span>
               <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
                 isPremium 
@@ -183,11 +183,11 @@ export default function NavMasonryGrid({ storeName = "OceanicMarket", isPremium 
       </nav>
 
       {/* Main Content Layout with Sidebar */}
-      <div className="grow max-w-[1280px] mx-auto w-full flex flex-col md:flex-row relative" ref={mainRef}>
+      <div className="grow max-w-7xl mx-auto w-full flex flex-col md:flex-row relative" ref={mainRef}>
         {/* Left Sidebar filter panel - using CSS sticky, very smooth */}
         <aside 
           ref={sidebarRef}
-          className="w-full md:w-64 bg-white/70 backdrop-blur-md border-r border-outline-variant/20 p-5 flex flex-col gap-4 sticky top-[61px] h-auto md:h-[calc(100vh-61px)] overflow-y-auto"
+          className="w-full md:w-64 bg-white/70 backdrop-blur-md border-r border-outline-variant/20 p-5 flex flex-col gap-4 sticky top-15.25 h-auto md:h-[calc(100vh-61px)] overflow-y-auto"
         >
           <div className="pb-4 border-b border-outline-variant/30 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-white shadow-sm flex items-center justify-center border border-outline-variant/10 shrink-0">

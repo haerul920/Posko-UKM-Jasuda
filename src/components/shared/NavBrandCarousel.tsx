@@ -28,13 +28,13 @@ export default function NavBrandCarousel({ storeName = "OceanicMarket", isPremiu
     <div className="w-full sticky top-0 z-50 flex flex-col">
       {/* Header Bar */}
       <header className="w-full bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${
                 isPremium ? 'bg-linear-to-br from-primary to-secondary' : 'bg-primary'
               }`}>
-                <Waves className="w-4 h-4" />
+                <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-5 h-5 object-contain" />
               </span>
               <span className={`font-bold text-lg md:text-xl tracking-tight transition-colors duration-300 ${
                 isPremium 
@@ -87,18 +87,18 @@ export default function NavBrandCarousel({ storeName = "OceanicMarket", isPremiu
 
       {/* Brand Carousel Marquee Row */}
       <section className="bg-white/90 backdrop-blur-md border-y border-outline-variant/20 py-2.5 overflow-hidden shadow-sm">
-        <div className="max-w-[1280px] mx-auto flex items-center px-6">
+        <div className="max-w-7xl mx-auto flex items-center px-6">
           <div className="flex-1 overflow-hidden relative group">
             {/* Fade gradients */}
             <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r from-surface to-transparent z-10 pointer-events-none"></div>
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-surface to-transparent z-10 pointer-events-none"></div>
             
-            <div className="animate-scroll group-hover:[animation-play-state:paused] flex gap-12 pr-12">
+            <div className="animate-scroll group-hover:paused flex gap-12 pr-12">
               {carouselItems.map((brand, index) => (
                 <Link
                   key={`${brand.name}-${index}`}
                   href="/mitra"
-                  className="flex items-center gap-3 opacity-70 hover:opacity-100 transition-all duration-300 scale-95 hover:scale-100 hover:translate-y-[-2px] cursor-pointer shrink-0"
+                  className="flex items-center gap-3 opacity-70 hover:opacity-100 transition-all duration-300 scale-95 hover:scale-100 hover:-translate-y-0.5 cursor-pointer shrink-0"
                 >
                   <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-white/50 overflow-hidden shadow-sm">
                     <img src={brand.icon} alt={brand.name} className="w-7 h-7 object-contain" />

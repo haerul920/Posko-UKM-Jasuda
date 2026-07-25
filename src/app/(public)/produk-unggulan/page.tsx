@@ -61,7 +61,7 @@ export default function ProdukUnggulanPage() {
       {isHeaderOnlyNav ? (
         <main id="unggulan-products-main" className="flex-1 w-full bg-surface pb-24">
           <section id="search-filter-section" className="relative w-full bg-surface-container-low pt-12 pb-8 border-b border-surface-variant/30">
-            <div className="max-w-[1280px] mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-6">
               <Link 
                 href="/" 
                 className="inline-flex items-center gap-1 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors mb-6"
@@ -96,7 +96,7 @@ export default function ProdukUnggulanPage() {
           </section>
 
           {/* Product Grid */}
-          <section id="product-grid-section" className="max-w-[1280px] mx-auto px-6 py-12">
+          <section id="product-grid-section" className="max-w-7xl mx-auto px-6 py-12">
             {filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-surface-variant/20 rounded-full flex items-center justify-center mb-4">
@@ -114,7 +114,7 @@ export default function ProdukUnggulanPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: (index % 4) * 0.05 }}
                   whileHover={{ scale: 1.02 }}
-                  className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-[280px]"
+                  className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
                 >
                   <img
                     src={product.image}

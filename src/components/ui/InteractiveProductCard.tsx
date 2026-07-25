@@ -110,8 +110,8 @@ export default function InteractiveProductCard({
       />
       
       {isWide ? (
-        <div className="flex flex-col md:flex-row h-full grow min-h-[240px]">
-          <div className="w-full md:w-1/2 min-h-[200px] md:min-h-full relative overflow-hidden shrink-0">
+        <div className="flex flex-col md:flex-row h-full grow min-h-60">
+          <div className="w-full md:w-1/2 min-h-50 md:min-h-full relative overflow-hidden shrink-0">
             <motion.img 
               src={imageSrc} 
               alt={title} 
@@ -150,7 +150,7 @@ export default function InteractiveProductCard({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col h-full grow p-6 justify-between relative z-10 bg-white/50 backdrop-blur-sm min-h-[240px]">
+        <div className="flex flex-col h-full grow p-6 justify-between relative z-10 bg-white/50 backdrop-blur-sm min-h-60">
           <div className="flex flex-col gap-4 text-left">
             {icon ? (
               <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
