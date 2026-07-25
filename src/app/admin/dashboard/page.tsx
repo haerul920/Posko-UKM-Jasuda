@@ -300,8 +300,8 @@ function SalesChart({
 }
 
 export default function AdminSalesPage() {
-  const [jasudaMonth, setJasudaMonth] = useState("Januari 2026");
-  const [mitraMonth, setMitraMonth] = useState("Januari 2026");
+  const [jasudaMonth, setJasudaMonth] = useState(`${monthsList[new Date().getMonth()]} ${new Date().getFullYear()}`);
+  const [mitraMonth, setMitraMonth] = useState(`${monthsList[new Date().getMonth()]} ${new Date().getFullYear()}`);
   const [jasudaChartType, setJasudaChartType] = useState<'line' | 'bar'>('line');
   const [jasudaMenuOpen, setJasudaMenuOpen] = useState(false);
   const [mitraChartType, setMitraChartType] = useState<'line' | 'bar'>('line');

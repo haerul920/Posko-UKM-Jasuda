@@ -191,10 +191,7 @@ export default function Mitramitra({ initialMitra }: Props) {
                             {paginatedmitra.map((mitra, index) => (
                                 <tr
                                     key={mitra.id}
-                                    onClick={() => {
-                                        setContactMitra(mitra.id);
-                                    }}
-                                    className={`hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer ${favorites.includes(mitra.id) ? "bg-amber-50/30" : ""
+                                    className={`hover:bg-slate-50/80 transition-colors duration-300 group ${favorites.includes(mitra.id) ? "bg-amber-50/30" : ""
                                         }`}
                                 >
                                     <td className="py-4 px-6 text-sm font-medium text-slate-500">
@@ -245,7 +242,7 @@ export default function Mitramitra({ initialMitra }: Props) {
                                             onToggleFavorite={(item) => handleToggleFavorite(item)}
                                             onDelete={(item) => handleDeleteMitra(item.id)}
                                             onEdit={(item) => setSelectedmitra(item.id)}
-                                            onContact={(item) => setSelectedmitra(item.id)}
+                                            onContact={(item) => setContactMitra(item.id)}
                                             item={mitra}
                                         />
                                     </td>

@@ -512,7 +512,7 @@ function OrderDetailsSidebar({
 
 export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
-  const [orderMonth, setOrderMonth] = useState("Oktober 2026");
+  const [orderMonth, setOrderMonth] = useState(`${monthsList[new Date().getMonth()]} ${new Date().getFullYear()}`);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [paymentFilter, setPaymentFilter] = useState<string | null>(null);
@@ -632,7 +632,6 @@ export default function AdminOrdersPage() {
                     ]}
                   />
                 </th>
-                <th className="py-4 px-6 w-12"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -641,7 +640,8 @@ export default function AdminOrdersPage() {
                 .map((order) => (
                   <tr
                     key={order.id}
-                    className="hover:bg-slate-50/80 transition-colors duration-300 group"
+                    onClick={() => setSelectedOrder(order)}
+                    className="hover:bg-slate-50/80 transition-colors duration-300 group cursor-pointer"
                   >
                     <td className="py-4 px-6">
                       <div className="flex flex-col">
@@ -688,14 +688,6 @@ export default function AdminOrdersPage() {
                       >
                         {order.status}
                       </span>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-slate-400 hover:text-ocean-light transition-all duration-300 active:scale-[0.98] opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white hover:shadow-sm"
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
                     </td>
                   </tr>
                 ))}

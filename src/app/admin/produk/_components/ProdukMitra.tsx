@@ -60,7 +60,10 @@ function FilterDropdown({
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-xl shadow-slate-200/50 py-1.5 z-120 animate-in fade-in zoom-in-95 duration-200">
+                <div 
+                    className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-xl shadow-slate-200/50 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-200"
+                    onMouseDown={(e) => e.preventDefault()}
+                >
                     <div className="px-3 py-2 border-b border-slate-100 mb-1">
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                             {label}
@@ -103,8 +106,8 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [stockFilter, setStockFilter] = useState<"semua" | "tersedia" | "habis">("semua");
-    const [lowStockThreshold, setLowStockThreshold] = useState(10);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [lowStockThreshold, setLowStockThreshold] = useState(15);
+    const [itemsPerPage, setItemsPerPage] = useState(30);
     const [currentPage, setCurrentPage] = useState(1);
     const [favorites, setFavorites] = useState<string[]>(
         initialProducts.filter((p) => p.favorite).map((p) => p.id)
@@ -257,24 +260,6 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
                         <div className="p-2 bg-rose-50 rounded-lg group-hover:scale-105 transition-transform">
                             <AlertTriangle className="text-rose-600 w-6 h-6" />
                         </div>
-                        <select
-                            value={lowStockThreshold}
-                            onChange={(e) => setLowStockThreshold(Number(e.target.value))}
-                            className="bg-white border border-rose-200 rounded-xl py-1.5 px-3 pr-7 text-xs font-bold text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300/50 outline-none cursor-pointer transition-all hover:border-rose-300 appearance-none shadow-sm"
-                            style={{
-                                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23e11d48' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-                                backgroundPosition: "right 0.35rem center",
-                                backgroundRepeat: "no-repeat",
-                                backgroundSize: "1em 1em",
-                            }}
-                        >
-                            <option value={5}>&lt; 5</option>
-                            <option value={10}>&lt; 10</option>
-                            <option value={15}>&lt; 15</option>
-                            <option value={20}>&lt; 20</option>
-                            <option value={25}>&lt; 25</option>
-                            <option value={50}>&lt; 50</option>
-                        </select>
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-500 mb-1">Peringatan Stok Rendah</p>

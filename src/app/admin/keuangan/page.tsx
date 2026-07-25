@@ -151,8 +151,8 @@ const dummyMitraProducts = Array.from({ length: 160 }).map((_, i) => {
 export default function AdminSettlementPage() {
   const [jasudaSearch, setJasudaSearch] = useState("");
   const [mitraSearch, setMitraSearch] = useState("");
-  const [jasudaMonth, setJasudaMonth] = useState("Januari 2026");
-  const [mitraMonth, setMitraMonth] = useState("Januari 2026");
+  const [jasudaMonth, setJasudaMonth] = useState(`${monthsList[new Date().getMonth()]} ${new Date().getFullYear()}`);
+  const [mitraMonth, setMitraMonth] = useState(`${monthsList[new Date().getMonth()]} ${new Date().getFullYear()}`);
 
   const [jasudaPage, setJasudaPage] = useState(1);
   const [mitraPage, setMitraPage] = useState(1);
@@ -414,7 +414,7 @@ export default function AdminSettlementPage() {
               <div className="flex flex-col sm:flex-row gap-6 border-t md:border-t-0 md:border-l border-slate-700 pt-6 md:pt-0 md:pl-8">
                 <div>
                   <p className="text-xs font-semibold text-slate-400 mb-1">
-                    Tenant Aktif
+                    Mitra Aktif
                   </p>
                   <p className="text-2xl font-bold text-white">142</p>
                 </div>

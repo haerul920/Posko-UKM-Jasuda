@@ -26,6 +26,25 @@ export default function JasudaAllProducts() {
   const { activeNav, addToCart } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    // Check URL for scrollTo parameter
+    const params = new URLSearchParams(window.location.search);
+    const scrollTo = params.get("scrollTo");
+    if (scrollTo) {
+      setTimeout(() => {
+        const el = document.getElementById(`product-${scrollTo}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Highlight effect
+          el.classList.add("ring-4", "ring-primary", "scale-105");
+          setTimeout(() => {
+            el.classList.remove("ring-4", "ring-primary", "scale-105");
+          }, 2000);
+        }
+      }, 500); // Wait for render
+    }
+  }, []);
+
   const filteredProducts = useMemo(() => {
     return ALL_PRODUCTS.filter((product) =>
       product.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -102,6 +121,7 @@ export default function JasudaAllProducts() {
                 {filteredProducts.map((product, index) => (
                   <motion.div
                     key={index}
+                    id={`product-${product.title}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}

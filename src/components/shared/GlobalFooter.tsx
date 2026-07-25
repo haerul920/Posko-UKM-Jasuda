@@ -76,10 +76,10 @@ export default function GlobalFooter() {
               >
                 Mitra Kami
               </Link>
-              <Link href="#" className="hover:text-primary transition-colors">
+              <Link href="/tentang-kami" className="hover:text-primary transition-colors">
                 Tentang Kami
               </Link>
-              <Link href="#" className="hover:text-primary transition-colors">
+              <Link href="/kebijakan-privasi" className="hover:text-primary transition-colors">
                 Kebijakan Privasi
               </Link>
             </nav>

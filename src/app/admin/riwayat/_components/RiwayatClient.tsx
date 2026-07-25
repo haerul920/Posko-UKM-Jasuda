@@ -263,12 +263,9 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
           <div>
             <div className="flex items-center gap-3">
               <h3 className="text-xl font-bold text-slate-900">Log Aktivitas</h3>
-              <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full border border-slate-200">
-                {total.toLocaleString("id-ID")} entri
-              </span>
             </div>
             <p className="text-sm text-slate-500 mt-0.5">
-              Semua aksi dicatat secara real-time dari Firebase Firestore.
+              Semua aksi dicatat secara real-time.
             </p>
           </div>
         </div>
@@ -376,7 +373,7 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
             {activePopup === "actor" && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setActivePopup(null)} />
-                <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-xl shadow-xl w-52 py-1.5 z-50">
+                <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-xl shadow-xl w-72 py-1.5 z-50">
                   <button
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${!actorFilter ? "font-bold text-ocean-light" : "text-slate-700"}`}
                     onClick={() => handleActorFilter("")}
@@ -391,7 +388,7 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
                       }`}
                       onClick={() => handleActorFilter(actor.actorId)}
                     >
-                      <p className={`text-sm font-bold ${actorFilter === actor.actorId ? "text-ocean-light" : "text-slate-900"}`}>
+                      <p className={`text-sm font-bold truncate ${actorFilter === actor.actorId ? "text-ocean-light" : "text-slate-900"}`}>
                         {actor.actorName}
                       </p>
                       <p className="text-xs text-slate-500">{getRoleLabel(actor.actorRole)}</p>

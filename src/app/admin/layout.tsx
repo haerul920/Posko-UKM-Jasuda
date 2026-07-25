@@ -28,7 +28,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminRouteGuard>
-      <div id="admin-layout-root" className="bg-slate-50 text-slate-900 font-sans antialiased flex min-h-screen">
+      {/* Mobile Blocker View */}
+      <div className="md:hidden flex flex-col items-center justify-center min-h-screen bg-[#0a1422] text-slate-100 p-6 text-center">
+        <LayoutDashboard className="w-16 h-16 text-primary mb-6" />
+        <h1 className="text-2xl font-bold mb-4">Akses Terbatas</h1>
+        <p className="text-slate-400 max-w-sm mb-8 leading-relaxed">
+          Halaman Admin Panel Posko UKM Jasuda membutuhkan ruang layar yang lebih besar. Silakan gunakan perangkat <strong>Desktop</strong> atau <strong>Laptop</strong> untuk melanjutkan.
+        </p>
+        <Link
+          href="/"
+          className="px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-md active:scale-95 transition-all"
+        >
+          Kembali ke Beranda
+        </Link>
+      </div>
+
+      {/* Desktop Layout */}
+      <div id="admin-layout-root" className="hidden md:flex bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
         {/* Sidebar */}
         <aside id="admin-sidebar" className="h-screen w-64 fixed left-0 top-0 z-40 bg-[#0a1422] border-r border-[#c5c6cc]/20 shadow-sm flex flex-col py-4 text-[#d9e3f6]">
           <div className="flex-1 overflow-y-auto mt-4 space-y-1">
@@ -63,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <button
                 onClick={() => {
                   logout();
-                  window.location.href = '/login';
+                  window.location.href = '/';
                 }}
                 className="w-full bg-red-600 text-white hover:bg-red-700 transition-all duration-300 ease-in-out active:scale-[0.98] rounded-lg py-3 px-4 text-sm font-bold flex justify-center items-center gap-2 shadow-sm hover:shadow-md"
               >

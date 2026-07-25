@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Image as ImageIcon, Check, Trash2, Loader2, Store } from "lucide-react";
+import { X, Image as ImageIcon, Check, Trash2, Loader2, Store, ChevronDown } from "lucide-react";
 import { updateProduct, deleteProduct } from "@/lib/actions/product";
 import type { Product } from "@/lib/actions/product";
 import type { MitraSelectOption } from "@/lib/actions/mitra";
@@ -36,6 +36,7 @@ export default function EditProductDrawer({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
 
   // Initialize/Reset form states when product prop changes
   useEffect(() => {
@@ -195,25 +196,59 @@ export default function EditProductDrawer({
                       Toko <span className="text-rose-600">*</span>
                     </label>
                     <div className="relative">
-                      <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
-                      <select
-                        required
-                        value={storeId}
-                        onChange={(e) => setStoreId(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm appearance-none cursor-pointer"
+                      <button
+                        type="button"
+                        onClick={() => setStoreDropdownOpen(!storeDropdownOpen)}
+                        onBlur={() => setTimeout(() => setStoreDropdownOpen(false), 200)}
+                        className={`w-full flex items-center justify-between bg-white border rounded-lg py-2.5 pl-9 pr-4 text-sm font-medium transition-all duration-300 shadow-sm focus:outline-none ${storeDropdownOpen ? "border-ocean-light ring-2 ring-ocean-light/50 text-ocean-dark" : "border-slate-300 text-slate-900 hover:border-slate-400"}`}
                       >
-                        {/* Jasuda is always first — hardcoded, not from client DB */}
-                        <option value="jasuda">⭐ Jasuda (Internal)</option>
-                        {mitra.length > 0 && (
-                          <optgroup label="─── Mitra / Klien ───">
-                            {mitra.map((c) => (
-                              <option key={c.id} value={c.id}>
-                                {c.name}{c.corp ? ` — ${c.corp}` : ""}
-                              </option>
-                            ))}
-                          </optgroup>
-                        )}
-                      </select>
+                        <div className="flex items-center gap-2">
+                          <Store className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${storeDropdownOpen ? "text-ocean-light" : "text-slate-400"}`} />
+                          <span className="truncate">
+                            {storeId === "jasuda" 
+                              ? "⭐ Jasuda (Internal)" 
+                              : mitra.find(m => m.id === storeId)?.name + (mitra.find(m => m.id === storeId)?.corp ? ` — ${mitra.find(m => m.id === storeId)?.corp}` : "")}
+                          </span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${storeDropdownOpen ? "rotate-180" : ""}`} />
+                      </button>
+
+                      {storeDropdownOpen && (
+                        <div 
+                          className="absolute left-0 top-full mt-2 w-full bg-white border border-slate-100 rounded-xl shadow-xl shadow-slate-200/50 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-200 max-h-60 overflow-y-auto"
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => { setStoreId("jasuda"); setStoreDropdownOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 flex items-center gap-2 ${storeId === "jasuda" ? "bg-ocean-light/5 text-ocean-dark font-bold" : "text-slate-700 font-medium"}`}
+                          >
+                            ⭐ Jasuda (Internal)
+                            {storeId === "jasuda" && <Check className="w-4 h-4 ml-auto" />}
+                          </button>
+                          
+                          {mitra.length > 0 && (
+                            <>
+                              <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-50/50 mt-1 mb-1 flex items-center">
+                                <span className="flex-1 h-px bg-slate-200 mr-2"></span>
+                                Mitra / Klien
+                                <span className="flex-1 h-px bg-slate-200 ml-2"></span>
+                              </div>
+                              {mitra.map(c => (
+                                <button
+                                  key={c.id}
+                                  type="button"
+                                  onClick={() => { setStoreId(c.id); setStoreDropdownOpen(false); }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 flex items-center gap-2 ${storeId === c.id ? "bg-ocean-light/5 text-ocean-dark font-bold" : "text-slate-700 font-medium"}`}
+                                >
+                                  <span className="truncate">{c.name}{c.corp ? ` — ${c.corp}` : ""}</span>
+                                  {storeId === c.id && <Check className="w-4 h-4 ml-auto shrink-0" />}
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                     {storeId !== "jasuda" && mitra.length === 0 && (
                       <p className="text-xs text-slate-400 mt-1.5 font-medium">
