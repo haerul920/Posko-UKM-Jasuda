@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Microscope,
   ShoppingBag,
+  Store,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -228,14 +229,16 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur text-[10px] font-bold rounded-md shadow-xs text-on-surface uppercase tracking-wider">
-                {product.vendor || (product.storeId === 'jasuda' ? 'Jasuda' : 'Jasuda')}
-              </div>
+
             </div>
             <div className="p-4 flex flex-col grow">
-              <h3 className="font-bold text-base text-on-surface mb-4 group-hover:text-primary transition-colors leading-tight line-clamp-2">
+              <h3 className="font-bold text-base text-on-surface mb-1 group-hover:text-primary transition-colors leading-tight line-clamp-2">
                 {product.name}
               </h3>
+              <div className="text-xs text-on-surface-variant mb-4 font-medium flex items-center gap-1.5">
+                <Store className="w-3.5 h-3.5" />
+                {product.vendor || (product.storeId === 'jasuda' ? 'Jasuda' : 'Jasuda')}
+              </div>
               <div className="mt-auto flex items-center justify-between">
                 <span className="font-bold text-lg text-primary">
                   {product.price.toString().endsWith('k') ? product.price : `Rp ${product.price.toLocaleString('id-ID')}`}
@@ -388,7 +391,7 @@ export default function HomeClient() {
               href="/mitra"
               imageSrc="/image/nori%20flakes.webp"
               title="Nori Flakes"
-              description="Nori Flakes Bumbu Tabur Ulva adalah pelengkap hidangan berbahan dasar ganggang laut hijau. Dirancang dalam kemasan stoples kaca praktis untuk menambahkan cita rasa gurih alami pada berbagai jenis makanan."
+              description="Bumbu tabur ulva"
               isWide={true}
               priceDisplay="30k"
             />
@@ -405,7 +408,7 @@ export default function HomeClient() {
             <InteractiveProductCard
               href="/mitra"
               title="Pizzata'"
-              description="Pizzata' merupakan inovasi kuliner yang memadukan hidangan klasik piza dengan komoditas lokal berupa rumput laut. Produk ini menawarkan alternatif makanan dengan cita rasa gurih khas laut."
+              description="Pizza Rumput Laut"
               imageSrc="/image/pizzata.webp"
               isWide={true}
               priceDisplay="35k"

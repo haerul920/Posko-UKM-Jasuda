@@ -8,16 +8,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 const ALL_PRODUCTS = [
-  { title: "Maeki Brownies", price: "Rp 55.000", image: "/image/maeki brownies.webp" },
-  { title: "Kelp Kering", price: "Rp 30.000", image: "https://images.unsplash.com/photo-1564414545041-3b764b85c39b?w=400" },
+  { title: "Maeki Brownies", price: "Rp 25.000 - Rp 40.000", image: "/image/maeki brownies.webp" },
+  { title: "Golden Seaweed", price: "Rp 15.000 - Rp 30.000", image: "/image/golden seaweed.webp" },
   { title: "Nori Flakes", price: "Rp 25.000", image: "/image/nori flakes.webp" },
   { title: "Pizzata'", price: "Rp 35.000", image: "/image/pizzata.webp" },
-  { title: "Sirup Alga", price: "Rp 40.000", image: "https://images.unsplash.com/photo-1520024146169-3240400354ae?w=400" },
-  { title: "Sabun Organik", price: "Rp 25.000", image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=400" },
-  { title: "Masker Wajah", price: "Rp 60.000", image: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400" },
-  { title: "Keripik Kelp", price: "Rp 15.000", image: "https://images.unsplash.com/photo-1622359419086-4e08c02c918c?w=400" },
-  { title: "Bumbu Nori Pedas", price: "Rp 20.000", image: "https://images.unsplash.com/photo-1518712918804-067664c39174?w=400" },
-  { title: "Pupuk Organik", price: "Rp 45.000", image: "https://images.unsplash.com/photo-1592844111364-754f24ef13c3?w=400" },
+  { title: "Keripik Ulvaku", price: "Rp 25.000", image: "/image/keripik ulvaku.webp" },
+  { title: "Seavegie", price: "Rp 40.000", image: "/image/seavegie.webp" },
+  { title: "Stik Ulva", price: "Rp 25.000", image: "/image/stik ulva.webp" },
+  { title: "Seaweed Pudding", price: "Rp 5.000", image: "/image/seaweed pudding.webp" },
+  { title: "Sea Vegetable", price: "Rp 30.000", image: "/image/sea vegetable.webp" },
+  { title: "Sea Plants", price: "Rp 48.000", image: "/image/Sea Plants.webp" },
   { title: "Alga Merah Premium", price: "Rp 85.000", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBB1NbOih3GLL5Yj9e1BKibIv3Ky-cMiTdIcporh-_acTVbsTThap62M_8WLYb5Oe89w9zaYys68FsptgkSgB3g738b8Qw5GCB0MR1cPvaDVnC7-knJGe_OBbA3AV4x7txrrt2Z2mslv0cIsJL0Xc69MS_c-nYHI7tvp3YWpnLEnJXVEmtgGlkL1AnlB6hC1oaH3L0Hc-accTOk5YmLTo9ZgCR9wJ-YlfNZ5bjaWfff11I43UXKL6cTpA" },
   { title: "Sayuran Laut Bubuk", price: "Rp 50.000", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDVRcqhnUgeuKBXAjcIeWkuUItKjb6bf-xqdpuTm4SoVEuvEwdHHNHb9Z6qcWBjM46TztffhGgKMKcJKk53mxpUNJvTfbGgHhVq3RrJC6A5F-kERWbSfoWLIns3b7aQVyVOyN73b6xG6oNI8VHZd5MP6Jm0d7j8DbucQ3dPeImo7UdR1wilfxBiCrxOfefrHt7cWAoDLmmsfudNzeFkkEtlc4O22PmBZicP8SWYvfQJVAvHzxJktllJEg" },
 ];

@@ -171,15 +171,27 @@ export default function GlobalHeader({
           <div className="flex items-center gap-3 md:gap-6 shrink-0">
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6 text-sm font-semibold">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className="text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = pathname === link.path || (link.path !== '/' && pathname.startsWith(link.path));
+                return (
+                  <Link
+                    key={link.path}
+                    href={link.path}
+                    className={`relative py-1 transition-colors ${
+                      isActive ? "text-primary" : "text-on-surface-variant hover:text-primary"
+                    }`}
+                  >
+                    {link.name}
+                    {isActive && (
+                      <motion.div
+                        layoutId="desktopNavIndicator"
+                        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Desktop Contact */}

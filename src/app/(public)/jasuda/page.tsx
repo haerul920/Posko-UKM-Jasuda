@@ -29,16 +29,16 @@ const itemVariants: Variants = {
 };
 
 const COLLECTION_ITEMS = [
-  { title: "Maeki Brownies", price: "55k", desc: "Brownies rumput laut premium dengan cita rasa cokelat yang kaya.", image: "/image/maeki brownies.webp", span: "md:col-span-2 md:row-span-2" },
-  { title: "Kelp Kering", price: "30k", desc: "Bahan masakan yang kaya umami.", image: "https://images.unsplash.com/photo-1564414545041-3b764b85c39b?w=400", span: "md:col-span-1 md:row-span-1" },
-  { title: "Nori Flakes", price: "25k", desc: "Taburan gurih dari laut.", image: "/image/nori flakes.webp", span: "md:col-span-1 md:row-span-1" },
-  { title: "Pizzata'", price: "35k", desc: "Inovasi piza rumput laut khas Jasuda.", image: "/image/pizzata.webp", span: "md:col-span-2 md:row-span-1" },
-  { title: "Sirup Alga", price: "40k", desc: "Minuman segar bergizi.", image: "https://images.unsplash.com/photo-1520024146169-3240400354ae?w=400", span: "md:col-span-1 md:row-span-1" },
-  { title: "Sabun Organik", price: "25k", desc: "Perawatan kulit alami.", image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=400", span: "md:col-span-2 md:row-span-1" },
-  { title: "Masker Wajah", price: "60k", desc: "Peremajaan kulit dari laut dalam.", image: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400", span: "md:col-span-1 md:row-span-2" },
-  { title: "Keripik Kelp", price: "15k", desc: "Camilan renyah yang sehat.", image: "https://images.unsplash.com/photo-1622359419086-4e08c02c918c?w=400", span: "md:col-span-3 md:row-span-1" },
-  { title: "Bumbu Nori Pedas", price: "20k", desc: "Ekstra pedas dari rumput laut.", image: "https://images.unsplash.com/photo-1518712918804-067664c39174?w=400", span: "md:col-span-2 md:row-span-1" },
-  { title: "Pupuk Organik", price: "45k", desc: "Nutrisi maksimal untuk tanaman.", image: "https://images.unsplash.com/photo-1592844111364-754f24ef13c3?w=400", span: "md:col-span-2 md:row-span-1" }
+  { title: "Maeki Brownies", price: "25/40k", desc: "Brownies rumput laut premium dengan cita rasa cokelat yang kaya.", image: "/image/maeki brownies.webp", span: "md:col-span-2 md:row-span-2" },
+  { title: "Golden Seaweed", price: "15/30k", desc: "Rumput laut siap saji", image: "/image/golden seaweed.webp", span: "md:col-span-1 md:row-span-1" },
+  { title: "Nori Flakes", price: "25k", desc: "Bumbu tabur ulva", image: "/image/nori flakes.webp", span: "md:col-span-1 md:row-span-1" },
+  { title: "Pizzata'", price: "35k", desc: "Pizza Rumput Laut", image: "/image/pizzata.webp", span: "md:col-span-2 md:row-span-1" },
+  { title: "Keripik Ulvaku", price: "25k", desc: "Keripik rumput laut", image: "/image/keripik ulvaku.webp", span: "md:col-span-1 md:row-span-1" },
+  { title: "Seavegie", price: "40k", desc: "Tepung Ulva", image: "/image/seavegie.webp", span: "md:col-span-2 md:row-span-1" },
+  { title: "Stik Ulva", price: "25k", desc: "Kerupuk Rumput Laut", image: "/image/stik ulva.webp", span: "md:col-span-1 md:row-span-2" },
+  { title: "Seaweed Pudding", price: "5k", desc: "Pudding Rumput Laut", image: "/image/seaweed pudding.webp", span: "md:col-span-3 md:row-span-1" },
+  { title: "Sea Vegetable", price: "30k", desc: "Bumbu Tabur Ulva", image: "/image/sea vegetable.webp", span: "md:col-span-2 md:row-span-1" },
+  { title: "Sea Plants", price: "48k", desc: "Pupuk cair rumput laut", image: "/image/Sea Plants.webp", span: "md:col-span-2 md:row-span-1" }
 ];
 
 export default function JasudaStore() {
