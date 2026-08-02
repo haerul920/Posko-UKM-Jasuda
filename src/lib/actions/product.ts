@@ -21,6 +21,10 @@ export interface Product {
     countBuyer: number;
     costPrice?: number;
     commission?: number;
+    productCode?: string;
+    pirt?: string;
+    halalCertificate?: string;
+    netWeight?: string;
 }
 
 export async function getAllProduct() {
@@ -57,6 +61,10 @@ export async function getAllProduct() {
                 favorite: data.favorite ?? false,
                 costPrice: data.costPrice,
                 commission: data.commission,
+                productCode: data.productCode,
+                pirt: data.pirt,
+                halalCertificate: data.halalCertificate,
+                netWeight: data.netWeight,
             });
         });
 
@@ -108,6 +116,10 @@ export async function getProductsByStore(store_name: string) {
                 favorite: data.favorite ?? false,
                 costPrice: data.costPrice,
                 commission: data.commission,
+                productCode: data.productCode,
+                pirt: data.pirt,
+                halalCertificate: data.halalCertificate,
+                netWeight: data.netWeight,
             });
         });
 

@@ -20,7 +20,7 @@ const ALL_PRODUCTS = Array.from({ length: 40 }).map((_, i) => ({
 }));
 
 export default function TenantSemuaProduk() {
-  const { activeNav, addToCart } = useStore();
+  const { activeNav, addToCart, openProductModal } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   const groupedProducts = useMemo(() => {
@@ -128,6 +128,15 @@ export default function TenantSemuaProduk() {
                           viewport={{ once: true, margin: "0px" }}
                           transition={{ delay: (index % 4) * 0.05 }}
                           whileHover={{ scale: 1.02 }}
+                          onClick={() => openProductModal({
+                            id: product.id.toString(),
+                            name: product.name,
+                            price: product.price,
+                            description: `Produk premium dari ${product.vendor}`,
+                            image: product.image,
+                            vendor: product.vendor,
+                            unit: "Item"
+                          })}
                           className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
                         >
                           <img
@@ -142,7 +151,17 @@ export default function TenantSemuaProduk() {
                           <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                             <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
                               <button 
-                                onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addToCart({
+                                    id: product.id.toString(),
+                                    name: product.name,
+                                    price: typeof product.price === 'string' ? parseInt((product.price as string).replace(/\D/g, '')) || 0 : product.price,
+                                    image: product.image,
+                                    unit: "Item",
+                                    seller: product.vendor
+                                  });
+                                }}
                                 className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
                               >
                                 <ShoppingBag className="w-4 h-4" /> Tambahkan

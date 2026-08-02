@@ -42,7 +42,7 @@ const COLLECTION_ITEMS = [
 ];
 
 export default function JasudaStore() {
-  const { activeNav, addToCart } = useStore();
+  const { activeNav, addToCart, openProductModal } = useStore();
 
   const handleAddToCart = () => {
     addToCart({
@@ -176,20 +176,12 @@ export default function JasudaStore() {
                 >
                   <div className="flex gap-2">
                     <a
-                      href="https://shopee.co.id"
+                      href="https://s.shopee.co.id/9KguRGtDKj"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 sm:flex-initial px-4 py-3 border border-[#EE4D2D]/30 bg-[#EE4D2D]/5 hover:bg-[#EE4D2D]/10 text-[#EE4D2D] rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1"
                     >
                       Beli di Shopee
-                    </a>
-                    <a
-                      href="https://tokopedia.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial px-4 py-3 border border-[#03AC0E]/30 bg-[#03AC0E]/5 hover:bg-[#03AC0E]/10 text-[#03AC0E] rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1"
-                    >
-                      Beli di Tokopedia
                     </a>
                   </div>
                 </motion.div>
@@ -267,6 +259,14 @@ export default function JasudaStore() {
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.02 }}
+                  onClick={() => openProductModal({
+                    id: item.title.toLowerCase().replace(/\s+/g, '-'),
+                    name: item.title,
+                    price: item.price,
+                    description: item.desc,
+                    image: item.image,
+                    vendor: "Posko UKM Jasuda"
+                  })}
                   className={`glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${item.span}`}
                 >
                   <img
@@ -281,7 +281,17 @@ export default function JasudaStore() {
                   <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                     <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart({
+                            id: item.title.toLowerCase().replace(/\s+/g, '-'),
+                            name: item.title,
+                            price: typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, '')) || 0 : item.price,
+                            image: item.image,
+                            unit: "1 Pack",
+                            seller: "Posko UKM Jasuda"
+                          });
+                        }}
                         className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
                       >
                         <ShoppingBag className="w-4 h-4" /> Tambahkan ke Keranjang

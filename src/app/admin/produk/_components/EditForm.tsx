@@ -32,6 +32,10 @@ export default function EditProductDrawer({
   const [stock, setStock] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [commission, setCommission] = useState("10");
+  const [productCode, setProductCode] = useState("");
+  const [pirt, setPirt] = useState("");
+  const [halalCertificate, setHalalCertificate] = useState("");
+  const [netWeight, setNetWeight] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +53,10 @@ export default function EditProductDrawer({
       setStock(product.stock ? String(product.stock) : "");
       setCostPrice(product.costPrice ? String(product.costPrice) : "");
       setCommission(product.commission ? String(product.commission) : "10");
+      setProductCode(product.productCode || "");
+      setPirt(product.pirt || "");
+      setHalalCertificate(product.halalCertificate || "");
+      setNetWeight(product.netWeight || "");
       setImageUrl(product.imageUrl || "");
       setError(null);
     }
@@ -57,7 +65,7 @@ export default function EditProductDrawer({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!product) return;
-    if (!name || !price || !stock || !costPrice) {
+    if (!name || !price || !stock || !costPrice || !description) {
       setError("Harap isi semua field wajib.");
       return;
     }
@@ -81,6 +89,10 @@ export default function EditProductDrawer({
       imageUrl,
       ...(costPrice && { costPrice: parseFloat(costPrice) }),
       ...(storeId !== "jasuda" && { commission: parseFloat(commission) }),
+      ...(productCode && { productCode }),
+      ...(pirt && { pirt }),
+      ...(halalCertificate && { halalCertificate }),
+      ...(netWeight && { netWeight }),
     };
 
     try {
@@ -189,6 +201,74 @@ export default function EditProductDrawer({
                       placeholder="Nama Produk Anda"
                       className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-1.5">
+                      Deskripsi Produk <span className="text-rose-600">*</span>
+                    </label>
+                    <textarea
+                      required
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Deskripsi atau detail produk"
+                      rows={3}
+                      className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-1.5">
+                        Kode Produk
+                      </label>
+                      <input
+                        type="text"
+                        value={productCode}
+                        onChange={(e) => setProductCode(e.target.value)}
+                        placeholder="Cth: PRD-001"
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-1.5">
+                        Berat Bersih
+                      </label>
+                      <input
+                        type="text"
+                        value={netWeight}
+                        onChange={(e) => setNetWeight(e.target.value)}
+                        placeholder="Cth: 250g"
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-1.5">
+                        PIRT
+                      </label>
+                      <input
+                        type="text"
+                        value={pirt}
+                        onChange={(e) => setPirt(e.target.value)}
+                        placeholder="Nomor PIRT"
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-1.5">
+                        Sertifikat Halal
+                      </label>
+                      <input
+                        type="text"
+                        value={halalCertificate}
+                        onChange={(e) => setHalalCertificate(e.target.value)}
+                        placeholder="Nomor Sertifikat Halal"
+                        className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-light/50 focus:border-ocean-light transition-all duration-300 shadow-sm"
+                      />
+                    </div>
                   </div>
 
                   <div>

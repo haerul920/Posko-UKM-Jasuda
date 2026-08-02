@@ -93,7 +93,7 @@ export default function GlobalFooter() {
 
             <div className="flex flex-col gap-3">
               <a
-                href="#"
+                href="https://s.shopee.co.id/9KguRGtDKj"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-[#EE4D2D]/30 bg-[#EE4D2D]/5 hover:bg-[#EE4D2D]/10 text-[#EE4D2D] transition-colors group"
@@ -105,22 +105,6 @@ export default function GlobalFooter() {
                     className="w-5 h-5 object-contain"
                   />
                   <span className="font-bold text-sm">Shopee</span>
-                </div>
-                <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-              </a>
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-[#03AC0E]/30 bg-[#03AC0E]/5 hover:bg-[#03AC0E]/10 text-[#03AC0E] transition-colors group"
-              >
-                <div className="flex items-center gap-2">
-                  <img
-                    src="/image/ikon%20tokopedia.webp"
-                    alt="Tokopedia Icon"
-                    className="w-5 h-5 object-contain"
-                  />
-                  <span className="font-bold text-sm">Tokopedia</span>
                 </div>
                 <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
               </a>

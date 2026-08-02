@@ -13,6 +13,7 @@ import {
 import { Search, ChevronRight, X, Sparkles, Waves, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
+import { useStore } from "@/components/context/StoreContext";
 
 // Data from Stitch Reference
 const BRANDS = [
@@ -166,6 +167,8 @@ function InfiniteCarousel() {
 }
 
 export default function TenantDirectoryPage() {
+  const { openProductModal, addToCart } = useStore();
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-surface">
       <ActiveNavigation isPremium={false} storeName="Posko UKM Jasuda" />
@@ -241,6 +244,15 @@ export default function TenantDirectoryPage() {
               viewport={{ once: true, margin: "0px" }}
               transition={{ duration: 0.4, delay: (i % 4) * 0.1 }}
               whileHover={{ y: -5 }}
+              onClick={() => openProductModal({
+                id: product.id.toString(),
+                name: product.name,
+                price: product.price,
+                description: `Produk premium dari ${product.vendor}`,
+                image: product.image,
+                vendor: product.vendor,
+                unit: product.unit
+              })}
               className="bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all flex flex-col group cursor-pointer"
             >
               <div className="h-48 relative overflow-hidden bg-surface-container">
@@ -262,6 +274,17 @@ export default function TenantDirectoryPage() {
                     Rp {product.price.toLocaleString("id-ID")}
                   </span>
                   <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart({
+                        id: product.id.toString(),
+                        name: product.name,
+                        price: product.price,
+                        image: product.image,
+                        unit: product.unit,
+                        seller: product.vendor
+                      });
+                    }}
                     className="text-xs font-bold bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-md flex items-center gap-1.5 active:scale-[0.98]"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />

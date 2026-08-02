@@ -190,6 +190,7 @@ const MOCK_MARQUEE_PRODUCTS = [
 ];
 
 function ProductMarquee({ products = [] }: { products?: any[] }) {
+  const { openProductModal, addToCart } = useStore();
   const displayProducts = products.length > 0 ? products : MOCK_MARQUEE_PRODUCTS;
   const duplicatedProducts = [
     ...displayProducts,
@@ -221,6 +222,14 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
         {duplicatedProducts.map((product, i) => (
           <div
             key={i}
+            onClick={() => openProductModal({
+              id: product.id || product.name,
+              name: product.name,
+              price: product.price,
+              description: product.desc || "Produk unggulan dari Jasuda.",
+              vendor: product.vendor || (product.storeId === 'jasuda' ? 'Jasuda' : 'Jasuda'),
+              image: product.image
+            })}
             className="w-64 h-80 shrink-0 bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-xs hover:shadow-xl transition-all flex flex-col group cursor-pointer hover:-translate-y-1"
           >
             <div className="h-44 relative overflow-hidden bg-surface-container shrink-0">
@@ -244,6 +253,17 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
                   {product.price.toString().endsWith('k') ? product.price : `Rp ${product.price.toLocaleString('id-ID')}`}
                 </span>
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({
+                      id: product.id || product.name,
+                      name: product.name,
+                      price: typeof product.price === 'string' ? parseInt(product.price.replace(/\D/g, '')) || 0 : product.price,
+                      image: product.image,
+                      unit: product.unit || 'Item',
+                      seller: product.vendor || 'Jasuda',
+                    });
+                  }}
                   className="text-xs font-bold bg-primary text-white px-3 py-2 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-md flex items-center gap-1.5 active:scale-[0.98]"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />

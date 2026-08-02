@@ -29,7 +29,7 @@ export default function InteractiveProductCard({
   className = "",
   priceDisplay,
 }: InteractiveProductCardProps) {
-  const { addToCart } = useStore();
+  const { addToCart, openProductModal } = useStore();
   const ref = useRef<HTMLAnchorElement>(null);
   
   // Motion values for 3D tilt
@@ -77,10 +77,22 @@ export default function InteractiveProductCard({
     addToCart({
       id: title.toLowerCase().replace(/\s+/g, '-'),
       name: title,
-      price: 25.00,
+      price: priceDisplay ? parseInt(priceDisplay.replace(/\D/g, '')) || 0 : 25.00,
       image: imageSrc,
       unit: "1 Pack",
       seller: "Posko UKM Jasuda"
+    });
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    openProductModal({
+      id: title.toLowerCase().replace(/\s+/g, '-'),
+      name: title,
+      price: priceDisplay || 25.00,
+      image: imageSrc,
+      description: description,
+      vendor: "Posko UKM Jasuda",
     });
   };
 
@@ -88,6 +100,7 @@ export default function InteractiveProductCard({
     <motion.a
       ref={ref}
       href={href}
+      onClick={handleClick}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

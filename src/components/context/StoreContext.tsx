@@ -15,6 +15,16 @@ export interface CartItem {
   seller: string;
 }
 
+export interface ProductModalData {
+  id?: string;
+  name: string;
+  price: string | number;
+  description: string;
+  image: string;
+  vendor: string;
+  unit?: string;
+}
+
 interface StoreContextType {
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
@@ -35,6 +45,10 @@ interface StoreContextType {
   signup: (email: string, password?: string, name?: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  isProductModalOpen: boolean;
+  selectedProductForModal: ProductModalData | null;
+  openProductModal: (product: ProductModalData) => void;
+  closeProductModal: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -48,6 +62,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [selectedProductForModal, setSelectedProductForModal] = useState<ProductModalData | null>(null);
+
+  const openProductModal = (product: ProductModalData) => {
+    setSelectedProductForModal(product);
+    setIsProductModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsProductModalOpen(false);
+    setTimeout(() => setSelectedProductForModal(null), 300); // clear after animation
+  };
 
   // Load state on mount (client-side only)
   useEffect(() => {
@@ -256,6 +282,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         signup,
         loginWithGoogle,
         logout,
+        isProductModalOpen,
+        selectedProductForModal,
+        openProductModal,
+        closeProductModal,
       }}
     >
       {children}

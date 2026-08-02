@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/components/context/StoreContext";
 import ClientFooter from "@/components/shared/ClientFooter";
+import ProductDetailModal from "@/components/shared/ProductDetailModal";
 
 export const metadata: Metadata = {
   title: "Posko UKM Jasuda | B2B/B2C Sustainable Marine Platform",
@@ -28,6 +29,7 @@ export default function RootLayout({
             <div className="min-h-screen flex flex-col">
               {children}
               <ClientFooter />
+              <ProductDetailModal />
             </div>
           </StoreProvider>
         </SmoothScrollProvider>

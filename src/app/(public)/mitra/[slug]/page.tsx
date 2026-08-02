@@ -12,7 +12,7 @@ interface PageProps {
 
 export default function TenantStorePage({ params }: PageProps) {
   const resolvedParams = use(params);
-  const { activeNav, addToCart } = useStore();
+  const { activeNav, addToCart, openProductModal } = useStore();
 
   const tenantName = resolvedParams.slug === "kelp-forest-co" ? "Kelp Forest Co." : "Oceanic Tenant Store";
 
@@ -88,7 +88,16 @@ export default function TenantStorePage({ params }: PageProps) {
             {products.map((product) => (
               <article 
                 key={product.id} 
-                className="bg-white border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full"
+                onClick={() => openProductModal({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  description: product.desc,
+                  image: product.image,
+                  vendor: tenantName,
+                  unit: product.unit
+                })}
+                className="bg-white border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full cursor-pointer hover:border-primary/50 group"
               >
                 <div className="relative h-48 w-full bg-surface-container-low select-none">
                   <img 
@@ -113,8 +122,11 @@ export default function TenantStorePage({ params }: PageProps) {
                   <div className="flex items-center justify-between mt-auto pt-3 border-t border-outline-variant/10">
                     <span className="font-bold text-sm text-primary">${product.price.toFixed(2)}</span>
                     <button 
-                      onClick={() => handleAddToCart(product)}
-                      className="bg-primary hover:bg-primary-container text-white px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
+                      className="bg-primary hover:bg-primary-container text-white px-3.5 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer relative z-10"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       Add
