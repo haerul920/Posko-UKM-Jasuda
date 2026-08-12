@@ -1,0 +1,18 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: posko_ukm_jasuda_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: posko_ukm_jasuda
+      MYSQL_USER: jasuda_user
+      MYSQL_PASSWORD: jasuda_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database_poskoukmjasuda.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

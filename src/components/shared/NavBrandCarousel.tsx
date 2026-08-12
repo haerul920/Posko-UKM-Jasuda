@@ -11,7 +11,7 @@ interface NavProps {
 }
 
 export default function NavBrandCarousel({ storeName = "Posko UKM Jasuda", isPremium = false }: NavProps) {
-  const { cartCount } = useStore();
+  const { activeNav } = useStore();
 
   const brandLogos = [
     { name: "KelpCo", icon: "https://lh3.googleusercontent.com/aida-public/AB6AXuC7Tl-MWZ0QyHR2mtg-nXiR89eo9flDornCQFzG2Jgxw2NJz3MqMeiYhrtTJ47ilU7XqsVddN56S4D_vLukh87RfVLv_1Tb9SldzWABI1V4x2qWHbUAJQU_hkLYCNjIfOa-ASPN0Xd4zoTvnllmDrzeAAHSY-ewHZjkcmEosfOcrhLSPBGKNF_GKsRkNYRh0NGjbN_-DUQ8SUq20g1oJ6uVuTjTx6X0j6E-zyW6fPHXQefOX8APiA4Qug", desc: "Kelp Forest" },
@@ -61,11 +61,6 @@ export default function NavBrandCarousel({ storeName = "Posko UKM Jasuda", isPre
           <div className="flex items-center gap-4">
             <Link href="/checkout" className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center scale-95 active:scale-90">
               <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
             </Link>
             <button className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container hidden md:flex items-center justify-center">
               <Bell className="w-5 h-5" />

@@ -2,6 +2,7 @@
 
 import TableActionButtons from "@/components/tableActionButtons";
 import { type StaffUser } from "@/lib/actions/staff";
+import { formatRelativeTime } from "@/lib/date";
 
 interface Props {
   staff: StaffUser[];
@@ -44,20 +45,6 @@ const ROLE_LABEL: Record<string, string> = {
   editor: "Editor",
 };
 
-function formatLastActive(isoString: string | null): string {
-  if (!isoString) return "Belum pernah masuk";
-  const diff = Date.now() - new Date(isoString).getTime();
-  const minutes = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days = Math.floor(diff / 86_400_000);
-  if (minutes < 2) return "Baru saja";
-  if (minutes < 60) return `${minutes} menit lalu`;
-  if (hours < 24) return `${hours} jam lalu`;
-  if (days < 7) return `${days} hari lalu`;
-  if (days < 365) return `${Math.floor(days / 7)} minggu lalu`;
-  return "Lebih dari setahun yang lalu";
-}
-
 export default function StaffTable({
   staff,
   searchQuery,
@@ -73,14 +60,7 @@ export default function StaffTable({
         s.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.email.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .slice()
-    .sort((a, b) => {
-      const aFav = staff.some(member => member.uid === a.uid);;
-      const bFav = staff.some(member => member.uid === b.uid);;
-      if (aFav && !bFav) return -1;
-      if (!aFav && bFav) return 1;
-      return 0;
-    });
+    .slice();
 
   return (
     <>
@@ -112,10 +92,8 @@ export default function StaffTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider bg-slate-50">
-              <th className="py-3 px-4 rounded-tl-lg">Pengguna</th>
+              <th className="py-3 px-4 rounded-tl-lg">Pengurus / Pengelola</th>
               <th className="py-3 px-4">Peran</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Terakhir Aktif</th>
               <th className="py-3 px-4 text-center rounded-tr-lg">Aksi</th>
             </tr>
           </thead>
@@ -123,7 +101,7 @@ export default function StaffTable({
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={3}
                   className="py-12 text-center text-sm font-medium text-slate-400"
                 >
                   {searchQuery
@@ -149,14 +127,27 @@ export default function StaffTable({
                   >
                     {/* User */}
                     <td className="py-4 px-4">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform ${AVATAR_STYLES[color]}`}
-                        >
-                          {getInitials(s.displayName)}
-                        </div>
+                      <div className="flex items-center gap-3.5">
+                        {s.photo ? (
+                          <img
+                            src={s.photo}
+                            alt={s.displayName}
+                            className="w-10 h-10 rounded-full object-cover shadow-xs border border-slate-200"
+                          />
+                        ) : (
+                          <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform ${AVATAR_STYLES[color]}`}
+                          >
+                            {getInitials(s.displayName)}
+                          </div>
+                        )}
                         <div>
-                          <div className="font-bold text-slate-900 group-hover:text-ocean-light transition-colors">
+                          <div className="font-bold text-slate-900 group-hover:text-ocean-light transition-colors flex items-center gap-1.5">
+                            {s.gender && (
+                              <span className="text-xs text-slate-400 font-normal">
+                                {s.gender}.
+                              </span>
+                            )}
                             {s.displayName}
                           </div>
                           <div className="text-xs font-medium text-slate-500 mt-0.5">
@@ -169,26 +160,14 @@ export default function StaffTable({
                     {/* Role */}
                     <td className="py-4 px-4">
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${s.role === "admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-slate-100 text-slate-600 border border-slate-200"
-                          }`}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                          s.role === "admin"
+                            ? "bg-purple-100 text-purple-700"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
+                        }`}
                       >
                         {ROLE_LABEL[s.role] ?? s.role}
                       </span>
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Aktif
-                      </span>
-                    </td>
-
-                    {/* Last Active */}
-                    <td className="py-4 px-4 text-slate-500 font-medium text-sm">
-                      {formatLastActive(s.lastSignInTime)}
                     </td>
 
                     {/* Actions — using shared TableActionButtons */}

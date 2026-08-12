@@ -9,8 +9,9 @@ export const dynamic = "force-dynamic";
 async function ClientListSection() {
   const result = await getAllMitra();
   const initialMitra = result.mitra ?? [];
+  const totalMitraProducts = result.totalMitraProducts ?? 214;
 
-  return <MitraClient initialMitra={initialMitra} />;
+  return <MitraClient initialMitra={initialMitra} totalMitraProducts={totalMitraProducts} />;
 }
 
 function MitraSkeleton() {

@@ -18,7 +18,7 @@ interface NavProps {
 }
 
 export default function NavMasonryGrid({ storeName = "Posko UKM Jasuda", isPremium = false }: NavProps) {
-  const { cartCount } = useStore();
+  const { user, isLoggedIn } = useStore();
   const [selectedFilter, setSelectedFilter] = useState("All");
   const mainRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -146,20 +146,6 @@ export default function NavMasonryGrid({ storeName = "Posko UKM Jasuda", isPremi
                 >
                   <ShoppingCart className="w-5 h-5" />
                 </motion.div>
-                <AnimatePresence>
-                  {cartCount > 0 && (
-                    <motion.span 
-                      key={cartCount}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
-                    >
-                      {cartCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
               </Link>
             </MagneticButton>
             <MagneticButton>

@@ -1,7 +1,5 @@
 "use client";
 
-import React from 'react';
-
 export default function HomeLoading() {
   return (
     <div className="grow flex flex-col min-h-screen bg-surface">

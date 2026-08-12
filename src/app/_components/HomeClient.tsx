@@ -2,7 +2,8 @@
 
 import React, { useRef, MouseEvent, useEffect, useState } from "react";
 import { useStore } from "@/components/context/StoreContext";
-import { getProductsByStore } from '@/lib/actions/product';
+import { getAllProduct } from '@/lib/actions/product';
+import { getAllMitra } from '@/lib/actions/mitra';
 import type { Product } from '@/lib/actions/product';
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import {
@@ -38,7 +39,7 @@ function AnimatedCounter({
   title: string;
   description?: string;
 }) {
-  const ref = useRef<HTMLHeadingElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-50px" });
 
@@ -49,13 +50,13 @@ function AnimatedCounter({
         ease: "easeOut",
         onUpdate(value) {
           if (ref.current) {
-            ref.current.textContent = Math.round(value) + suffix;
+            ref.current.textContent = Math.round(value).toString();
           }
         },
       });
       return () => controls.stop();
     }
-  }, [isInView, to, suffix]);
+  }, [isInView, to]);
 
   return (
     <div
@@ -64,10 +65,9 @@ function AnimatedCounter({
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-all pointer-events-none"></div>
       <h3
-        ref={ref}
-        className="text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-primary to-secondary mb-3 drop-shadow-xs"
+        className="text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-primary to-secondary mb-3 drop-shadow-xs flex items-center justify-center"
       >
-        0{suffix}
+        <span ref={ref}>0</span>{suffix}
       </h3>
       <div className="font-bold text-xl md:text-2xl text-on-background mb-2">
         {title}
@@ -81,117 +81,9 @@ function AnimatedCounter({
   );
 }
 
-const MOCK_MARQUEE_PRODUCTS = [
-  {
-    name: "Ekstrak Alga Merah",
-    price: "45k",
-    vendor: "Nori Naturals",
-    image:
-      "https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Pupuk Organik Laut",
-    price: "25k",
-    vendor: "Pacific Harvest",
-    image:
-      "https://images.unsplash.com/photo-1592844111364-754f24ef13c3?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Kelp Kering Premium",
-    price: "30k",
-    vendor: "Emerald Cove",
-    image:
-      "https://images.unsplash.com/photo-1564414545041-3b764b85c39b?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Kapsul Minyak Alga",
-    price: "85k",
-    vendor: "Crimson Tides",
-    image:
-      "https://images.unsplash.com/photo-1584308666744-24d5e1823eb5?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Masker Wajah Botani",
-    price: "55k",
-    vendor: "Deep Blue Kelp",
-    image:
-      "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Sirup Rumput Laut",
-    price: "40k",
-    vendor: "Kelp Forest Co.",
-    image:
-      "https://images.unsplash.com/photo-1520024146169-3240400354ae?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Agar-Agar Serbuk",
-    price: "20k",
-    vendor: "Artisan Agar",
-    image:
-      "https://images.unsplash.com/photo-1591189860430-b3af9e4df6a8?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Gel Peremajaan Kulit",
-    price: "90k",
-    vendor: "Seaweed Botanicals",
-    image:
-      "https://images.unsplash.com/photo-1556228578-8d89ce4c94de?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Kombucha Rumput Laut",
-    price: "35k",
-    vendor: "Oceanic Brews",
-    image:
-      "https://images.unsplash.com/photo-1588698943615-56269f8ed7c1?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Bumbu Nori Pedas",
-    price: "15k",
-    vendor: "Spicy Seas",
-    image:
-      "https://images.unsplash.com/photo-1518712918804-067664c39174?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Sabun Batang Alga",
-    price: "25k",
-    vendor: "Purity Sea",
-    image:
-      "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Serum Wajah Laut",
-    price: "120k",
-    vendor: "Marine Glow",
-    image:
-      "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Kelp Noodle Organik",
-    price: "45k",
-    vendor: "Kelp & Co",
-    image:
-      "https://images.unsplash.com/photo-1583338917451-face2751d8d5?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Keripik Rumput Laut",
-    price: "12k",
-    vendor: "Crispy Kelp",
-    image:
-      "https://images.unsplash.com/photo-1622359419086-4e08c02c918c?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-  {
-    name: "Pakan Ternak Laut",
-    price: "150k",
-    vendor: "AgriSea",
-    image:
-      "https://images.unsplash.com/photo-1551062947-f4e3c32e54e4?auto=format&fit=crop&q=80&w=400&h=500",
-  },
-];
-
 function ProductMarquee({ products = [] }: { products?: any[] }) {
-  const { openProductModal, addToCart } = useStore();
-  const displayProducts = products.length > 0 ? products : MOCK_MARQUEE_PRODUCTS;
+  const { openProductModal } = useStore();
+  const displayProducts = products;
   const duplicatedProducts = [
     ...displayProducts,
     ...displayProducts,
@@ -223,18 +115,19 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
           <div
             key={i}
             onClick={() => openProductModal({
-              id: product.id || product.name,
+              id: String(product.id),
               name: product.name,
               price: product.price,
-              description: product.desc || "Produk unggulan dari Jasuda.",
-              vendor: product.vendor || (product.storeId === 'jasuda' ? 'Jasuda' : 'Jasuda'),
-              image: product.image
+              description: product.description || product.desc || "Produk unggulan dari Jasuda.",
+              vendor: product.isJasudaProduct ? "Jasuda" : (product.vendor || "Mitra Jasuda"),
+              image: product.imageUrl || product.image || "/image/nothing%20picture.webp",
+              shopeeLink: product.shopeeLink
             })}
             className="w-64 h-80 shrink-0 bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-xs hover:shadow-xl transition-all flex flex-col group cursor-pointer hover:-translate-y-1"
           >
             <div className="h-44 relative overflow-hidden bg-surface-container shrink-0">
               <img
-                src={product.image}
+                src={product.imageUrl || product.image || "/image/nothing%20picture.webp"}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -246,28 +139,29 @@ function ProductMarquee({ products = [] }: { products?: any[] }) {
               </h3>
               <div className="text-xs text-on-surface-variant mb-4 font-medium flex items-center gap-1.5">
                 <Store className="w-3.5 h-3.5" />
-                {product.vendor || (product.storeId === 'jasuda' ? 'Jasuda' : 'Jasuda')}
+                {product.isJasudaProduct ? "Jasuda" : (product.vendor || "Mitra Jasuda")}
               </div>
               <div className="mt-auto flex items-center justify-between">
                 <span className="font-bold text-lg text-primary">
-                  {product.price.toString().endsWith('k') ? product.price : `Rp ${product.price.toLocaleString('id-ID')}`}
+                  {typeof product.price === 'number' ? `Rp ${product.price.toLocaleString('id-ID')}` : product.price}
                 </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    addToCart({
-                      id: product.id || product.name,
+                    openProductModal({
+                      id: String(product.id),
                       name: product.name,
-                      price: typeof product.price === 'string' ? parseInt(product.price.replace(/\D/g, '')) || 0 : product.price,
-                      image: product.image,
-                      unit: product.unit || 'Item',
-                      seller: product.vendor || 'Jasuda',
+                      price: product.price,
+                      description: product.description || product.desc || "Produk unggulan dari Jasuda.",
+                      vendor: product.isJasudaProduct ? "Jasuda" : (product.vendor || "Mitra Jasuda"),
+                      image: product.imageUrl || product.image || "/image/nothing%20picture.webp",
+                      shopeeLink: product.shopeeLink
                     });
                   }}
                   className="text-xs font-bold bg-primary text-white px-3 py-2 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-md flex items-center gap-1.5 active:scale-[0.98]"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
-                  Tambahkan
+                  Beli
                 </button>
               </div>
             </div>
@@ -300,20 +194,29 @@ const itemVariants: Variants = {
 };
 
 export default function HomeClient() {
-  const [jasudaProducts, setJasudaProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [mitraCount, setMitraCount] = useState<number>(0);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getProductsByStore('jasuda');
-        if (data.success && data.products) {
-          setJasudaProducts(data.products);
+        const [productsRes, mitraRes] = await Promise.all([
+          getAllProduct(),
+          getAllMitra()
+        ]);
+        
+        if (productsRes.success && productsRes.products) {
+          setAllProducts(productsRes.products);
+        }
+        
+        if (mitraRes.success && mitraRes.mitra) {
+          setMitraCount(mitraRes.mitra.length);
         }
       } catch (e) {
-        console.error("Error fetching Jasuda products:", e);
+        console.error("Error fetching data:", e);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Fluid background tracking
@@ -405,55 +308,65 @@ export default function HomeClient() {
 
         {/* Featured Categories Bento Grid */}
         <section id="home-featured-categories" className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Bento 1: Premium Culinary Kelp */}
+          {/* Bento 1: Dynamic Product 1 */}
           <div className="md:col-span-2">
-            <InteractiveProductCard
-              href="/mitra"
-              imageSrc="/image/nori%20flakes.webp"
-              title="Nori Flakes"
-              description="Bumbu tabur ulva"
-              isWide={true}
-              priceDisplay="30k"
-            />
+            {allProducts.length > 0 ? (
+              <InteractiveProductCard
+                href="/semua-produk-jasuda"
+                imageSrc={allProducts[0].imageUrl || "/image/nothing%20picture.webp"}
+                title={allProducts[0].name}
+                description={allProducts[0].description || "Produk Pilihan"}
+                isWide={true}
+                priceDisplay={typeof allProducts[0].price === 'number' ? `Rp ${allProducts[0].price.toLocaleString('id-ID')}` : String(allProducts[0].price)}
+              />
+            ) : (
+              <div className="w-full h-full min-h-64 bg-surface-container animate-pulse rounded-3xl"></div>
+            )}
           </div>
 
           {/* Animated Counter 1: Mitra */}
-          <AnimatedCounter to={70} suffix="+" title="Mitra UMKM" />
+          <AnimatedCounter to={mitraCount > 0 ? mitraCount : 70} suffix={mitraCount > 0 ? "" : "+"} title="Mitra UMKM" />
 
           {/* Animated Counter 2: Varian Produk */}
-          <AnimatedCounter to={200} suffix="+" title="Varian Produk" />
+          <AnimatedCounter to={allProducts.length > 0 ? allProducts.length : 200} suffix={allProducts.length > 0 ? "" : "+"} title="Varian Produk" />
 
-          {/* Bento 4: Rare Red Algae */}
+          {/* Bento 4: Dynamic Product 2 */}
           <div className="md:col-span-2">
-            <InteractiveProductCard
-              href="/mitra"
-              title="Pizzata'"
-              description="Pizza Rumput Laut"
-              imageSrc="/image/pizzata.webp"
-              isWide={true}
-              priceDisplay="35k"
-            />
+            {allProducts.length > 1 ? (
+              <InteractiveProductCard
+                href="/semua-produk-jasuda"
+                title={allProducts[1].name}
+                description={allProducts[1].description || "Produk Pilihan"}
+                imageSrc={allProducts[1].imageUrl || "/image/nothing%20picture.webp"}
+                isWide={true}
+                priceDisplay={typeof allProducts[1].price === 'number' ? `Rp ${allProducts[1].price.toLocaleString('id-ID')}` : String(allProducts[1].price)}
+              />
+            ) : (
+              <div className="w-full h-full min-h-64 bg-surface-container animate-pulse rounded-3xl"></div>
+            )}
           </div>
         </section>
 
         {/* Infinite Scrolling Product Marquee */}
-        <section id="home-product-marquee" className="mt-8">
-          <div className="px-2 mb-2 flex items-center justify-between">
-            <h2 className="text-2xl font-extrabold text-on-background">
-              Produk Unggulan
-            </h2>
-            <Link
-              href="/produk-unggulan"
-              className="group text-sm font-bold text-white bg-linear-to-r from-primary to-secondary px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(10,132,255,0.39)] hover:shadow-[0_6px_20px_rgba(10,132,255,0.43)] hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex items-center gap-2"
-            >
-              Lihat Semua{" "}
-              <span className="group-hover:translate-x-1 transition-transform">
-                →
-              </span>
-            </Link>
-          </div>
-          <ProductMarquee products={jasudaProducts} />
-        </section>
+        {allProducts && allProducts.length > 0 && (
+          <section id="home-product-marquee" className="mt-8">
+            <div className="px-2 mb-2 flex items-center justify-between">
+              <h2 className="text-2xl font-extrabold text-on-background">
+                Produk Unggulan
+              </h2>
+              <Link
+                href="/produk-unggulan"
+                className="group text-sm font-bold text-white bg-linear-to-r from-primary to-secondary px-6 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(10,132,255,0.39)] hover:shadow-[0_6px_20px_rgba(10,132,255,0.43)] hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex items-center gap-2"
+              >
+                Lihat Semua{" "}
+                <span className="group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </Link>
+            </div>
+            <ProductMarquee products={[...allProducts].sort((a, b) => (b.countBuyer || 0) - (a.countBuyer || 0)).slice(0, 15)} />
+          </section>
+        )}
       </main>
     </div>
   );

@@ -33,7 +33,7 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
         router.replace('/');
       } else if (isRestrictedForEditor) {
         // Editor accessing restricted path, redirect to allowed page
-        router.replace('/admin/pesanan');
+        router.replace('/admin/produk');
       }
     }
   }, [isLoggedIn, isAdmin, isEditor, loading, router, isRestrictedForEditor]);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import * as XLSX from "xlsx";
 import {
     Download,
     Plus,
@@ -15,6 +16,8 @@ import {
 import { deleteProduct, toggleProductFavorite } from "@/lib/actions/product";
 import type { Product } from "@/lib/actions/product";
 import type { MitraSelectOption } from "@/lib/actions/mitra";
+import { isJasudaPosko } from "@/lib/utils";
+import { useStore } from "@/components/context/StoreContext";
 
 import InventarisTable from "./ProdukTable";
 import AddProductDrawer from "@/app/admin/produk/_components/AddForm";
@@ -100,12 +103,13 @@ interface Props {
 }
 
 export default function InventarisClient({ initialProducts, initialMitra }: Props) {
+    const { user } = useStore();
     const [productsData, setProductsData] = useState<Product[]>(initialProducts);
     const [activeTab, setActiveTab] = useState<"jasuda" | "tenant">("jasuda");
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-    const [stockFilter, setStockFilter] = useState<"semua" | "tersedia" | "habis">("semua");
+    const [stockFilter, setStockFilter] = useState<"semua" | "tersedia" | "rendah" | "habis">("semua");
     const [lowStockThreshold, setLowStockThreshold] = useState(15);
     const [itemsPerPage, setItemsPerPage] = useState(30);
     const [currentPage, setCurrentPage] = useState(1);
@@ -115,24 +119,34 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
 
     const [, startDeleteTransition] = useTransition();
 
+    useEffect(() => {
+        setProductsData(initialProducts);
+    }, [initialProducts]);
+
     // --- Derived data ---
     const allProducts = productsData;
 
     const tabProducts = productsData.filter((p) => {
+        const isJasuda = p.isJasudaProduct || isJasudaPosko(p.client_id, p.corp_name);
         if (activeTab === "jasuda") {
-            return p.client_id === "jasuda";
+            return isJasuda;
         } else {
-            return p.client_id !== "jasuda";
+            return !isJasuda;
         }
     });
 
-    const searchFiltered = tabProducts.filter((p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.category || "").toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const searchFiltered = tabProducts.filter((p) => {
+        const mitraName = p.corp_name || (p.isJasudaProduct ? "Jasuda" : "Mitra Posko");
+        return (
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (p.category || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            mitraName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    });
 
     const stockFiltered = searchFiltered.filter((p) => {
-        if (stockFilter === "tersedia") return p.stock > 0;
+        if (stockFilter === "tersedia") return p.stock > lowStockThreshold;
+        if (stockFilter === "rendah") return p.stock <= lowStockThreshold;
         if (stockFilter === "habis") return p.stock === 0;
         return true;
     });
@@ -159,7 +173,7 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
         setSearchQuery("");
     };
 
-    const handleStockFilterChange = (filter: "semua" | "tersedia" | "habis") => {
+    const handleStockFilterChange = (filter: "semua" | "tersedia" | "rendah" | "habis") => {
         setStockFilter(filter);
         setCurrentPage(1);
     };
@@ -171,23 +185,30 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
         setFavorites((prev) =>
             prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
         );
+        setProductsData((prev) =>
+            prev.map((p) => (p.id === id ? { ...p, favorite: !currentStatus } : p))
+        );
 
         try {
-            const res = await toggleProductFavorite(id, currentStatus);
+            const targetProd = productsData.find((p) => p.id === id);
+            const res = await toggleProductFavorite(id, currentStatus, undefined, targetProd?.name);
             if (!res.success) {
                 // Rollback on failure
                 setFavorites((prev) =>
                     currentStatus ? [...prev, id] : prev.filter((fid) => fid !== id)
                 );
-                alert(res.error || "Gagal mengubah status favorit produk.");
+                setProductsData((prev) =>
+                    prev.map((p) => (p.id === id ? { ...p, favorite: currentStatus } : p))
+                );
             }
         } catch (err) {
             console.error(err);
-            // Rollback on failure
             setFavorites((prev) =>
                 currentStatus ? [...prev, id] : prev.filter((fid) => fid !== id)
             );
-            alert("Terjadi kesalahan saat mengubah status favorit produk.");
+            setProductsData((prev) =>
+                prev.map((p) => (p.id === id ? { ...p, favorite: currentStatus } : p))
+            );
         }
     };
 
@@ -196,7 +217,12 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
         setProductsData((prev) => prev.filter((p) => p.id !== product.id));
 
         startDeleteTransition(async () => {
-            const result = await deleteProduct(product.id);
+            const actor = user ? {
+                actorId: user.uid,
+                actorName: user.displayName,
+                actorRole: user.role
+            } : undefined;
+            const result = await deleteProduct(product.id, actor, product.name);
             if (!result.success) {
                 // Rollback on failure
                 setProductsData((prev) => [product, ...prev]);
@@ -205,7 +231,41 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
         });
     };
 
-    const lowStockCount = allProducts.filter((p) => p.stock > 0 && p.stock < lowStockThreshold).length;
+    const handleExport = () => {
+        // Format the data
+        const exportData = allProducts.map((p, index) => ({
+            "No": index + 1,
+            "Nama Produk": p.name,
+            "Tipe": p.isJasudaProduct ? "Produk Jasuda" : "Produk Mitra",
+            "Mitra": p.corp_name || (p.isJasudaProduct ? "Jasuda" : "Mitra Posko"),
+            "Harga": p.price,
+            "Stok": p.stock,
+            "Kategori": p.category || "-",
+            "Deskripsi": p.description || "-",
+            "Link Shopee": p.shopeeLink || "-"
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Data Produk");
+
+        // Set column widths for neatness
+        worksheet["!cols"] = [
+            { wch: 5 },  // No
+            { wch: 40 }, // Nama
+            { wch: 15 }, // Tipe
+            { wch: 25 }, // Mitra
+            { wch: 15 }, // Harga
+            { wch: 10 }, // Stok
+            { wch: 20 }, // Kategori
+            { wch: 50 }, // Deskripsi
+            { wch: 30 }  // Link
+        ];
+
+        XLSX.writeFile(workbook, "Data_Produk_Jasuda.xlsx");
+    };
+
+    const lowStockCount = allProducts.filter((p) => p.stock <= lowStockThreshold).length;
     const outOfStockCount = allProducts.filter((p) => p.stock === 0).length;
 
     return (
@@ -221,7 +281,10 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
-                    <button className="flex h-10 items-center gap-2 bg-white text-slate-700 font-bold text-sm rounded-lg border border-slate-200 px-5 hover:bg-slate-50 hover:text-ocean-dark transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md shrink-0">
+                    <button 
+                        onClick={handleExport}
+                        className="flex h-10 items-center gap-2 bg-white text-slate-700 font-bold text-sm rounded-lg border border-slate-200 px-5 hover:bg-slate-50 hover:text-ocean-dark transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md shrink-0 cursor-pointer"
+                    >
                         <Download className="w-4 h-4" />
                         <span className="whitespace-nowrap">Ekspor</span>
                     </button>
@@ -239,7 +302,9 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
             {/* Analytics Cards */}
             <section id="inventory-analytics" className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
                 {/* Total Products */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100/50 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
+                <div 
+                    className="rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between group bg-white border-slate-100/50 shadow-sm hover:shadow-md"
+                >
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-blue-50 rounded-lg group-hover:scale-105 transition-transform">
                             <Store className="text-ocean-light w-6 h-6" />
@@ -255,7 +320,9 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
                 </div>
 
                 {/* Low Stock */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100/50 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
+                <div 
+                    className="rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between group bg-white border-slate-100/50 shadow-sm hover:shadow-md"
+                >
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-rose-50 rounded-lg group-hover:scale-105 transition-transform">
                             <AlertTriangle className="text-rose-600 w-6 h-6" />
@@ -268,7 +335,9 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
                 </div>
 
                 {/* Out of Stock */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100/50 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
+                <div 
+                    className="rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between group bg-white border-slate-100/50 shadow-sm hover:shadow-md"
+                >
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-2 bg-slate-50 rounded-lg group-hover:scale-105 transition-transform">
                             <Store className="text-slate-400 w-6 h-6" />
@@ -310,26 +379,27 @@ export default function InventarisClient({ initialProducts, initialMitra }: Prop
                             <FilterDropdown
                                 value={String(lowStockThreshold)}
                                 onChange={(val) => setLowStockThreshold(Number(val))}
-                                label="Stok Rendah"
+                                label="Batas Stok Rendah"
                                 options={[
-                                    { label: "Stok < 5", value: "5" },
-                                    { label: "Stok < 10", value: "10" },
-                                    { label: "Stok < 15", value: "15" },
-                                    { label: "Stok < 20", value: "20" },
-                                    { label: "Stok < 25", value: "25" },
-                                    { label: "Stok < 50", value: "50" },
+                                    { label: "Batas ≤ 5", value: "5" },
+                                    { label: "Batas ≤ 10", value: "10" },
+                                    { label: "Batas ≤ 15", value: "15" },
+                                    { label: "Batas ≤ 20", value: "20" },
+                                    { label: "Batas ≤ 25", value: "25" },
+                                    { label: "Batas ≤ 50", value: "50" },
                                 ]}
                             />
                             <FilterDropdown
                                 value={stockFilter}
                                 onChange={(val) =>
-                                    handleStockFilterChange(val as "semua" | "tersedia" | "habis")
+                                    handleStockFilterChange(val as "semua" | "tersedia" | "rendah" | "habis")
                                 }
-                                label="Status Produk"
+                                label="Status Stok"
                                 options={[
-                                    { label: "Semua", value: "semua" },
-                                    { label: "Tersedia", value: "tersedia" },
-                                    { label: "Habis", value: "habis" },
+                                    { label: "Semua Status", value: "semua" },
+                                    { label: "Stok Tersedia", value: "tersedia" },
+                                    { label: "Stok Rendah", value: "rendah" },
+                                    { label: "Stok Habis (0)", value: "habis" },
                                 ]}
                             />
                             <FilterDropdown

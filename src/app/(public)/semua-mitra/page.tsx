@@ -1,61 +1,56 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useStore } from "@/components/context/StoreContext";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import { ShoppingBag, ChevronLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
-const BASE_PRODUCTS = [
-  { id: 1, name: "Dried Sugar Kelp (Bulk)", vendor: "KelpCo", price: 140000, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCEgnImVVyWzRlAzz1WBhPpFJH2t8ZcB8bwtdUfP0HFZZQ4MCDd2GP2UWHWC_h3T-6CDyqsDp0qYMa-3-1FRfK1ODGxLi5FtVQHv-IkvXPk0ZzNT4OfNkuaGXOHz2cKwwfwFsksBxnoAJa8LiSngR8IJIxBPR0JpApNtcIKaRAZo_ZipLrOcDZiZiGx7ImduAPEeOhwfspvLm4EDBJ8sEty3_zrn20H6SLBYKkR_XltA_kOgjy0ydpanA" },
-  { id: 2, name: "Dulse Flakes", vendor: "Dulse & Co.", price: 85500, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC8eyCvqCqC_TmP3jEq3wL1-d0e6koXCzZ00XER1IqzbrF9BXnNNKWSz3pUguftUDvN9_bwnEqGWFdlC2F6nw0XKxAy7eq7dZ5cTSlbw9jLOlB262fgunkpMNTFcVKLhzMlqtsjHVqQK9izWFEDGcNRZv19DqIrr_yexwMSscJgUxTIYtvV5bfegClIiM9Nr2oA8y5gNkNRusVuop6aNWcpsCpITJZ0tXlQP-_IKNxj98eWim4mOloJRw" },
-  { id: 3, name: "Kombu Extract Grade A", vendor: "AquaFarms Premium", price: 320000, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBnRq9G03Xsc67-dYa1QNuhbnBu45r91bag1xIf22VcUtN17R8t0HhEEqs8edIpxknd2nRAhRF0ODN6UdA86g7Ymn4lDPgG45wXlcG-yBVLw1XxMwYJkcs9s2CFyFRorD8qf0siAhVqreDIatBX5oFdycShd5sko6ff2Zfb3yJ6pC1zuX2NybMdbOapnaKLs-7uIZNLEFHjWU5Q1fkS0VLZtZY8dlbdl8mML_kPo8GY5xQxxUL9xScXMA" },
-  { id: 4, name: "Nori Sheets Wholesale", vendor: "Nori Harvests", price: 45000, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCj-ZK2G1-WGwbzG30dpgfk0XqHefFeVzV0KZZoA90atcxAj-ykqq_sh0YPLm9QZX2LW8CjOp9YqwSKgJVMwj9oRZjFQwwXorgZuqIG5qynKNFHVTYrOURMJeuee7z8h1EEka88nHYh3xMlVtxbESbXEXCD-_earzcFGgn34wJN9r-M1p0b70rlzlUU3BV7M_hoSxI-2xpxTSV2XjLpa7QTMNswlUpFvSk-JByzxGF4HZQ1FH6Yo1eiMA" },
-];
-
-const ALL_PRODUCTS = Array.from({ length: 40 }).map((_, i) => ({
-  ...BASE_PRODUCTS[i % 4],
-  id: i + 1,
-}));
+import { getAllProduct, type Product } from "@/lib/actions/product";
 
 export default function TenantSemuaProduk() {
-  const { activeNav, addToCart, openProductModal } = useStore();
+  const { activeNav, openProductModal } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        const res = await getAllProduct();
+        if (res.success && res.products) {
+          setProducts(res.products);
+        }
+      } catch (err) {
+        console.error("Failed to load products for semua-mitra:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
 
   const groupedProducts = useMemo(() => {
-    // filter first
-    const filtered = ALL_PRODUCTS.filter((p) => 
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      p.vendor.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = products.filter((p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.corp_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // group
-    const groups: Record<string, typeof ALL_PRODUCTS> = {};
+    const groups: Record<string, Product[]> = {};
     filtered.forEach((p) => {
-      if (!groups[p.vendor]) groups[p.vendor] = [];
-      groups[p.vendor].push(p);
+      const vendorName = p.corp_name || "Mitra Posko";
+      if (!groups[vendorName]) groups[vendorName] = [];
+      groups[vendorName].push(p);
     });
 
-    // sort vendors A-Z
     const sortedVendors = Object.keys(groups).sort((a, b) => a.localeCompare(b));
 
     return sortedVendors.map((vendor) => ({
       vendor,
-      products: groups[vendor]
+      products: groups[vendor],
     }));
-  }, [searchQuery]);
-
-  const handleAddToCart = (product: any) => {
-    addToCart({
-      id: `tenant-${product.id}`,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      unit: "Standar",
-      seller: product.vendor,
-    });
-  };
+  }, [products, searchQuery]);
 
   const isHeaderOnlyNav = activeNav === 1 || activeNav === 2;
 
@@ -103,7 +98,13 @@ export default function TenantSemuaProduk() {
 
           {/* Product Grid */}
           <section id="product-grid-section" className="max-w-7xl mx-auto px-6 py-12">
-            {groupedProducts.length === 0 ? (
+            {loading ? (
+              <div className="flex flex-col gap-8">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-60 bg-slate-200/60 animate-pulse rounded-2xl"></div>
+                ))}
+              </div>
+            ) : groupedProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-surface-variant/20 rounded-full flex items-center justify-center mb-4">
                   <Search className="w-6 h-6 text-on-surface-variant" />
@@ -129,50 +130,53 @@ export default function TenantSemuaProduk() {
                           transition={{ delay: (index % 4) * 0.05 }}
                           whileHover={{ scale: 1.02 }}
                           onClick={() => openProductModal({
-                            id: product.id.toString(),
+                            id: product.id,
                             name: product.name,
-                            price: product.price,
-                            description: `Produk premium dari ${product.vendor}`,
-                            image: product.image,
-                            vendor: product.vendor,
-                            unit: "Item"
+                            price: `Rp ${product.price.toLocaleString("id-ID")}`,
+                            description: product.description || `Produk premium dari ${group.vendor}`,
+                            image: product.imageUrl,
+                            vendor: group.vendor,
+                            unit: product.netWeight || "Item"
                           })}
                           className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
                         >
                           <img
-                            src={product.image}
+                            src={product.imageUrl}
                             alt={product.name}
+                            onError={(e) => {
+                              e.currentTarget.src = "/image/nothing%20picture.webp";
+                            }}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                           <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent pointer-events-none z-10"></div>
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
                           
-                          {/* Hover Button (Center) */}
+                          {/* Hover Button */}
                           <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                             <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  addToCart({
-                                    id: product.id.toString(),
+                                  openProductModal({
+                                    id: String(product.id),
                                     name: product.name,
-                                    price: typeof product.price === 'string' ? parseInt((product.price as string).replace(/\D/g, '')) || 0 : product.price,
-                                    image: product.image,
-                                    unit: "Item",
-                                    seller: product.vendor
+                                    price: product.price,
+                                    image: product.imageUrl || '/image/nothing%20picture.webp',
+                                    description: product.description,
+                                    vendor: group.vendor,
                                   });
                                 }}
-                                className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
+                                className="bg-surface-container-high hover:bg-[#EE4D2D] hover:text-white text-on-surface px-3 py-1.5 rounded-full transition-colors shrink-0 shadow-sm flex items-center gap-1.5 whitespace-nowrap text-sm font-medium"
                               >
-                                <ShoppingBag className="w-4 h-4" /> Tambahkan
+                                <ShoppingBag className="w-4 h-4 shrink-0" /> Beli
                               </button>
                             </div>
                           </div>
 
-                          {/* Title and Price (No Description) */}
+                          {/* Title and Price */}
                           <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
                             <div className="flex flex-col gap-1.5">
-                              <h3 className="font-bold text-base drop-shadow-md leading-tight">{product.name}</h3>
+                              <h3 className="font-bold text-base drop-shadow-md leading-tight line-clamp-2">{product.name}</h3>
                               <span className="font-extrabold text-primary-container text-sm drop-shadow-md w-max bg-black/20 px-2.5 py-1 rounded-md backdrop-blur-xs">
                                 Rp {product.price.toLocaleString("id-ID")}
                               </span>

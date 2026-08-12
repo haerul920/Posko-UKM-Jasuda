@@ -46,11 +46,11 @@ export default function GlobalFooter() {
               </li>
               <li className="flex items-center gap-3 text-sm text-on-surface-variant">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                <span>+62 .....</span>
+                <span>+62 821-9158-4323</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-on-surface-variant">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
-                <span>posko@jasuda.net</span>
+                <span>team@jasuda.net</span>
               </li>
             </ul>
           </div>

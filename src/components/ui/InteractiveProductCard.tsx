@@ -2,8 +2,6 @@
 
 import React, { useRef, useState, MouseEvent } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
-import Link from "next/link";
 import { useStore } from "../context/StoreContext";
 
 interface InteractiveProductCardProps {
@@ -16,6 +14,7 @@ interface InteractiveProductCardProps {
   isWide?: boolean;
   className?: string;
   priceDisplay?: string;
+  shopeeLink?: string;
 }
 
 export default function InteractiveProductCard({
@@ -28,8 +27,9 @@ export default function InteractiveProductCard({
   isWide = false,
   className = "",
   priceDisplay,
+  shopeeLink,
 }: InteractiveProductCardProps) {
-  const { addToCart, openProductModal } = useStore();
+  const { openProductModal } = useStore();
   const ref = useRef<HTMLAnchorElement>(null);
   
   // Motion values for 3D tilt
@@ -71,18 +71,7 @@ export default function InteractiveProductCard({
     setIsHovered(true);
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart({
-      id: title.toLowerCase().replace(/\s+/g, '-'),
-      name: title,
-      price: priceDisplay ? parseInt(priceDisplay.replace(/\D/g, '')) || 0 : 25.00,
-      image: imageSrc,
-      unit: "1 Pack",
-      seller: "Posko UKM Jasuda"
-    });
-  };
+
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -93,6 +82,7 @@ export default function InteractiveProductCard({
       image: imageSrc,
       description: description,
       vendor: "Posko UKM Jasuda",
+      shopeeLink: shopeeLink,
     });
   };
 
@@ -137,13 +127,13 @@ export default function InteractiveProductCard({
               className="absolute inset-0 bg-surface/30 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
             >
               <motion.button
-                onClick={handleAddToCart}
+                onClick={handleClick}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className="bg-primary text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-lg flex items-center gap-2 hover:bg-primary-container hover:text-on-primary-container transition-colors pointer-events-auto"
+                className="bg-[#EE4D2D] text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-lg flex items-center gap-2 hover:bg-[#EE4D2D]/90 transition-colors pointer-events-auto"
               >
-                <ShoppingBag className="w-4 h-4" /> Tambahkan ke Keranjang
+                Beli Produk
               </motion.button>
             </motion.div>
           </div>
@@ -194,12 +184,12 @@ export default function InteractiveProductCard({
               Jelajahi <span>→</span>
             </span>
             <motion.button
-              onClick={handleAddToCart}
+              onClick={handleClick}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
-              className="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary hover:text-white flex items-center justify-center text-primary transition-colors shadow-sm"
+              className="w-auto px-4 py-1.5 rounded-full bg-[#EE4D2D]/10 hover:bg-[#EE4D2D] hover:text-white text-[#EE4D2D] font-bold text-xs flex items-center justify-center transition-colors shadow-sm"
             >
-              <ShoppingBag className="w-4 h-4" />
+              Beli
             </motion.button>
           </div>
         </div>

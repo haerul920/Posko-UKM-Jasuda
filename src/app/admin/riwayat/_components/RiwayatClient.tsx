@@ -16,6 +16,10 @@ import {
   X,
 } from "lucide-react";
 import { getActivityLogs, type ActivityLog, type ActivityModule } from "@/lib/actions/activity-log";
+import { formatDistanceToNow, format } from "date-fns";
+import { id } from "date-fns/locale";
+import * as XLSX from "xlsx";
+import { formatRelativeTime, formatClientDateTime } from "@/lib/date";
 
 // ---------------------------------------------------------------------------
 // Types & Helpers
@@ -46,9 +50,9 @@ const MODULE_COLORS: Record<ActivityModule, string> = {
   Produk: "bg-blue-50 text-blue-700 border border-blue-100",
   Mitra: "bg-purple-50 text-purple-700 border border-purple-100",
   Staf: "bg-amber-50 text-amber-700 border border-amber-100",
-  Sistem: "bg-slate-100 text-slate-700 border border-slate-200",
+  Sistem: "bg-slate-50 text-slate-700 border border-slate-100",
   Keuangan: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-  Pesanan: "bg-sky-50 text-sky-700 border border-sky-100",
+  Pesanan: "bg-cyan-50 text-cyan-700 border border-cyan-100",
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -86,30 +90,11 @@ const TIME_OPTIONS = [
   { label: "3 Bulan terakhir", hours: 24 * 90 },
 ];
 
-const MODULES: ActivityModule[] = ["Produk", "Mitra", "Staf", "Sistem", "Keuangan", "Pesanan"];
+const MODULES: ActivityModule[] = ["Produk", "Mitra", "Staf"];
 const ITEMS_PER_PAGE = 20;
 
-function formatRelativeTime(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
-  const minutes = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days = Math.floor(diff / 86_400_000);
-
-  if (minutes < 1) return "Baru saja";
-  if (minutes < 60) return `${minutes} menit lalu`;
-  if (hours < 24) return `${hours} jam lalu`;
-  if (days === 1) return "Kemarin";
-  if (days < 7) return `${days} hari lalu`;
-  if (days < 30) return `${Math.floor(days / 7)} minggu lalu`;
-  return new Date(isoString).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 function formatFullTime(isoString: string): string {
-  return new Date(isoString).toLocaleString("id-ID", {
+  return formatClientDateTime(isoString, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -134,29 +119,34 @@ function getRoleBadge(role: string): string {
 // CSV Export helper
 // ---------------------------------------------------------------------------
 
-function exportToCSV(logs: ActivityLog[]) {
-  const headers = ["Waktu", "Pengelola", "Peran", "Modul", "Aksi", "Deskripsi", "Target"];
-  const rows = logs.map((log) => [
-    formatFullTime(log.createdAt),
-    log.actorName,
-    getRoleLabel(log.actorRole),
-    log.module,
-    ACTION_LABELS[log.action] ?? log.action,
-    log.description,
-    log.targetName ?? "-",
-  ]);
+function exportToExcel(logs: ActivityLog[]) {
+  const exportData = logs.map((log, index) => ({
+    "No": index + 1,
+    "Waktu": formatFullTime(log.createdAt),
+    "Pengelola": log.actorName,
+    "Peran": getRoleLabel(log.actorRole),
+    "Modul": log.module,
+    "Aksi": ACTION_LABELS[log.action] ?? log.action,
+    "Deskripsi": log.description,
+    "Target": log.targetName ?? "-",
+  }));
 
-  const csv = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-    .join("\n");
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Aktivitas");
 
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `riwayat-aktivitas-${new Date().toISOString().slice(0, 10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
+  worksheet["!cols"] = [
+    { wch: 5 },  // No
+    { wch: 25 }, // Waktu
+    { wch: 25 }, // Pengelola
+    { wch: 15 }, // Peran
+    { wch: 15 }, // Modul
+    { wch: 20 }, // Aksi
+    { wch: 60 }, // Deskripsi
+    { wch: 25 }, // Target
+  ];
+
+  XLSX.writeFile(workbook, `Riwayat_Aktivitas_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
 // ---------------------------------------------------------------------------
@@ -177,6 +167,7 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
   // UI state
   const [activePopup, setActivePopup] = useState<"module" | "actor" | "time" | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
@@ -239,6 +230,46 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
     fetchLogs(1, "", "", "");
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const fromDate = timeFilter
+        ? new Date(
+            Date.now() - (TIME_OPTIONS.find((t) => t.label === timeFilter)?.hours ?? 24) * 3_600_000,
+          ).toISOString()
+        : undefined;
+
+      const result = await getActivityLogs({
+        module: moduleFilter || undefined,
+        actorId: actorFilter || undefined,
+        fromDate,
+        limit: 999999, // Get all available data matching filter
+      });
+
+      if (result.success) {
+        let exportLogs = result.logs;
+        if (searchQuery) {
+          exportLogs = exportLogs.filter(
+            (log) =>
+              log.actorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (log.targetName ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
+          );
+        }
+        if (exportLogs.length > 0) {
+          exportToExcel(exportLogs);
+        } else {
+          alert("Tidak ada data yang cocok dengan filter untuk diunduh.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat mengekspor data.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Client-side search filter
   const filteredLogs = searchQuery
     ? logs.filter(
@@ -272,20 +303,21 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
 
         <div className="flex items-center gap-3 w-full lg:w-auto">
           <button
-            onClick={handleRefresh}
-            disabled={isPending}
-            className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2.5 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-50"
+            onClick={handleExport}
+            disabled={filteredLogs.length === 0 || isExporting}
+            className="flex items-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-40 shrink-0 min-w-[140px] justify-center"
           >
-            <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
-            Muat Ulang
-          </button>
-          <button
-            onClick={() => exportToCSV(filteredLogs)}
-            disabled={filteredLogs.length === 0}
-            className="flex items-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-40 shrink-0"
-          >
-            <Download className="w-4 h-4" />
-            Unduh CSV
+            {isExporting ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Unduh Excel
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -316,14 +348,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
         <div className="relative">
           <button
             onClick={() => setActivePopup(activePopup === "module" ? null : "module")}
-            className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+            className={`w-40 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
               moduleFilter
                 ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                 : "border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
-            <Filter className="w-4 h-4" />
-            {moduleFilter || "Semua Modul"}
+            <Filter className="w-4 h-4 shrink-0" />
+            <span className="truncate">{moduleFilter || "Semua Modul"}</span>
           </button>
 
           {activePopup === "module" && (
@@ -360,14 +392,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
           <div className="relative">
             <button
               onClick={() => setActivePopup(activePopup === "actor" ? null : "actor")}
-              className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+              className={`w-48 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
                 actorFilter
                   ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                   : "border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
-              <UserCheck className="w-4 h-4" />
-              {activeActor ? activeActor.actorName : "Semua Pengelola"}
+              <UserCheck className="w-4 h-4 shrink-0" />
+              <span className="truncate">{activeActor ? activeActor.actorName : "Semua Pengelola"}</span>
             </button>
 
             {activePopup === "actor" && (
@@ -380,9 +412,9 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
                   >
                     Semua Pengelola
                   </button>
-                  {actors.map((actor) => (
+                  {actors.map((actor, idx) => (
                     <button
-                      key={actor.actorId}
+                      key={`${actor.actorId}-${idx}`}
                       className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors ${
                         actorFilter === actor.actorId ? "bg-ocean-light/5" : ""
                       }`}
@@ -404,14 +436,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
         <div className="relative">
           <button
             onClick={() => setActivePopup(activePopup === "time" ? null : "time")}
-            className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+            className={`w-44 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
               timeFilter
                 ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                 : "border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
-            <Filter className="w-4 h-4" />
-            {timeFilter || "Semua Waktu"}
+            <Filter className="w-4 h-4 shrink-0" />
+            <span className="truncate">{timeFilter || "Semua Waktu"}</span>
           </button>
 
           {activePopup === "time" && (
@@ -440,21 +472,6 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
           )}
         </div>
 
-        {/* Clear filters */}
-        {hasActiveFilter && (
-          <button
-            onClick={() => {
-              setModuleFilter("");
-              setActorFilter("");
-              setTimeFilter("");
-              fetchLogs(1, "", "", "");
-            }}
-            className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap px-2"
-          >
-            <X className="w-4 h-4" />
-            Hapus Filter
-          </button>
-        )}
       </div>
 
       {/* Table */}

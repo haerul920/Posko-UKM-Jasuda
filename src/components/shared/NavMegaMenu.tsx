@@ -11,7 +11,7 @@ interface NavProps {
 }
 
 export default function NavMegaMenu({ storeName = "Posko UKM Jasuda", isPremium = false }: NavProps) {
-  const { cartCount } = useStore();
+  const { activeNav } = useStore();
   const [showMega, setShowMega] = useState(false);
 
   return (
@@ -201,11 +201,6 @@ export default function NavMegaMenu({ storeName = "Posko UKM Jasuda", isPremium 
             className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center scale-95 active:scale-90"
           >
             <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
           </Link>
           <button className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container hidden md:flex items-center justify-center">
             <Bell className="w-5 h-5" />

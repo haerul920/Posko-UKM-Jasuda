@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { UserPlus, Info } from "lucide-react";
+import { UserPlus, Info, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { deleteStaffUser, toggleStaffFavorite } from "@/lib/actions/staff";
 import type { StaffUser } from "@/lib/actions/staff";
 import { useStore } from "@/components/context/StoreContext";
@@ -71,6 +72,28 @@ export default function PengaturanClient({ initialStaff }: Props) {
     });
   };
 
+  const handleExport = () => {
+    const exportData = staffList.map((s, index) => ({
+      "No": index + 1,
+      "Nama Pengelola": s.displayName || "-",
+      "Email": s.email || "-",
+      "Peran": s.role === "admin" ? "Super Admin" : "Editor",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Pengelola");
+
+    worksheet["!cols"] = [
+      { wch: 5 },  // No
+      { wch: 30 }, // Nama
+      { wch: 30 }, // Email
+      { wch: 20 }, // Peran
+    ];
+
+    XLSX.writeFile(workbook, "Data_Pengelola_Jasuda.xlsx");
+  };
+
   return (
     <section>
       <div className="bg-white border border-slate-100/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
@@ -91,6 +114,13 @@ export default function PengaturanClient({ initialStaff }: Props) {
             >
               <Info className="w-5 h-5" />
               Informasi
+            </button>
+            <button
+              onClick={handleExport}
+              className="bg-white border border-slate-300 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm flex items-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              Ekspor
             </button>
             <button
               onClick={() => setIsAddOpen(true)}

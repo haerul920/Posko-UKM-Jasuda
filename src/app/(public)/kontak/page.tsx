@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "@/components/ui/toast";
 import {
   Send,
   Mail,
@@ -10,10 +11,30 @@ import {
   ThumbsUp,
   PlayCircle,
   MapPin,
+  Loader2,
 } from "lucide-react";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 
 export default function KontakPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate API call for sending email
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    toast.add({
+      title: "Pesan Terkirim!",
+      description: "Terima kasih telah menghubungi kami. Tim kami akan segera membalas pesan Anda.",
+      type: "success"
+    });
+    
+    setIsSubmitting(false);
+    (e.target as HTMLFormElement).reset();
+  };
+
   return (
     <div className="flex-1 flex flex-col min-h-screen">
       <ActiveNavigation storeName="Posko UKM Jasuda" />
@@ -44,7 +65,7 @@ export default function KontakPage() {
               <Send className="w-6 h-6 text-primary" /> Kirim Pesan
             </h2>
 
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label
@@ -59,6 +80,7 @@ export default function KontakPage() {
                     placeholder="Nama Anda"
                     required
                     type="text"
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div>
@@ -74,6 +96,7 @@ export default function KontakPage() {
                     placeholder="anda@example.com"
                     required
                     type="email"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -91,6 +114,7 @@ export default function KontakPage() {
                   placeholder="Bagaimana kami bisa membantu?"
                   required
                   type="text"
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -106,15 +130,26 @@ export default function KontakPage() {
                   id="message"
                   placeholder="Tuliskan detail pertanyaan atau kebutuhan Anda..."
                   required
+                  disabled={isSubmitting}
                 ></textarea>
               </div>
 
               <button
-                className="w-full bg-linear-to-br from-primary-container to-[#2E8B57] hover:opacity-90 text-white font-bold text-sm py-4 rounded-xl mt-4 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_-5px_rgba(0,119,190,0.3)] active:scale-[0.98]"
+                className="w-full bg-linear-to-br from-primary-container to-[#2E8B57] hover:opacity-90 text-white font-bold text-sm py-4 rounded-xl mt-4 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_20px_-5px_rgba(0,119,190,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
                 type="submit"
+                disabled={isSubmitting}
               >
-                <span>Kirim Sekarang</span>
-                <Send className="w-4 h-4" />
+                {isSubmitting ? (
+                  <>
+                    <span>Mengirim...</span>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <span>Kirim Sekarang</span>
+                    <Send className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -130,7 +165,7 @@ export default function KontakPage() {
                 {/* Email - Small */}
                 <a
                   className="group flex flex-col items-center justify-center p-6 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:bg-primary/5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                  href="mailto:posko@jasuda.net"
+                  href="mailto:team@jasuda.net"
                 >
                   <Mail className="w-8 h-8 text-primary group-hover:scale-110 transition-transform mb-3" />
                   <span className="text-sm font-bold text-on-surface-variant">
@@ -141,14 +176,16 @@ export default function KontakPage() {
                 {/* WhatsApp - Small (Changed to balance grid) */}
                 <a
                   className="group flex flex-col items-center justify-center p-6 rounded-2xl bg-secondary-container/20 border border-outline-variant/30 hover:bg-secondary-container/40 transition-all duration-300 hover:-translate-y-1"
-                  href="#"
+                  href="https://wa.me/6282191584323"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <MessageSquare className="w-8 h-8 text-secondary group-hover:scale-110 transition-transform mb-3" />
                   <span className="text-sm font-bold text-on-surface-variant">
                     WhatsApp
                   </span>
                   <span className="text-sm text-secondary font-bold mt-1 text-center hidden sm:block">
-                    +62 .....
+                    +62 821-9158-4323
                   </span>
                 </a>
 

@@ -1,7 +1,7 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase/admin";
-import { FieldValue } from "firebase-admin/firestore";
+import pool from "@/lib/db";
+import crypto from "crypto";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -75,17 +75,23 @@ export interface GetActivityLogsFilters {
 
 export async function logActivity(input: ActivityLogInput): Promise<void> {
     try {
-        await adminDb.collection("activity_logs").add({
-            actorId: input.actor.actorId,
-            actorName: input.actor.actorName,
-            actorRole: input.actor.actorRole,
-            action: input.action,
-            module: input.module,
-            description: input.description,
-            targetId: input.targetId ?? null,
-            targetName: input.targetName ?? null,
-            createdAt: FieldValue.serverTimestamp(),
-        });
+        const id = "log_" + Date.now() + "_" + crypto.randomBytes(4).toString("hex");
+        await pool.query(
+            `INSERT INTO activity_logs (id, actor_id, actor_name, actor_role, action, module, description, target_id, target_name, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                id,
+                input.actor.actorId,
+                input.actor.actorName,
+                input.actor.actorRole,
+                input.action,
+                input.module,
+                input.description,
+                input.targetId ?? null,
+                input.targetName ?? null,
+                new Date()
+            ]
+        );
     } catch (err) {
         // Log errors should never crash the main action
         console.error("[logActivity] Failed to write activity log:", err);
@@ -104,76 +110,53 @@ export async function getActivityLogs(
 > {
     try {
         const pageLimit = filters.limit ?? 20;
-
-        // Base query — always order by createdAt desc
-        let query = adminDb
-            .collection("activity_logs")
-            .orderBy("createdAt", "desc") as FirebaseFirestore.Query;
+        const whereClauses: string[] = [];
+        const params: any[] = [];
 
         if (filters.module) {
-            query = query.where("module", "==", filters.module);
+            whereClauses.push("module = ?");
+            params.push(filters.module);
         }
 
         if (filters.actorId) {
-            query = query.where("actorId", "==", filters.actorId);
+            whereClauses.push("actor_id = ?");
+            params.push(filters.actorId);
         }
 
         if (filters.fromDate) {
-            query = query.where(
-                "createdAt",
-                ">=",
-                new Date(filters.fromDate),
-            );
+            whereClauses.push("created_at >= ?");
+            params.push(new Date(filters.fromDate));
         }
 
-        // Cursor pagination
-        if (filters.afterId) {
-            const afterDoc = await adminDb
-                .collection("activity_logs")
-                .doc(filters.afterId)
-                .get();
-            if (afterDoc.exists) {
-                query = query.startAfter(afterDoc);
-            }
-        }
+        const whereSql = whereClauses.length > 0 ? "WHERE " + whereClauses.join(" AND ") : "";
 
-        const snapshot = await query.limit(pageLimit).get();
+        // Query count
+        const [countRows]: any = await pool.query(
+            `SELECT COUNT(*) as total FROM activity_logs ${whereSql}`,
+            params
+        );
+        const total = countRows[0]?.total ?? 0;
 
-        const logs: ActivityLog[] = snapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                actorId: data.actorId ?? "",
-                actorName: data.actorName ?? "Unknown",
-                actorRole: data.actorRole ?? "",
-                action: data.action as ActivityAction,
-                module: data.module as ActivityModule,
-                description: data.description ?? "",
-                targetId: data.targetId ?? undefined,
-                targetName: data.targetName ?? undefined,
-                createdAt: data.createdAt?.toDate
-                    ? (data.createdAt.toDate() as Date).toISOString()
-                    : new Date().toISOString(),
-            };
-        });
+        // Query logs
+        const [rows]: any = await pool.query(
+            `SELECT * FROM activity_logs ${whereSql} ORDER BY created_at DESC LIMIT ?`,
+            [...params, pageLimit]
+        );
 
-        // Total count (unfiltered for the given module/actor)
-        let countQuery = adminDb.collection("activity_logs") as FirebaseFirestore.Query;
-        if (filters.module) {
-            countQuery = countQuery.where("module", "==", filters.module);
-        }
-        if (filters.actorId) {
-            countQuery = countQuery.where("actorId", "==", filters.actorId);
-        }
-        if (filters.fromDate) {
-            countQuery = countQuery.where(
-                "createdAt",
-                ">=",
-                new Date(filters.fromDate),
-            );
-        }
-        const countSnap = await countQuery.count().get();
-        const total = countSnap.data().count;
+        const logs: ActivityLog[] = rows.map((row: any) => ({
+            id: String(row.id),
+            actorId: row.actor_id ?? "",
+            actorName: row.actor_name ?? "Unknown",
+            actorRole: row.actor_role ?? "",
+            action: row.action as ActivityAction,
+            module: row.module as ActivityModule,
+            description: row.description ?? "",
+            targetId: row.target_id ?? undefined,
+            targetName: row.target_name ?? undefined,
+            createdAt: row.created_at
+                ? (row.created_at instanceof Date ? row.created_at.toISOString() : new Date(row.created_at).toISOString())
+                : new Date().toISOString(),
+        }));
 
         return { success: true, logs, total };
     } catch (err: unknown) {
@@ -195,25 +178,15 @@ export async function getActivityActors(): Promise<
     | { success: false; error: string }
 > {
     try {
-        const snapshot = await adminDb
-            .collection("activity_logs")
-            .orderBy("actorName", "asc")
-            .get();
+        const [rows]: any = await pool.query(
+            `SELECT DISTINCT actor_id, actor_name, actor_role FROM activity_logs ORDER BY actor_name ASC`
+        );
 
-        const seen = new Set<string>();
-        const actors: { actorId: string; actorName: string; actorRole: string }[] = [];
-
-        snapshot.docs.forEach((doc) => {
-            const data = doc.data();
-            if (!seen.has(data.actorId)) {
-                seen.add(data.actorId);
-                actors.push({
-                    actorId: data.actorId,
-                    actorName: data.actorName ?? "Unknown",
-                    actorRole: data.actorRole ?? "",
-                });
-            }
-        });
+        const actors = rows.map((row: any) => ({
+            actorId: String(row.actor_id),
+            actorName: row.actor_name ?? "Unknown",
+            actorRole: row.actor_role ?? "",
+        }));
 
         return { success: true, actors };
     } catch (err: unknown) {

@@ -6,28 +6,32 @@ import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import { ShoppingBag, ChevronLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
-const ALL_PRODUCTS = [
-  { title: "Maeki Brownies", price: "Rp 25.000 - Rp 40.000", image: "/image/maeki brownies.webp" },
-  { title: "Golden Seaweed", price: "Rp 15.000 - Rp 30.000", image: "/image/golden seaweed.webp" },
-  { title: "Nori Flakes", price: "Rp 25.000", image: "/image/nori flakes.webp" },
-  { title: "Pizzata'", price: "Rp 35.000", image: "/image/pizzata.webp" },
-  { title: "Keripik Ulvaku", price: "Rp 25.000", image: "/image/keripik ulvaku.webp" },
-  { title: "Seavegie", price: "Rp 40.000", image: "/image/seavegie.webp" },
-  { title: "Stik Ulva", price: "Rp 25.000", image: "/image/stik ulva.webp" },
-  { title: "Seaweed Pudding", price: "Rp 5.000", image: "/image/seaweed pudding.webp" },
-  { title: "Sea Vegetable", price: "Rp 30.000", image: "/image/sea vegetable.webp" },
-  { title: "Sea Plants", price: "Rp 48.000", image: "/image/Sea Plants.webp" },
-  { title: "Alga Merah Premium", price: "Rp 85.000", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBB1NbOih3GLL5Yj9e1BKibIv3Ky-cMiTdIcporh-_acTVbsTThap62M_8WLYb5Oe89w9zaYys68FsptgkSgB3g738b8Qw5GCB0MR1cPvaDVnC7-knJGe_OBbA3AV4x7txrrt2Z2mslv0cIsJL0Xc69MS_c-nYHI7tvp3YWpnLEnJXVEmtgGlkL1AnlB6hC1oaH3L0Hc-accTOk5YmLTo9ZgCR9wJ-YlfNZ5bjaWfff11I43UXKL6cTpA" },
-  { title: "Sayuran Laut Bubuk", price: "Rp 50.000", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDVRcqhnUgeuKBXAjcIeWkuUItKjb6bf-xqdpuTm4SoVEuvEwdHHNHb9Z6qcWBjM46TztffhGgKMKcJKk53mxpUNJvTfbGgHhVq3RrJC6A5F-kERWbSfoWLIns3b7aQVyVOyN73b6xG6oNI8VHZd5MP6Jm0d7j8DbucQ3dPeImo7UdR1wilfxBiCrxOfefrHt7cWAoDLmmsfudNzeFkkEtlc4O22PmBZicP8SWYvfQJVAvHzxJktllJEg" },
-];
+import { getProductsByStore, type Product } from "@/lib/actions/product";
 
 export default function JasudaAllProducts() {
-  const { activeNav, addToCart, openProductModal } = useStore();
+  const { activeNav, openProductModal } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check URL for scrollTo parameter
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        const res = await getProductsByStore("jasuda");
+        if (res.success && res.products) {
+          setProducts(res.products);
+        }
+      } catch (err) {
+        console.error("Failed to load Jasuda products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const scrollTo = params.get("scrollTo");
     if (scrollTo) {
@@ -35,32 +39,20 @@ export default function JasudaAllProducts() {
         const el = document.getElementById(`product-${scrollTo}`);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
-          // Highlight effect
           el.classList.add("ring-4", "ring-primary", "scale-105");
           setTimeout(() => {
             el.classList.remove("ring-4", "ring-primary", "scale-105");
           }, 2000);
         }
-      }, 500); // Wait for render
+      }, 500);
     }
-  }, []);
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
-    return ALL_PRODUCTS.filter((product) =>
-      product.title.toLowerCase().includes(searchQuery.toLowerCase())
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
-
-  const handleAddToCart = (product: any) => {
-    addToCart({
-      id: `jasuda-${product.title.toLowerCase().replace(/\s+/g, "-")}`,
-      name: product.title,
-      price: parseInt(product.price.replace(/\D/g, "")),
-      image: product.image,
-      unit: "Kemasan Standar",
-      seller: "Posko UKM Jasuda",
-    });
-  };
+  }, [products, searchQuery]);
 
   const isHeaderOnlyNav = activeNav === 1 || activeNav === 2;
 
@@ -70,7 +62,6 @@ export default function JasudaAllProducts() {
 
       {isHeaderOnlyNav ? (
         <main id="jasuda-products-main" className="flex-1 w-full bg-surface pb-24">
-          {/* Header section with back button */}
           <section id="search-filter-section" className="relative w-full bg-surface-container-low pt-12 pb-8 border-b border-surface-variant/30">
             <div className="max-w-7xl mx-auto px-6">
               <Link
@@ -108,7 +99,13 @@ export default function JasudaAllProducts() {
 
           {/* Product Grid */}
           <section id="product-grid-section" className="max-w-7xl mx-auto px-6 py-12">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="h-70 bg-slate-200/60 animate-pulse rounded-2xl"></div>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-surface-variant/20 rounded-full flex items-center justify-center mb-4">
                   <Search className="w-6 h-6 text-on-surface-variant" />
@@ -120,58 +117,62 @@ export default function JasudaAllProducts() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {filteredProducts.map((product, index) => (
                   <motion.div
-                    key={index}
-                    id={`product-${product.title}`}
+                    key={product.id}
+                    id={`product-${product.name}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.03 }}
                     whileHover={{ scale: 1.02 }}
                     onClick={() => openProductModal({
-                      id: product.title.toLowerCase().replace(/\s+/g, '-'),
-                      name: product.title,
-                      price: product.price,
-                      description: "Produk unggulan dari Jasuda.",
-                      image: product.image,
-                      vendor: "Posko UKM Jasuda"
+                      id: product.id,
+                      name: product.name,
+                      price: `Rp ${product.price.toLocaleString("id-ID")}`,
+                      description: product.description || "Produk unggulan dari Jasuda.",
+                      image: product.imageUrl,
+                      vendor: product.corp_name || "POSKO JASUDA"
                     })}
                     className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
                   >
                     <img
-                      src={product.image}
-                      alt={product.title}
+                      src={product.imageUrl}
+                      alt={product.name}
+                      onError={(e) => {
+                        e.currentTarget.src = "/image/nothing%20picture.webp";
+                      }}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent pointer-events-none z-10"></div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
 
-                    {/* Hover Button (Center) */}
+                    {/* Hover Button */}
                     <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                       <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            addToCart({
-                              id: product.title.toLowerCase().replace(/\s+/g, '-'),
-                              name: product.title,
-                              price: typeof product.price === 'string' ? parseInt(product.price.replace(/\D/g, '')) || 0 : product.price,
-                              image: product.image,
-                              unit: "1 Pack",
-                              seller: "Posko UKM Jasuda"
+                            openProductModal({
+                              id: String(product.id),
+                              name: product.name,
+                              price: product.price,
+                              image: product.imageUrl || '/image/nothing%20picture.webp',
+                              description: product.description,
+                              vendor: "Jasuda",
+                              shopeeLink: product.shopeeLink
                             });
                           }}
-                          className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
+                          className="bg-surface-container-high hover:bg-[#EE4D2D] hover:text-white text-on-surface px-3 py-1.5 rounded-full transition-colors shrink-0 shadow-sm flex items-center gap-1.5 whitespace-nowrap text-sm font-medium"
                         >
-                          <ShoppingBag className="w-4 h-4" /> Tambahkan
+                          <ShoppingBag className="w-4 h-4 shrink-0" /> Beli
                         </button>
                       </div>
                     </div>
 
-                    {/* Title and Price (No Description) */}
+                    {/* Title and Price */}
                     <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
                       <div className="flex flex-col gap-1.5">
-                        <h3 className="font-bold text-base drop-shadow-md leading-tight">{product.title}</h3>
+                        <h3 className="font-bold text-base drop-shadow-md leading-tight line-clamp-2">{product.name}</h3>
                         <span className="font-extrabold text-primary-container text-sm drop-shadow-md w-max bg-black/20 px-2.5 py-1 rounded-md backdrop-blur-xs">
-                          {product.price}
+                          Rp {product.price.toLocaleString("id-ID")}
                         </span>
                       </div>
                     </div>

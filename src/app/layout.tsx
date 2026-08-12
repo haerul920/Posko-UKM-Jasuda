@@ -12,8 +12,9 @@ export const metadata: Metadata = {
 import SmoothScrollProvider from '@/components/providers/SmoothScrollProvider';
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toast";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 
 export default function RootLayout({
@@ -22,14 +23,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("antialiased", "font-sans", geist.variable)} data-scroll-behavior="smooth">
-      <body className="flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary-container selection:text-on-secondary-container">
+    <html lang="id" className={cn("antialiased", "font-sans", geist.variable)} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className="flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary-container selection:text-on-secondary-container" suppressHydrationWarning>
         <SmoothScrollProvider>
           <StoreProvider>
             <div className="min-h-screen flex flex-col">
               {children}
               <ClientFooter />
               <ProductDetailModal />
+              <Toaster />
             </div>
           </StoreProvider>
         </SmoothScrollProvider>

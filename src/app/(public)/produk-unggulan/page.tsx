@@ -1,45 +1,46 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useStore } from "@/components/context/StoreContext";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import { ShoppingBag, ChevronLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
-const BASE_PRODUCTS = [
-  { name: "Ekstrak Alga Merah", price: "45k", vendor: "Nori Naturals", image: "https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Pupuk Organik Laut", price: "25k", vendor: "Pacific Harvest", image: "https://images.unsplash.com/photo-1592844111364-754f24ef13c3?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Kelp Kering Premium", price: "30k", vendor: "Emerald Cove", image: "https://images.unsplash.com/photo-1564414545041-3b764b85c39b?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Kapsul Minyak Alga", price: "85k", vendor: "Crimson Tides", image: "https://images.unsplash.com/photo-1584308666744-24d5e1823eb5?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Masker Wajah Botani", price: "55k", vendor: "Deep Blue Kelp", image: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Sirup Rumput Laut", price: "40k", vendor: "Kelp Forest Co.", image: "https://images.unsplash.com/photo-1520024146169-3240400354ae?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Agar-Agar Serbuk", price: "20k", vendor: "Artisan Agar", image: "https://images.unsplash.com/photo-1591189860430-b3af9e4df6a8?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Gel Peremajaan Kulit", price: "90k", vendor: "Seaweed Botanicals", image: "https://images.unsplash.com/photo-1556228578-8d89ce4c94de?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Kombucha Rumput Laut", price: "35k", vendor: "Oceanic Brews", image: "https://images.unsplash.com/photo-1588698943615-56269f8ed7c1?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Bumbu Nori Pedas", price: "15k", vendor: "Spicy Seas", image: "https://images.unsplash.com/photo-1518712918804-067664c39174?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Sabun Batang Alga", price: "25k", vendor: "Purity Sea", image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Serum Wajah Laut", price: "120k", vendor: "Marine Glow", image: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Kelp Noodle Organik", price: "45k", vendor: "Kelp & Co", image: "https://images.unsplash.com/photo-1583338917451-face2751d8d5?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Keripik Rumput Laut", price: "12k", vendor: "Crispy Kelp", image: "https://images.unsplash.com/photo-1622359419086-4e08c02c918c?auto=format&fit=crop&q=80&w=400&h=500" },
-  { name: "Pakan Ternak Laut", price: "150k", vendor: "AgriSea", image: "https://images.unsplash.com/photo-1551062947-f4e3c32e54e4?auto=format&fit=crop&q=80&w=400&h=500" },
-];
-
-const ALL_PRODUCTS = Array.from({ length: 40 }).map((_, i) => ({
-  ...BASE_PRODUCTS[i % BASE_PRODUCTS.length],
-  id: i + 1,
-}));
+import { getAllProduct, type Product } from "@/lib/actions/product";
 
 export default function JasudaProdukUnggulan() {
-  const { activeNav, addToCart, openProductModal } = useStore();
+  const { activeNav, openProductModal } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        const res = await getAllProduct();
+        if (res.success && res.products) {
+          setProducts(res.products);
+        }
+      } catch (err) {
+        console.error("Failed to load products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    return ALL_PRODUCTS.filter((product) =>
+    const top40 = [...products]
+      .sort((a, b) => (b.countBuyer || 0) - (a.countBuyer || 0))
+      .slice(0, 40);
+
+    return top40.filter((product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.vendor.toLowerCase().includes(searchQuery.toLowerCase())
+      product.corp_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [products, searchQuery]);
 
   const isHeaderOnlyNav = activeNav === 1 || activeNav === 2;
 
@@ -86,7 +87,13 @@ export default function JasudaProdukUnggulan() {
 
           {/* Product Grid */}
           <section id="product-grid-section" className="max-w-7xl mx-auto px-6 py-12">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {Array.from({ length: 40 }).map((_, i) => (
+                  <div key={i} className="h-70 bg-slate-200/60 animate-pulse rounded-2xl"></div>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-surface-variant/20 rounded-full flex items-center justify-center mb-4">
                   <Search className="w-6 h-6 text-on-surface-variant" />
@@ -97,66 +104,70 @@ export default function JasudaProdukUnggulan() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
-                  onClick={() => openProductModal({
-                    id: product.id?.toString() || product.name.toLowerCase().replace(/\s+/g, '-'),
-                    name: product.name,
-                    price: product.price,
-                    description: "Produk unggulan berkualitas.",
-                    image: product.image,
-                    vendor: product.vendor
-                  })}
-                  className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
-                  
-                  {/* Hover Button (Center) */}
-                  <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                    <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart({
-                            id: product.id?.toString() || product.name.toLowerCase().replace(/\s+/g, '-'),
-                            name: product.name,
-                            price: typeof product.price === 'string' ? parseInt(product.price.replace(/\D/g, '')) || 0 : product.price,
-                            image: product.image,
-                            unit: "1 Pack",
-                            seller: product.vendor
-                          });
-                        }}
-                        className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
-                      >
-                        <ShoppingBag className="w-4 h-4" /> Tambahkan
-                      </button>
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => openProductModal({
+                      id: product.id,
+                      name: product.name,
+                      price: `Rp ${product.price.toLocaleString("id-ID")}`,
+                      description: product.description || "Produk unggulan berkualitas.",
+                      image: product.imageUrl,
+                      vendor: product.corp_name || "Mitra Posko"
+                    })}
+                    className="glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer h-70"
+                  >
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      onError={(e) => {
+                        e.currentTarget.src = "/image/nothing%20picture.webp";
+                      }}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent pointer-events-none z-10"></div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
+                    
+                    {/* Hover Button */}
+                    <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                      <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openProductModal({
+                              id: String(product.id),
+                              name: product.name,
+                              price: product.price,
+                              image: product.imageUrl || '/image/nothing%20picture.webp',
+                              description: product.description,
+                              vendor: "Jasuda",
+                              shopeeLink: product.shopeeLink
+                            });
+                          }}
+                          className="bg-surface-container-high hover:bg-[#EE4D2D] hover:text-white text-on-surface px-3 py-1.5 rounded-full transition-colors shrink-0 shadow-sm flex items-center gap-1.5 whitespace-nowrap text-sm font-medium"
+                        >
+                          <ShoppingBag className="w-4 h-4 shrink-0" /> Beli
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Title, Price, and Vendor */}
-                  <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[10px] font-bold text-primary-container uppercase tracking-wider">
-                        {product.vendor}
-                      </span>
-                      <h3 className="font-bold text-base drop-shadow-md leading-tight">{product.name}</h3>
-                      <span className="font-extrabold text-primary-container text-sm drop-shadow-md w-max bg-black/20 px-2.5 py-1 rounded-md backdrop-blur-xs">
-                        {product.price}
-                      </span>
+                    {/* Title, Price, and Vendor */}
+                    <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-bold text-primary-container uppercase tracking-wider">
+                          {product.corp_name || "Mitra Posko"}
+                        </span>
+                        <h3 className="font-bold text-base drop-shadow-md leading-tight line-clamp-2">{product.name}</h3>
+                        <span className="font-extrabold text-primary-container text-sm drop-shadow-md w-max bg-black/20 px-2.5 py-1 rounded-md backdrop-blur-xs">
+                          Rp {product.price.toLocaleString("id-ID")}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
               </div>
             )}
           </section>

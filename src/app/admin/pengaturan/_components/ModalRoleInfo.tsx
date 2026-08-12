@@ -16,7 +16,6 @@ const ROLE_CAPABILITIES = [
     capabilities: [
       "Kelola semua pengaturan sistem",
       "Menambah/Menghapus Akun Pengelola",
-      "Akses Penuh Keuangan",
       "Semua Peran Editor",
     ],
     cardClass: "border-slate-200 bg-slate-50",
@@ -28,7 +27,6 @@ const ROLE_CAPABILITIES = [
     capabilities: [
       "Mengelola Mitra",
       "Mengelola Produk",
-      "Akses Pesanan",
     ],
     cardClass: "border-slate-200 bg-white opacity-80 shadow-sm",
   },

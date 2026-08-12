@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef, MouseEvent } from "react";
+import React, { useRef, MouseEvent, useState, useEffect } from "react";
 import { useStore } from "@/components/context/StoreContext";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
-import { ShoppingBag, Sparkles, Compass, ChevronRight } from "lucide-react";
+import { ShoppingBag, ExternalLink, Store, X, ChevronRight } from 'lucide-react';
 import Link from "next/link";
 import { motion, useMotionValue, useSpring, useTransform, Variants } from "framer-motion";
+import { getProductsByStore, type Product } from "@/lib/actions/product";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -28,33 +29,23 @@ const itemVariants: Variants = {
   },
 };
 
-const COLLECTION_ITEMS = [
-  { title: "Maeki Brownies", price: "25/40k", desc: "Brownies rumput laut premium dengan cita rasa cokelat yang kaya.", image: "/image/maeki brownies.webp", span: "md:col-span-2 md:row-span-2" },
-  { title: "Golden Seaweed", price: "15/30k", desc: "Rumput laut siap saji", image: "/image/golden seaweed.webp", span: "md:col-span-1 md:row-span-1" },
-  { title: "Nori Flakes", price: "25k", desc: "Bumbu tabur ulva", image: "/image/nori flakes.webp", span: "md:col-span-1 md:row-span-1" },
-  { title: "Pizzata'", price: "35k", desc: "Pizza Rumput Laut", image: "/image/pizzata.webp", span: "md:col-span-2 md:row-span-1" },
-  { title: "Keripik Ulvaku", price: "25k", desc: "Keripik rumput laut", image: "/image/keripik ulvaku.webp", span: "md:col-span-1 md:row-span-1" },
-  { title: "Seavegie", price: "40k", desc: "Tepung Ulva", image: "/image/seavegie.webp", span: "md:col-span-2 md:row-span-1" },
-  { title: "Stik Ulva", price: "25k", desc: "Kerupuk Rumput Laut", image: "/image/stik ulva.webp", span: "md:col-span-1 md:row-span-2" },
-  { title: "Seaweed Pudding", price: "5k", desc: "Pudding Rumput Laut", image: "/image/seaweed pudding.webp", span: "md:col-span-3 md:row-span-1" },
-  { title: "Sea Vegetable", price: "30k", desc: "Bumbu Tabur Ulva", image: "/image/sea vegetable.webp", span: "md:col-span-2 md:row-span-1" },
-  { title: "Sea Plants", price: "48k", desc: "Pupuk cair rumput laut", image: "/image/Sea Plants.webp", span: "md:col-span-2 md:row-span-1" }
-];
-
 export default function JasudaStore() {
-  const { activeNav, addToCart, openProductModal } = useStore();
+  const { activeNav, openProductModal } = useStore();
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const handleAddToCart = () => {
-    addToCart({
-      id: "jasuda-giant-kelp",
-      name: "Pelepah Kelp Raksasa (Kelas A)",
-      price: 55.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuC8eyCvqCqC_TmP3jEq3wL1-d0e6koXCzZ00XER1IqzbrF9BXnNNKWSz3pUguftUDvN9_bwnEqGWFdlC2F6nw0XKxAy7eq7dZ5cTSlbw9jLOlB262fgunkpMNTFcVKLhzMlqtsjHVqQK9izWFEDGcNRZv19DqIrr_yexwMSscJgUxTIYtvV5bfegClIiM9Nr2oA8y5gNkNRusVuop6aNWcpsCpITJZ0tXlQP-_IKNxj98eWim4mOloJRw",
-      unit: "Kemasan 500g",
-      seller: "Posko UKM Jasuda",
-    });
-  };
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const res = await getProductsByStore("jasuda");
+        if (res.success && res.products) {
+          setProducts(res.products);
+        }
+      } catch (err) {
+        console.error("Failed to load Jasuda store products:", err);
+      }
+    }
+    loadProducts();
+  }, []);
 
   const isHeaderOnlyNav = activeNav === 1 || activeNav === 2;
 
@@ -255,66 +246,78 @@ export default function JasudaStore() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-50">
-              {COLLECTION_ITEMS.map((item, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.02 }}
-                  onClick={() => openProductModal({
-                    id: item.title.toLowerCase().replace(/\s+/g, '-'),
-                    name: item.title,
-                    price: item.price,
-                    description: item.desc,
-                    image: item.image,
-                    vendor: "Posko UKM Jasuda"
-                  })}
-                  className={`glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${item.span}`}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
+              {products.slice(0, 8).map((product, index) => {
+                const spans = [
+                  "md:col-span-2 md:row-span-2",
+                  "md:col-span-1 md:row-span-1",
+                  "md:col-span-1 md:row-span-1",
+                  "md:col-span-2 md:row-span-1",
+                  "md:col-span-1 md:row-span-1",
+                  "md:col-span-2 md:row-span-1",
+                  "md:col-span-1 md:row-span-2",
+                  "md:col-span-3 md:row-span-1",
+                  "md:col-span-2 md:row-span-1",
+                  "md:col-span-2 md:row-span-1"
+                ];
+                const spanClass = spans[index % spans.length];
 
-                  {/* Hover Button (Center) */}
-                  <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                    <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart({
-                            id: item.title.toLowerCase().replace(/\s+/g, '-'),
-                            name: item.title,
-                            price: typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, '')) || 0 : item.price,
-                            image: item.image,
-                            unit: "1 Pack",
-                            seller: "Posko UKM Jasuda"
-                          });
-                        }}
-                        className="bg-primary hover:bg-primary-container text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 transition-colors"
-                      >
-                        <ShoppingBag className="w-4 h-4" /> Tambahkan ke Keranjang
-                      </button>
-                    </div>
-                  </div>
+                return (
+                  <motion.div
+                    key={product.id}
+                    whileHover={{ scale: 1.02 }}
+                    className={`glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${spanClass}`}
+                  >
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      onError={(e) => {
+                        e.currentTarget.src = "/image/nothing%20picture.webp";
+                      }}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none z-10"></div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 pointer-events-none z-10"></div>
 
-                  {/* Title and Description */}
-                  <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold text-base drop-shadow-md leading-tight">{item.title}</h3>
-                        <span className="font-extrabold text-primary-container text-sm drop-shadow-md bg-black/20 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                          {item.price}
-                        </span>
+                    {/* Hover Button */}
+                    <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                      <div className="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-auto">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openProductModal({
+                              id: String(product.id),
+                              name: product.name,
+                              price: product.price,
+                              image: product.imageUrl || '/image/nothing%20picture.webp',
+                              description: product.description,
+                              vendor: "Jasuda",
+                              shopeeLink: product.shopeeLink
+                            });
+                          }}
+                          className="bg-surface-container-high hover:bg-[#EE4D2D] hover:text-white text-on-surface px-3 py-1.5 rounded-full transition-colors shrink-0 shadow-sm flex items-center gap-1.5 whitespace-nowrap text-sm font-medium"
+                        >
+                          <ShoppingBag className="w-4 h-4 shrink-0" /> Beli
+                        </button>
                       </div>
-                      <p className="text-white/90 text-[12px] mt-2 line-clamp-2 leading-relaxed drop-shadow-sm transition-opacity duration-300">
-                        {item.desc}
-                      </p>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+
+                    {/* Title and Price */}
+                    <div className="absolute bottom-0 left-0 p-5 w-full z-20 flex flex-col justify-end text-white h-full pointer-events-none">
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-bold text-base drop-shadow-md leading-tight line-clamp-2">{product.name}</h3>
+                          <span className="font-extrabold text-primary-container text-sm drop-shadow-md bg-black/20 px-2 py-0.5 rounded-md backdrop-blur-xs whitespace-nowrap">
+                            Rp {product.price.toLocaleString("id-ID")}
+                          </span>
+                        </div>
+                        <p className="text-white/90 text-[12px] mt-2 line-clamp-2 leading-relaxed drop-shadow-sm transition-opacity duration-300">
+                          {product.description || "Komoditas rumput laut pilihan Jasuda."}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Super Attractive CTA Bottom */}

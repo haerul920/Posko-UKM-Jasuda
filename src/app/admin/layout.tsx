@@ -4,24 +4,23 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStore } from '@/components/context/StoreContext';
-import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Zap, LogOut, History, UserCircle, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Package, Users, Settings, LogOut, History, UserCircle } from 'lucide-react';
 import AdminRouteGuard from '@/components/auth/AdminRouteGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { logout, isEditor } = useStore();
+  const [showLogoutModal, setShowLogoutModal] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { name: 'Keuangan', path: '/admin/keuangan', icon: <span className="font-extrabold text-[1.1rem] leading-none flex items-center justify-center w-5 h-5 tracking-tighter">Rp</span> },
-    { name: 'Pesanan', path: '/admin/pesanan', icon: <ShoppingCart className="w-5 h-5" /> },
     { name: 'Produk', path: '/admin/produk', icon: <Package className="w-5 h-5" /> },
     { name: 'Mitra', path: '/admin/mitra', icon: <Users className="w-5 h-5" /> },
     { name: 'Pengaturan Sistem', path: '/admin/pengaturan', icon: <Settings className="w-5 h-5" /> },
     { name: 'Riwayat Aktivitas', path: '/admin/riwayat', icon: <History className="w-5 h-5" /> },
   ].filter(item => {
     if (isEditor) {
-      return !['/admin/dashboard', '/admin/keuangan', '/admin/pengaturan', '/admin/riwayat'].includes(item.path);
+      return !['/admin/pengaturan', '/admin/riwayat'].includes(item.path);
     }
     return true;
   });
@@ -49,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside id="admin-sidebar" className="h-screen w-64 fixed left-0 top-0 z-40 bg-[#0a1422] border-r border-[#c5c6cc]/20 shadow-sm flex flex-col py-4 text-[#d9e3f6]">
           <div className="flex-1 overflow-y-auto mt-4 space-y-1">
             {navItems.map((item) => {
-              const isActive = pathname === item.path || (item.path === '/admin/dashboard' && pathname === '/admin');
+              const isActive = pathname === item.path || (item.path === '/admin/produk' && pathname === '/admin');
               return (
                 <Link
                   key={item.path}
@@ -77,10 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 Akun Saya
               </Link>
               <button
-                onClick={() => {
-                  logout();
-                  window.location.href = '/';
-                }}
+                onClick={() => setShowLogoutModal(true)}
                 className="w-full bg-red-600 text-white hover:bg-red-700 transition-all duration-300 ease-in-out active:scale-[0.98] rounded-lg py-3 px-4 text-sm font-bold flex justify-center items-center gap-2 shadow-sm hover:shadow-md"
               >
                 <LogOut className="w-5 h-5" />
@@ -98,6 +94,53 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </main>
         </div>
       </div>
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => !isLoggingOut && setShowLogoutModal(false)}
+          />
+          <div className="relative bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOut className="w-8 h-8 text-rose-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Konfirmasi Keluar</h3>
+              <p className="text-slate-500 text-sm mb-6">
+                Apakah Anda yakin ingin keluar dari halaman admin? Sesi Anda akan diakhiri.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  disabled={isLoggingOut}
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={isLoggingOut}
+                  onClick={async () => {
+                    setIsLoggingOut(true);
+                    await logout();
+                    window.location.href = '/';
+                  }}
+                  className="flex-1 px-4 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isLoggingOut ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Ya, Keluar"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminRouteGuard>
   );
 }

@@ -8,104 +8,23 @@ import {
   useMotionValue,
   useTransform,
   useSpring,
-  wrap,
 } from "framer-motion";
 import { Search, ChevronRight, X, Sparkles, Waves, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import ActiveNavigation from "@/components/shared/ActiveNavigation";
 import { useStore } from "@/components/context/StoreContext";
-
-// Data from Stitch Reference
-const BRANDS = [
-  {
-    id: "kelp-co",
-    name: "KelpCo",
-    desc: "Premium giant kelp extracts.",
-    tag: "Kelp Forest",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuC7Tl-MWZ0QyHR2mtg-nXiR89eo9flDornCQFzG2Jgxw2NJz3MqMeiYhrtTJ47ilU7XqsVddN56S4D_vLukh87RfVLv_1Tb9SldzWABI1V4x2qWHbUAJQU_hkLYCNjIfOa-ASPN0Xd4zoTvnllmDrzeAAHSY-ewHZjkcmEosfOcrhLSPBGKNF_GKsRkNYRh0NGjbN_-DUQ8SUq20g1oJ6uVuTjTx6X0j6E-zyW6fPHXQefOX8APiA4Qug",
-  },
-  {
-    id: "crimson-tide",
-    name: "Crimson Tide Botanicals",
-    desc: "Specialized red algae farming.",
-    tag: "Red Algae",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDLZG5lzQkP863V4U6ho-AzTm5P9bRyuhDCb_9llz03hCWrWs14eqECaeNH96TSIVWRl8QEmd5L6GA1Sa16HfIuSitc5t1YzM21jgyxatV57LvglAUM6Z22JBHJcXknNHptDiPkJuXCJ8ajSF_jcOGk3KVugY-hNSTpFztMS2Y5f1h6P-Z_iLpaKPoXU1EQaxeYGHWIXk_dS76vHL-bzvQFM-IrsXFSdvbFExDB0HhZAFzPUCJ2SGOS9w",
-  },
-  {
-    id: "nori-harvests",
-    name: "Nori Harvests",
-    desc: "Culinary grade sea greens.",
-    tag: "Sea Greens",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuAJPgL7w4ju93tche_XMbBq7_c7VLJgGyZ1mX82FhhCyhAaJ1iojq_jHWcyMz1V8J3_s6imreaByQ3i94CM75SoVbkjKpTBfmG7SZA3iTVF9FotVLL-_jp1H1NrC4-fQ08mufLXLoiljwFs_RJcLCNqkSt2Do9SaLlMsuruZv--0BDN1edo7TeXvkZm03ADI9qq-hTuhYu8wlVFqU-phkahT7ydn6pA00hAaeRpgQaPKlQ9zCokAEpuNQ",
-  },
-  {
-    id: "aqua-farms",
-    name: "AquaFarms Premium",
-    desc: "High-tech marine agricultural firm.",
-    tag: "Agri-Tech",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuAk_8eMCZ2tHqAHkuZeM0vSRKd3aLbebpAfhr_giKGz1OSAKD0psjQb6yDqKmsU1rhMOs3p-0ljtvP3UJBUOE2ZTgLwQ581G72vWJL0Z_tGavExvA1Q2pR1NdKG6Z-Okffkjn7YpNn09OB9XvGji2gc472BM_M4YfDd2MIVl2-I0iBciq5k8M27QVtQjNogGximl-UexZyNdhYI1fqNp1OI00-V-f1NC_kWIeRYn6u_BFRLYBtayEUZeA",
-  },
-  {
-    id: "dulse-co",
-    name: "Dulse & Co.",
-    desc: "Small-batch, artisan red seaweed.",
-    tag: "Artisan",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuCEjSef5RxBR1JqqXg3si2AGj6efQl2H5fOpD-ySp_ZRbuTfDbfZiEqP58P0O-P548VGqvP5X57m52qgkLBv7thQXziAKXVdpgm5kRiP7Iwft0Sd4lH5l1rb0mhH0RQatLtbZSKxskdYymUXhlQk81NaOHmQx3-e0fHt67ZIaMAkx5vp6ua6ydy5SZOl5mmA5yVbK5UnRB7kI5ABJmxWSnSv70DFLKQBMA4VwOU4A6_MIq2E7FX6uFADg",
-  },
-];
-
-const BASE_PRODUCTS = [
-  {
-    id: 1,
-    name: "Dried Sugar Kelp (Bulk)",
-    vendor: "KelpCo",
-    price: 140000,
-    unit: "5kg Sack",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCEgnImVVyWzRlAzz1WBhPpFJH2t8ZcB8bwtdUfP0HFZZQ4MCDd2GP2UWHWC_h3T-6CDyqsDp0qYMa-3-1FRfK1ODGxLi5FtVQHv-IkvXPk0ZzNT4OfNkuaGXOHz2cKwwfwFsksBxnoAJa8LiSngR8IJIxBPR0JpApNtcIKaRAZo_ZipLrOcDZiZiGx7ImduAPEeOhwfspvLm4EDBJ8sEty3_zrn20H6SLBYKkR_XltA_kOgjy0ydpanA",
-  },
-  {
-    id: 2,
-    name: "Dulse Flakes",
-    vendor: "Dulse & Co.",
-    price: 85500,
-    unit: "1kg Jar",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC8eyCvqCqC_TmP3jEq3wL1-d0e6koXCzZ00XER1IqzbrF9BXnNNKWSz3pUguftUDvN9_bwnEqGWFdlC2F6nw0XKxAy7eq7dZ5cTSlbw9jLOlB262fgunkpMNTFcVKLhzMlqtsjHVqQK9izWFEDGcNRZv19DqIrr_yexwMSscJgUxTIYtvV5bfegClIiM9Nr2oA8y5gNkNRusVuop6aNWcpsCpITJZ0tXlQP-_IKNxj98eWim4mOloJRw",
-  },
-  {
-    id: 3,
-    name: "Kombu Extract Grade A",
-    vendor: "AquaFarms Premium",
-    price: 320000,
-    unit: "10L Drum",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBnRq9G03Xsc67-dYa1QNuhbnBu45r91bag1xIf22VcUtN17R8t0HhEEqs8edIpxknd2nRAhRF0ODN6UdA86g7Ymn4lDPgG45wXlcG-yBVLw1XxMwYJkcs9s2CFyFRorD8qf0siAhVqreDIatBX5oFdycShd5sko6ff2Zfb3yJ6pC1zuX2NybMdbOapnaKLs-7uIZNLEFHjWU5Q1fkS0VLZtZY8dlbdl8mML_kPo8GY5xQxxUL9xScXMA",
-  },
-  {
-    id: 4,
-    name: "Nori Sheets Wholesale",
-    vendor: "Nori Harvests",
-    price: 45000,
-    unit: "100 Sheets",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCj-ZK2G1-WGwbzG30dpgfk0XqHefFeVzV0KZZoA90atcxAj-ykqq_sh0YPLm9QZX2LW8CjOp9YqwSKgJVMwj9oRZjFQwwXorgZuqIG5qynKNFHVTYrOURMJeuee7z8h1EEka88nHYh3xMlVtxbESbXEXCD-_earzcFGgn34wJN9r-M1p0b70rlzlUU3BV7M_hoSxI-2xpxTSV2XjLpa7QTMNswlUpFvSk-JByzxGF4HZQ1FH6Yo1eiMA",
-  },
-];
-
-const PRODUCTS = Array.from({ length: 40 }).map((_, i) => ({
-  ...BASE_PRODUCTS[i % 4],
-  id: i + 1,
-}));
+import { isJasudaPosko } from "@/lib/utils";
+import { getAllMitra, type Mitra } from "@/lib/actions/mitra";
+import { getAllProduct, type Product } from "@/lib/actions/product";
 
 // Carousel Implementation using Framer Motion
-function InfiniteCarousel() {
+function InfiniteCarousel({ brands }: { brands: any[] }) {
   const baseX = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
 
   // Create a continuous animation loop
   useAnimationFrame((t, delta) => {
-    if (isHovered) return;
+    if (isHovered || brands.length === 0) return;
 
     // Move left continuously
     let moveBy = -0.5 * (delta / 16);
@@ -113,14 +32,17 @@ function InfiniteCarousel() {
     // Wrap around to create infinite loop
     baseX.set(baseX.get() + moveBy);
 
-    // Assuming each item is roughly 250px wide and we have 5 items
-    // When we scroll past the original set, snap back
-    if (baseX.get() < -1250) {
-      baseX.set(baseX.get() + 1250);
+    const totalWidth = Math.max(1250, brands.length * 200);
+    if (baseX.get() < -totalWidth) {
+      baseX.set(baseX.get() + totalWidth);
     } else if (baseX.get() > 0) {
-      baseX.set(baseX.get() - 1250);
+      baseX.set(baseX.get() - totalWidth);
     }
   });
+
+  if (brands.length === 0) {
+    return null;
+  }
 
   return (
     <section className="sticky top-18 z-40 bg-surface/90 backdrop-blur-md border-y border-white/30 py-4 shadow-[0_4px_20px_-10px_rgba(0,119,190,0.08)] overflow-hidden">
@@ -141,17 +63,20 @@ function InfiniteCarousel() {
         {/* Render multiple sets to ensure seamless wrapping */}
         {[1, 2, 3, 4].map((set) => (
           <React.Fragment key={set}>
-            {BRANDS.map((brand) => (
+            {brands.map((brand, idx) => (
               <Link
                 href={`/mitra/${brand.id}`}
-                key={`${set}-${brand.id}`}
+                key={`${set}-${brand.id}-${idx}`}
                 className="flex items-center gap-3 opacity-70 hover:opacity-100 transition-opacity group"
               >
                 <div className="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center border border-white/50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
                   <img
                     src={brand.logo}
                     alt={brand.name}
-                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "/image/nothing%20pict%20market.webp";
+                    }}
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <span className="text-sm text-on-surface font-semibold tracking-wide whitespace-nowrap">
@@ -167,7 +92,45 @@ function InfiniteCarousel() {
 }
 
 export default function TenantDirectoryPage() {
-  const { openProductModal, addToCart } = useStore();
+  const { openProductModal } = useStore();
+  const [brands, setBrands] = useState<any[]>([]);
+  const [tenantProducts, setTenantProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const [mitraRes, prodRes] = await Promise.all([
+          getAllMitra(),
+          getAllProduct(),
+        ]);
+
+        if (mitraRes.success && mitraRes.mitra) {
+          const nonJasudaMitra = mitraRes.mitra.filter((m) => {
+            return !isJasudaPosko(m.id, m.corp || m.name);
+          });
+          const mappedBrands = nonJasudaMitra.map((m) => ({
+            id: m.id,
+            name: m.corp || m.name || "Mitra Posko",
+            desc: m.businessDesc || "Mitra terverifikasi Jasuda",
+            logo: m.logo || m.img || "/image/nothing%20pict%20market.webp",
+          }));
+          setBrands(mappedBrands);
+        }
+
+        if (prodRes.success && prodRes.products) {
+          const onlyTenants = prodRes.products.filter((p) => !p.isJasudaProduct);
+          setTenantProducts(onlyTenants.length > 0 ? onlyTenants : prodRes.products);
+        }
+      } catch (err) {
+        console.error("Error loading mitra page data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-surface">
@@ -211,7 +174,7 @@ export default function TenantDirectoryPage() {
       </section>
 
       {/* Interactive Carousel */}
-      <InfiniteCarousel />
+      <InfiniteCarousel brands={brands} />
 
       {/* Featured Products Grid */}
       <section className="flex-1 max-w-7xl mx-auto w-full px-6 py-12 md:py-16">
@@ -235,66 +198,77 @@ export default function TenantDirectoryPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PRODUCTS.map((product, i) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "0px" }}
-              transition={{ duration: 0.4, delay: (i % 4) * 0.1 }}
-              whileHover={{ y: -5 }}
-              onClick={() => openProductModal({
-                id: product.id.toString(),
-                name: product.name,
-                price: product.price,
-                description: `Produk premium dari ${product.vendor}`,
-                image: product.image,
-                vendor: product.vendor,
-                unit: product.unit
-              })}
-              className="bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all flex flex-col group cursor-pointer"
-            >
-              <div className="h-48 relative overflow-hidden bg-surface-container">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur text-[10px] font-bold rounded-md shadow-sm text-on-surface">
-                  {product.vendor}
-                </div>
-              </div>
-              <div className="p-5 flex flex-col grow">
-                <h3 className="font-bold text-base text-on-surface mb-4 group-hover:text-primary transition-colors">
-                  {product.name}
-                </h3>
-                <div className="mt-auto flex items-center justify-between">
-                  <span className="font-bold text-lg text-primary">
-                    Rp {product.price.toLocaleString("id-ID")}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart({
-                        id: product.id.toString(),
-                        name: product.name,
-                        price: product.price,
-                        image: product.image,
-                        unit: product.unit,
-                        seller: product.vendor
-                      });
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 40 }).map((_, i) => (
+              <div key={i} className="h-80 bg-slate-200/60 animate-pulse rounded-2xl"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {tenantProducts.slice(0, 40).map((product, i) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px" }}
+                transition={{ duration: 0.4, delay: (i % 4) * 0.1 }}
+                whileHover={{ y: -5 }}
+                onClick={() => openProductModal({
+                  id: product.id,
+                  name: product.name,
+                  price: `Rp ${product.price.toLocaleString("id-ID")}`,
+                  description: product.description || `Produk premium dari ${product.corp_name || "Mitra Posko"}`,
+                  image: product.imageUrl,
+                  vendor: product.corp_name || "Mitra Posko",
+                  unit: product.netWeight || "1 Pack"
+                })}
+                className="bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all flex flex-col group cursor-pointer"
+              >
+                <div className="h-48 relative overflow-hidden bg-surface-container">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    onError={(e) => {
+                      e.currentTarget.src = "/image/nothing%20picture.webp";
                     }}
-                    className="text-xs font-bold bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-md flex items-center gap-1.5 active:scale-[0.98]"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    Tambahkan
-                  </button>
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur text-[10px] font-bold rounded-md shadow-sm text-on-surface">
+                    {product.corp_name || "Mitra Posko"}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                <div className="p-5 flex flex-col grow">
+                  <h3 className="font-bold text-base text-on-surface mb-4 group-hover:text-primary transition-colors line-clamp-2">
+                    {product.name}
+                  </h3>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="font-bold text-lg text-primary">
+                      Rp {product.price.toLocaleString("id-ID")}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openProductModal({
+                          id: String(product.id),
+                          name: product.name,
+                          price: product.price,
+                          image: product.imageUrl || '/image/nothing%20picture.webp',
+                          description: product.description,
+                          vendor: product.corp_name || "Mitra Posko",
+                          shopeeLink: product.shopeeLink
+                        });
+                      }}
+                      className="bg-surface-container-high hover:bg-[#EE4D2D] hover:text-white text-on-surface px-3 py-1.5 rounded-full transition-colors shrink-0 shadow-sm flex items-center gap-1.5 whitespace-nowrap text-sm font-medium"
+                    >
+                      <ShoppingBag className="w-4 h-4 shrink-0" /> Beli
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Super Attractive CTA Bottom */}
         <div className="mt-16 mb-8 flex justify-center w-full relative z-20">

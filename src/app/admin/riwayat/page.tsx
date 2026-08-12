@@ -1,18 +1,25 @@
 import { Suspense } from "react";
-import { getActivityLogs, getActivityActors } from "@/lib/actions/activity-log";
+import { getActivityLogs } from "@/lib/actions/activity-log";
+import { getStaffUsers } from "@/lib/actions/staff";
 import RiwayatClient from "./_components/RiwayatClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminRiwayatPage() {
-  const [logsResult, actorsResult] = await Promise.all([
+  const [logsResult, staffResult] = await Promise.all([
     getActivityLogs({ limit: 20 }),
-    getActivityActors(),
+    getStaffUsers(),
   ]);
 
   const initialLogs = logsResult.success ? logsResult.logs : [];
   const totalLogs = logsResult.success ? logsResult.total : 0;
-  const actors = actorsResult.success ? actorsResult.actors : [];
+  const actors = staffResult.success 
+    ? staffResult.staff.map(s => ({
+        actorId: s.uid,
+        actorName: s.displayName,
+        actorRole: s.role
+      }))
+    : [];
 
   return (
     <>

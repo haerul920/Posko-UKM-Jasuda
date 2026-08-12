@@ -1,19 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from '@/lib/firebase/client';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { toast } from '@/components/ui/toast';
+import { loginUser, registerUser, getAuthSession, logoutUser } from '@/lib/actions/auth';
+import { getUserProfile, getAdminAccount } from '@/lib/actions/user';
 
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  unit: string;
-  seller: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ProductModalData {
   id?: string;
@@ -23,27 +17,29 @@ export interface ProductModalData {
   image: string;
   vendor: string;
   unit?: string;
+  shopeeLink?: string;
+}
+
+export interface User {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: string;
+  photoURL?: string;
 }
 
 interface StoreContextType {
-  cart: CartItem[];
-  addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  cartCount: number;
-  cartTotal: number;
-  activeNav: number; // 1 to 5 representing navigation alternatives
+  activeNav: number;
   setActiveNav: (nav: number) => void;
   isLoggedIn: boolean;
   isAdmin: boolean;
   isEditor: boolean;
   role: string | null;
   user: User | null;
+  updateUser: (fields: Partial<User>) => void;
   loading: boolean;
   login: (email: string, password?: string) => Promise<string | null>;
   signup: (email: string, password?: string, name?: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isProductModalOpen: boolean;
   selectedProductForModal: ProductModalData | null;
@@ -53,8 +49,17 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: apakah role ini termasuk user biasa (bukan admin/editor)?
+// ─────────────────────────────────────────────────────────────────────────────
+function isRegularUser(role: string | null) {
+  return role === 'user';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Provider
+// ─────────────────────────────────────────────────────────────────────────────
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [activeNav, setActiveNavState] = useState<number>(1);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -65,211 +70,160 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ProductModalData | null>(null);
 
+  // Refs: tidak menyebabkan re-render, aman dipakai dalam debounce closure
+  const userIdRef = useRef<string | null>(null);
+
+  // Selalu sinkronkan userIdRef saat user state berubah
+  useEffect(() => {
+    userIdRef.current = user?.uid ?? null;
+  }, [user]);
+
+  const updateUser = (fields: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...fields };
+      try {
+        localStorage.setItem('jasuda_user', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  // ── Init: verifikasi sesi server, load cart dari DB ──────────────────────
+  useEffect(() => {
+    async function initSession() {
+      const savedNav = localStorage.getItem('jasuda_nav');
+      if (savedNav) setActiveNavState(parseInt(savedNav, 10));
+
+      const serverUser = await getAuthSession();
+      if (serverUser) {
+        const userRole = (serverUser.role || 'user').toLowerCase();
+        let photoURL: string | undefined = undefined;
+        let displayName: string = serverUser.displayName;
+
+        if (isRegularUser(userRole)) {
+          // ── Load profile dari database ──
+          const profileRes = await getUserProfile(serverUser.uid);
+          if (profileRes.success && profileRes.profile) {
+            if (profileRes.profile.photo) photoURL = profileRes.profile.photo;
+            if (profileRes.profile.name) displayName = profileRes.profile.name;
+          }
+        } else {
+          const adminRes = await getAdminAccount(serverUser.uid, serverUser.email);
+          if (adminRes.success && adminRes.profile) {
+            if (adminRes.profile.photo) photoURL = adminRes.profile.photo;
+            if (adminRes.profile.name) displayName = adminRes.profile.name;
+          }
+        }
+
+        const userObj: User = {
+          uid: serverUser.uid,
+          email: serverUser.email,
+          displayName,
+          role: userRole,
+          photoURL,
+        };
+
+        userIdRef.current = serverUser.uid;
+        setUser(userObj);
+        setIsLoggedIn(true);
+        setRole(userRole);
+        setIsAdmin(userRole === 'admin' || userRole === 'operator' || userRole === 'pengurus');
+        setIsEditor(userRole === 'editor');
+        localStorage.setItem('jasuda_user', JSON.stringify(userObj));
+      } else {
+        // Tidak ada sesi aktif
+        userIdRef.current = null;
+        setIsLoggedIn(false);
+        setIsAdmin(false);
+        setIsEditor(false);
+        setRole(null);
+        setUser(null);
+        localStorage.removeItem('jasuda_user');
+      }
+      setLoading(false);
+    }
+    initSession();
+  }, []);
+
+  // ── Product Modal ────────────────────────────────────────────────────────
   const openProductModal = (product: ProductModalData) => {
     setSelectedProductForModal(product);
     setIsProductModalOpen(true);
   };
-
   const closeProductModal = () => {
     setIsProductModalOpen(false);
-    setTimeout(() => setSelectedProductForModal(null), 300); // clear after animation
+    setTimeout(() => setSelectedProductForModal(null), 300);
   };
 
-  // Load state on mount (client-side only)
-  useEffect(() => {
-    const savedCart = localStorage.getItem('jasuda_cart');
-    const savedNav = localStorage.getItem('jasuda_nav');
-    
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    if (savedNav) {
-      setActiveNavState(parseInt(savedNav, 10));
-    }
-  }, []);
 
-  // Firebase Auth Listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setIsLoggedIn(!!currentUser);
-      
-      if (currentUser) {
-        try {
-          // Check role in Firestore
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userRole = userDoc.data().role;
-            setRole(userRole);
-            setIsAdmin(userRole === 'admin');
-            setIsEditor(userRole === 'editor');
-          } else {
-            setRole(null);
-            setIsAdmin(false);
-            setIsEditor(false);
-          }
-        } catch (error) {
-          console.error("Error fetching user role:", error);
-          setRole(null);
-          setIsAdmin(false);
-          setIsEditor(false);
-        }
-      } else {
-        setRole(null);
-        setIsAdmin(false);
-        setIsEditor(false);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const addToCart = (product: Omit<CartItem, 'quantity'>) => {
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.id === product.id);
-      let newCart;
-      if (existing) {
-        newCart = prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        newCart = [...prevCart, { ...product, quantity: 1 }];
-      }
-      localStorage.setItem('jasuda_cart', JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const removeFromCart = (id: string) => {
-    setCart((prevCart) => {
-      const newCart = prevCart.filter((item) => item.id !== id);
-      localStorage.setItem("jasuda_cart", JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const updateQuantity = (id: string, quantity: number) => {
-    setCart((prevCart) => {
-      if (quantity <= 0) {
-        const newCart = prevCart.filter((item) => item.id !== id);
-        localStorage.setItem("jasuda_cart", JSON.stringify(newCart));
-        return newCart;
-      }
-      const newCart = prevCart.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      );
-      localStorage.setItem("jasuda_cart", JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem('jasuda_cart');
-  };
-
+  // ── setActiveNav ─────────────────────────────────────────────────────────
   const setActiveNav = (nav: number) => {
     setActiveNavState(nav);
     localStorage.setItem('jasuda_nav', nav.toString());
   };
 
+  // ── login ────────────────────────────────────────────────────────────────
   const login = async (email: string, password?: string): Promise<string | null> => {
-    if (!password) {
-      if (email.toLowerCase() === 'admin') {
-        setIsLoggedIn(true);
-        setIsAdmin(true);
-        setIsEditor(false);
-        setRole('admin');
-        return 'admin';
-      } else if (email.toLowerCase() === 'editor') {
-        setIsLoggedIn(true);
-        setIsAdmin(false);
-        setIsEditor(true);
-        setRole('editor');
-        return 'editor';
-      }
-      return null;
+    const result = await loginUser(email, password);
+    if (result.success) {
+      const u = result.user;
+      const userRole = (u.role || 'user').toLowerCase();
+      const userObj: User = { uid: u.uid, email: u.email, displayName: u.displayName, role: userRole };
+
+      userIdRef.current = u.uid;
+      setUser(userObj);
+      setIsLoggedIn(true);
+      setRole(userRole);
+      setIsAdmin(userRole === 'admin' || userRole === 'operator' || userRole === 'pengurus');
+      setIsEditor(userRole === 'editor');
+      // Simpan sesi di localStorage (nama saja, bukan credentials sensitif)
+      localStorage.setItem('jasuda_user', JSON.stringify(userObj));
+
+      return userRole;
+    } else {
+      throw new Error(result.error);
     }
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    try {
-      const userDocRef = doc(db, 'users', userCredential.user.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        return userDoc.data().role || 'user';
-      }
-    } catch (error) {
-      console.error("Error fetching user role on login redirect:", error);
-    }
-    return 'user';
   };
 
+  // ── signup ───────────────────────────────────────────────────────────────
   const signup = async (email: string, password?: string, name?: string) => {
-    if (!password) throw new Error("Kata sandi diperlukan");
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    if (name) {
-      await updateProfile(user, { displayName: name });
-    }
-    
-    // Set default role in Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-      email: user.email,
-      displayName: name || '',
-      role: 'user',
-      createdAt: new Date(),
-    });
-  };
-
-  const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    const user = userCredential.user;
-    
-    // Check if user exists in Firestore
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (!userDoc.exists()) {
-      // Set default role if new user
-      await setDoc(userDocRef, {
-        email: user.email,
-        displayName: user.displayName || '',
-        photoURL: user.photoURL || '',
-        role: 'user',
-        createdAt: new Date(),
-      });
+    const result = await registerUser(name || email.split('@')[0], email, password);
+    if (result.success) {
+      const u = result.user;
+      const userObj: User = { uid: u.uid, email: u.email, displayName: u.displayName, role: 'user' };
+      userIdRef.current = u.uid;
+      setUser(userObj);
+      setIsLoggedIn(true);
+      setRole('user');
+      setIsAdmin(false);
+      setIsEditor(false);
+      localStorage.setItem('jasuda_user', JSON.stringify(userObj));
+    } else {
+      throw new Error(result.error);
     }
   };
 
+  // ── logout ───────────────────────────────────────────────────────────────
   const logout = async () => {
-    await signOut(auth);
+    await logoutUser();
+    userIdRef.current = null;
     setIsLoggedIn(false);
     setIsAdmin(false);
     setIsEditor(false);
     setRole(null);
     setUser(null);
+    localStorage.removeItem('jasuda_user');
   };
 
-  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  // ── Derived values ───────────────────────────────────────────────────────
+  const isUser = isRegularUser(role) && !isAdmin && !isEditor;
 
   return (
     <StoreContext.Provider
       value={{
-        cart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        cartCount,
-        cartTotal,
         activeNav,
         setActiveNav,
         isLoggedIn,
@@ -277,10 +231,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         isEditor,
         role,
         user,
+        updateUser,
         loading,
         login,
         signup,
-        loginWithGoogle,
         logout,
         isProductModalOpen,
         selectedProductForModal,

@@ -7,13 +7,13 @@ import { useStore } from "../context/StoreContext";
 import { getAllProduct } from "@/lib/actions/product";
 import {
   Search,
-  ShoppingCart,
   Phone,
   Settings,
   Globe,
   LogOut,
   Menu,
-  X
+  X,
+  User
 } from "lucide-react";
 import MagneticButton from "../ui/MagneticButton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,7 +27,8 @@ export default function GlobalHeader({
   storeName = "Posko UKM Jasuda",
   isPremium = false,
 }: HeaderProps) {
-  const { cartCount, isLoggedIn, isAdmin, isEditor, logout } = useStore();
+  const { isLoggedIn, isAdmin, isEditor, logout, user } = useStore();
+  const [mounted, setMounted] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,6 +39,15 @@ export default function GlobalHeader({
   const searchRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentIsLoggedIn = mounted ? isLoggedIn : false;
+  const currentIsAdmin = mounted ? isAdmin : false;
+  const currentIsEditor = mounted ? isEditor : false;
+
 
   useEffect(() => {
     getAllProduct().then(res => {
@@ -102,17 +112,17 @@ export default function GlobalHeader({
     <>
       <nav className="w-full sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-surface-container-high shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
-          
+
           {/* Left: Mobile Hamburger & Logo */}
           <div className="flex items-center gap-3 md:gap-8">
-            <button 
+            <button
               className="md:hidden p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            
+
             <Link href="/" className="flex items-center gap-2 group">
               <img src="/logoJasuda.webp" alt="Logo Jasuda" className="w-8 h-8 rounded-full object-cover shadow-xs border border-slate-200/50" />
               <span
@@ -138,7 +148,7 @@ export default function GlobalHeader({
                   className="bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-outline w-full focus:ring-0 py-0.5"
                 />
               </div>
-              
+
               <AnimatePresence>
                 {isSearchFocused && searchQuery.length > 0 && searchResults.length > 0 && (
                   <motion.div
@@ -177,9 +187,8 @@ export default function GlobalHeader({
                   <Link
                     key={link.path}
                     href={link.path}
-                    className={`relative py-1 transition-colors ${
-                      isActive ? "text-primary" : "text-on-surface-variant hover:text-primary"
-                    }`}
+                    className={`relative py-1 transition-colors ${isActive ? "text-primary" : "text-on-surface-variant hover:text-primary"
+                      }`}
                   >
                     {link.name}
                     {isActive && (
@@ -206,131 +215,23 @@ export default function GlobalHeader({
             </MagneticButton>
 
             {/* Auth / Profile Area */}
-            {isLoggedIn ? (
-              (isAdmin || isEditor) ? (
-                <MagneticButton>
-                  <Link
-                    href={isEditor ? "/admin/pesanan" : "/admin"}
-                    className="text-xs font-bold text-white bg-secondary hover:bg-secondary-container hover:text-on-secondary-container px-4 py-2 rounded-lg transition-all shadow-sm block"
-                  >
-                    Admin
-                  </Link>
-                </MagneticButton>
-              ) : (
-                <div className="flex items-center gap-2 md:gap-3">
-                  <Link
-                    href="/checkout"
-                    className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center"
-                  >
-                    <motion.div
-                      animate={{ y: [0, -4, 0] }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 2,
-                        ease: "easeInOut",
-                      }}
+            {currentIsLoggedIn ? (
+              <div className="flex items-center gap-2 md:gap-3">
+                {(currentIsAdmin || currentIsEditor) && (
+                  <MagneticButton>
+                    <a
+                      href={currentIsEditor ? "/admin/produk" : "/admin/produk"}
+                      className="text-xs font-bold text-white bg-secondary hover:bg-secondary-container hover:text-on-secondary-container px-4 py-2 rounded-lg transition-all shadow-sm block"
                     >
-                      <ShoppingCart className="w-5 h-5" />
-                    </motion.div>
-                    <AnimatePresence>
-                      {cartCount > 0 && (
-                        <motion.span
-                          key={cartCount}
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 10,
-                          }}
-                          className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
-                        >
-                          {cartCount}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </Link>
+                      Admin
+                    </a>
+                  </MagneticButton>
+                )}
 
-                  <div className="relative" ref={profileMenuRef}>
-                    <div
-                      className="w-8 h-8 rounded-full border border-outline-variant overflow-hidden cursor-pointer shadow-sm hover:border-primary transition-colors"
-                      onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    >
-                      <img
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuASY8N_y3WZ4Bae61cgncAZPM-aR6DOTbqmQe6UKxLMkqkxP8AKyTuKynNzdsADYNEWtQo1IZMnrwGF8ItkjcLfpeND5LU7w-2kpNzZCCtJEoJwqUCWqKmh-jOYGbCeoSXmQfL4h0dHAxuICBHlQKsjH4ce0veD0LYLeJGT-sZWOZ95rVGR0Qjra8MuNR9EvzrDrRTRsJpt_zUgQc8JMGKSv__90fmhP0pzvLN2fAsZtzs9mmiRJXPQaw"
-                        alt="Profil Pengguna"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
 
-                    {/* Profile Popup */}
-                    <AnimatePresence>
-                      {showProfileMenu && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full right-0 mt-1 w-48 bg-white border border-outline-variant/30 rounded-xl shadow-lg py-2 flex flex-col z-50"
-                        >
-                          <Link href="/pengaturan" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
-                            <Settings className="w-4 h-4 text-outline" />
-                            Pengaturan
-                          </Link>
-                          <Link href="/bahasa" className="flex items-center gap-3 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors text-left w-full">
-                            <Globe className="w-4 h-4 text-outline" />
-                            Bahasa
-                          </Link>
-                          <div className="w-full h-px bg-outline-variant/30 my-1"></div>
-                          <button
-                            onClick={() => logout()}
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-error hover:bg-red-50 hover:text-red-600 transition-colors text-left w-full group cursor-pointer"
-                          >
-                            <LogOut className="w-4 h-4 group-hover:text-red-600 transition-colors" />
-                            Keluar
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              )
+              </div>
             ) : (
               <div className="flex items-center gap-2 md:gap-3">
-                <Link
-                  href="/checkout"
-                  className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container relative flex items-center justify-center"
-                >
-                  <motion.div
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                  </motion.div>
-                  <AnimatePresence>
-                    {cartCount > 0 && (
-                      <motion.span
-                        key={cartCount}
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 10,
-                        }}
-                        className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
-                      >
-                        {cartCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
                 <MagneticButton>
                   <Link
                     href="/login"
@@ -370,7 +271,7 @@ export default function GlobalHeader({
                     {storeName || "Posko UKM Jasuda"}
                   </span>
                 </Link>
-                <button 
+                <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"
                 >

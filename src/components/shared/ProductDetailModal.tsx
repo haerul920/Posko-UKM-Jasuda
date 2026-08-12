@@ -2,27 +2,15 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, ExternalLink, Store } from 'lucide-react';
+import { ExternalLink, Store, ShoppingBag, X } from 'lucide-react';
 import { useStore } from '@/components/context/StoreContext';
 
 export default function ProductDetailModal() {
-  const { isProductModalOpen, selectedProductForModal, closeProductModal, addToCart } = useStore();
+  const { isProductModalOpen, selectedProductForModal, closeProductModal } = useStore();
 
   if (!selectedProductForModal) return null;
 
   const product = selectedProductForModal;
-
-  const handleAddToCart = () => {
-    addToCart({
-      id: product.id || product.name,
-      name: product.name,
-      price: typeof product.price === 'string' ? parseInt(product.price.replace(/\D/g, '')) || 0 : product.price,
-      image: product.image,
-      unit: product.unit || 'Item',
-      seller: product.vendor,
-    });
-    closeProductModal();
-  };
 
   return (
     <AnimatePresence>
@@ -83,19 +71,12 @@ export default function ProductDetailModal() {
                 </p>
 
                 <div className="flex flex-row gap-3 mt-auto pt-4 border-t border-outline-variant/20">
-                  <button
-                    onClick={handleAddToCart}
-                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-xl font-bold text-sm hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-md active:scale-[0.98]"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    Masukkan ke Keranjang
-                  </button>
                   
                   <a
-                    href="https://s.shopee.co.id/9KguRGtDKj"
+                    href={product.shopeeLink || "https://s.shopee.co.id/9KguRGtDKj"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#EE4D2D]/10 text-[#EE4D2D] border border-[#EE4D2D]/30 py-2.5 px-4 rounded-xl font-bold text-sm hover:bg-[#EE4D2D]/20 transition-colors active:scale-[0.98]"
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#EE4D2D] text-white border border-[#EE4D2D]/30 py-2.5 px-4 rounded-xl font-bold text-sm hover:bg-[#EE4D2D]/90 transition-colors shadow-md active:scale-[0.98]"
                   >
                     <img src="/image/ikon%20shopee.webp" alt="Shopee" className="w-4 h-4 object-contain" />
                     Beli di Shopee

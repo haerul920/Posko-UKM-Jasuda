@@ -29,27 +29,23 @@ export default function InventarisTable({
 }: InventarisTableProps) {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-200">
+            <table className="w-full text-left border-collapse table-fixed">
                 <thead>
                     <tr className="border-b border-slate-200 bg-white">
-                        <th className="py-4 pl-8 pr-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-14">
+                        <th className="py-4 pl-8 pr-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">
                             No
                         </th>
                         <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                             Produk
                         </th>
-                        {activeTab === "tenant" && (
-                            <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Mitra
-                            </th>
-                        )}
-                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">
+
+                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right w-32 truncate">
                             Harga
                         </th>
-                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-28 truncate">
                             Stok
                         </th>
-                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">
+                        <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center w-32 truncate">
                             Aksi
                         </th>
                     </tr>
@@ -58,7 +54,7 @@ export default function InventarisTable({
                     {products.length === 0 ? (
                         <tr>
                             <td
-                                colSpan={activeTab === "tenant" ? 6 : 5}
+                                colSpan={5}
                                 className="py-16 text-center"
                             >
                                 <div className="flex flex-col items-center gap-2 text-slate-400">
@@ -101,6 +97,9 @@ export default function InventarisTable({
                                                     <img
                                                         src={product.imageUrl}
                                                         alt={product.name}
+                                                        onError={(e) => {
+                                                            e.currentTarget.src = "/image/nothing%20picture.webp";
+                                                        }}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
@@ -109,28 +108,24 @@ export default function InventarisTable({
                                                     </div>
                                                 )}
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-900 group-hover:text-ocean-light transition-colors">
+                                            <div className="min-w-0 flex-1 flex flex-col gap-1">
+                                                <p 
+                                                    className="text-sm font-bold text-slate-900 group-hover:text-ocean-light transition-colors truncate"
+                                                    title={product.name}
+                                                >
                                                     {product.name}
                                                 </p>
-                                                {product.category && (
-                                                    <p className="text-xs font-medium text-slate-400 mt-0.5">
-                                                        {product.category}
-                                                    </p>
+                                                {activeTab === "tenant" && (
+                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500 truncate" title={product.corp_name || "Mitra Posko"}>
+                                                        <Store className="w-3 h-3 shrink-0" />
+                                                        <span className="truncate">{product.corp_name || "Mitra Posko"}</span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
                                     </td>
 
-                                    {/* Mitra (tenant only) */}
-                                    {activeTab === "tenant" && (
-                                        <td className="py-4 px-6 text-sm font-medium text-slate-700">
-                                            <span className="inline-flex items-center gap-1.5 bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-700">
-                                                <Store className="w-3 h-3" />
-                                                {product.corp_name || "Mitra"}
-                                            </span>
-                                        </td>
-                                    )}
+
 
                                     {/* Price */}
                                     <td className="py-4 px-6 text-right">
@@ -142,10 +137,10 @@ export default function InventarisTable({
                                     {/* Stock */}
                                     <td className="py-4 px-6">
                                         {product.stock === 0 ? (
-                                            <span className="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-0.5 rounded-full text-xs font-bold text-slate-400">
+                                            <span className="inline-flex items-center gap-1 bg-red-100 px-2.5 py-0.5 rounded-full text-xs font-bold text-red-600">
                                                 Habis
                                             </span>
-                                        ) : product.stock < lowStockThreshold ? (
+                                        ) : product.stock <= lowStockThreshold ? (
                                             <span className="inline-flex items-center gap-1 bg-rose-50 px-2.5 py-0.5 rounded-full text-xs font-bold text-rose-600">
                                                 {product.stock} (Rendah)
                                             </span>
