@@ -255,14 +255,14 @@ export default function GlobalHeader({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] md:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-60 md:hidden"
             />
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-[280px] bg-white z-[70] md:hidden flex flex-col shadow-2xl border-r border-outline-variant/20"
+              className="fixed inset-y-0 left-0 w-70 bg-white z-70 md:hidden flex flex-col shadow-2xl border-r border-outline-variant/20"
             >
               <div className="flex items-center justify-between p-4 border-b border-outline-variant/20">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>

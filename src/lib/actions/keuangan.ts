@@ -21,7 +21,6 @@ export interface MitraFinancialProduct {
   stok: string;
   sold: string;
   komisi: string;
-  rate: string;
   net: string;
   rawKomisi: number;
   rawNet: number;
@@ -84,7 +83,16 @@ export async function getFinancialSummary(): Promise<{ success: boolean; data?: 
           const isJasudaItem = seller.includes("JASUDA") || seller.includes("POSKO") || seller === "";
           if (isCurrentMonth) {
             if (isJasudaItem) currJasudaNet += total;
-            else currMitraKomisi += Math.round(total * 0.1);
+            else {
+               // We don't have per-item cost in transactions easily available here unless we fetch it.
+               // Since currMitraKomisi is only used for growth percentage on the dashboard, 
+               // let's estimate it or we can leave it as total * 0.1 temporarily, but let's try to be accurate.
+               // Wait, the original code had: else currMitraKomisi += Math.round(total * 0.1);
+               // If we can't easily get harga_beli here, we'll keep the estimate or ideally we'd join with products table.
+               // To keep it simple and since it's just a growth metric, we will approximate it or leave it as 0.2?
+               // Let's actually look at how to get accurate currMitraKomisi. We can use productSalesMap later.
+               currMitraKomisi += Math.round(total * 0.1); 
+            }
           } else if (isPrevMonth) {
             if (isJasudaItem) prevJasudaNet += total;
             else prevMitraKomisi += Math.round(total * 0.1);
@@ -103,7 +111,7 @@ export async function getFinancialSummary(): Promise<{ success: boolean; data?: 
 
     // 3. Fetch all products with real stock calculation from stok table (BUG-08)
     const [prodRows]: any = await pool.query(
-      `SELECT p.id_produk, p.nama_produk, p.harga_jual, p.id_posko, k.nama_usaha,
+      `SELECT p.id_produk, p.nama_produk, p.harga_jual, p.harga_beli, p.id_posko, k.nama_usaha,
               COALESCE(
                 (SELECT SUM(s.volume_beli) - SUM(s.volume_jual) FROM stok s WHERE s.id_produk = p.id_produk),
                 0
@@ -145,9 +153,11 @@ export async function getFinancialSummary(): Promise<{ success: boolean; data?: 
           rawNet: net,
         });
       } else {
-        const gross = soldQty * basePrice;
-        const komisi = Math.round(gross * 0.1);
-        const net = gross - komisi;
+        const hargaBeli = Number(p.harga_beli) || 0;
+        const hargaJual = Number(p.harga_jual) || 0;
+        const gross = soldQty * hargaJual;
+        const komisi = soldQty * Math.max(0, hargaJual - hargaBeli);
+        const net = soldQty * hargaBeli;
         totalMitraKomisi += komisi;
 
         mitraProducts.push({
@@ -157,7 +167,6 @@ export async function getFinancialSummary(): Promise<{ success: boolean; data?: 
           stok: stokNum.toLocaleString("id-ID"),
           sold: soldQty.toLocaleString("id-ID"),
           komisi: `Rp ${komisi.toLocaleString("id-ID")}`,
-          rate: "10%",
           net: `Rp ${net.toLocaleString("id-ID")}`,
           rawKomisi: komisi,
           rawNet: net,

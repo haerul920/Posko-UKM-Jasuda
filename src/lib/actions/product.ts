@@ -81,7 +81,7 @@ export async function getAllProduct() {
              FROM produk p 
              LEFT JOIN klien_posko k ON k.id_posko = p.id_posko 
              LEFT JOIN pasar_online po ON po.id_produk = p.id_produk 
-             ORDER BY p.is_favorite DESC, total_sold DESC, p.nama_produk ASC`
+             ORDER BY CASE WHEN p.publish = 'Y' THEN 1 ELSE 0 END DESC, total_sold DESC, p.nama_produk ASC`
         );
 
         const products: Product[] = rows.map((data: any) => {
@@ -112,7 +112,7 @@ export async function getAllProduct() {
                 expiryDate: null,
                 createdAt: data.tgl_inp ? new Date(data.tgl_inp) : new Date(),
                 updatedAt: new Date(),
-                favorite: Boolean(data.is_favorite ?? (data.publish === "Y")),
+                favorite: Boolean(data.publish === "Y"),
                 costPrice: Number(data.harga_beli) || 0,
                 commission: 0,
                 productCode: data.kode || "",
@@ -163,7 +163,7 @@ export async function getProductsByStore(store_name: string) {
              LEFT JOIN klien_posko k ON k.id_posko = p.id_posko 
              LEFT JOIN pasar_online po ON po.id_produk = p.id_produk 
              WHERE p.id_posko IN (78, 24) OR k.nama_usaha LIKE '%JASUDA%' 
-             ORDER BY p.is_favorite DESC, total_sold DESC, p.nama_produk ASC`
+             ORDER BY CASE WHEN p.publish = 'Y' THEN 1 ELSE 0 END DESC, total_sold DESC, p.nama_produk ASC`
             : `SELECT 
                 p.*, 
                 k.nama_usaha as corp_name,
@@ -184,7 +184,7 @@ export async function getProductsByStore(store_name: string) {
              LEFT JOIN klien_posko k ON k.id_posko = p.id_posko 
              LEFT JOIN pasar_online po ON po.id_produk = p.id_produk 
              WHERE k.nama_usaha LIKE ? OR p.id_posko = ? 
-             ORDER BY p.is_favorite DESC, total_sold DESC, p.nama_produk ASC`;
+             ORDER BY CASE WHEN p.publish = 'Y' THEN 1 ELSE 0 END DESC, total_sold DESC, p.nama_produk ASC`;
 
         const queryParams = isJasudaQuery ? [] : [`%${store_name}%`, store_name];
 
@@ -218,7 +218,7 @@ export async function getProductsByStore(store_name: string) {
                 expiryDate: null,
                 createdAt: data.tgl_inp ? new Date(data.tgl_inp) : new Date(),
                 updatedAt: new Date(),
-                favorite: Boolean(data.is_favorite ?? (data.publish === "Y")),
+                favorite: Boolean(data.publish === "Y"),
                 costPrice: Number(data.harga_beli) || 0,
                 commission: 0,
                 productCode: data.kode || "",
@@ -257,12 +257,12 @@ export async function addNewProduct(
         }
 
         const netWeightNum = parseInt(productData.netWeight || "0", 10) || 0;
-        const isFav = productData.favorite ? 1 : 0;
+        const publishVal = productData.favorite ? "Y" : "N";
 
         const [result]: any = await pool.query(
             `INSERT INTO produk 
-             (id_posko, kode, nama_produk, deskripsi, berat_bersih, legalitas, sertifikat_halal, harga_beli, harga_jual, photo, publish, is_favorite, tgl_inp, log, shopee_link) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             (id_posko, kode, nama_produk, deskripsi, berat_bersih, legalitas, sertifikat_halal, harga_beli, harga_jual, photo, publish, tgl_inp, log, shopee_link) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 poskoId,
                 productData.productCode || "-",
@@ -274,8 +274,7 @@ export async function addNewProduct(
                 productData.costPrice || 0,
                 productData.price,
                 productData.imageUrl || "nophoto.jpg",
-                isFav ? "Y" : "N",
-                isFav,
+                publishVal,
                 nowStr,
                 actor?.actorName || "System",
                 productData.shopeeLink || "",

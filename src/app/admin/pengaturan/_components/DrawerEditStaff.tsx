@@ -124,7 +124,7 @@ export default function DrawerEditStaff({ staff, onClose, onUpdated }: Props) {
 
       {/* Drawer */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full sm:w-[500px] bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-125 bg-white z-50 shadow-2xl border-l border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -350,7 +350,7 @@ export default function DrawerEditStaff({ staff, onClose, onUpdated }: Props) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex items-center justify-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:bg-slate-800 disabled:opacity-70 disabled:cursor-not-allowed min-w-[150px]"
+                className="flex items-center justify-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 font-bold text-sm transition-all duration-300 active:scale-[0.98] shadow-md hover:bg-slate-800 disabled:opacity-70 disabled:cursor-not-allowed min-w-37.5"
               >
                 {isPending ? (
                   <>

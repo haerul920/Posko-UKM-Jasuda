@@ -53,7 +53,7 @@ export default function KebijakanPrivasiPage() {
 
           <h3 className="text-xl font-bold text-slate-900">6. Hubungi Kami</h3>
           <p className="text-slate-600 leading-relaxed">
-            Jika Anda memiliki pertanyaan mengenai kebijakan privasi ini atau pengelolaan data pribadi Anda, silakan hubungi tim dukungan kami melalui email di <strong>privacy@jasuda.id</strong> atau kunjungi halaman Kontak kami.
+            Jika Anda memiliki pertanyaan mengenai kebijakan privasi ini atau pengelolaan data pribadi Anda, silakan hubungi tim dukungan kami melalui email di <strong>team@jasuda.net</strong> atau kunjungi halaman Kontak kami.
           </p>
         </div>
       </main>

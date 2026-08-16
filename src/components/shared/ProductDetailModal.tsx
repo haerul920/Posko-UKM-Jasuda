@@ -22,7 +22,7 @@ export default function ProductDetailModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeProductModal}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4 sm:p-6"
           >
             {/* Modal Content */}
             <motion.div
@@ -30,7 +30,7 @@ export default function ProductDetailModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row max-h-[90vh] md:min-h-[420px]"
+              className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row max-h-[90vh] md:min-h-105"
             >
               {/* Close Button */}
               <button
@@ -41,7 +41,7 @@ export default function ProductDetailModal() {
               </button>
 
               {/* Image Section */}
-              <div className="md:w-1/2 relative h-64 md:h-auto md:min-h-[420px] bg-surface-container">
+              <div className="md:w-1/2 relative h-64 md:h-auto md:min-h-105 bg-surface-container">
                 <img
                   src={product.image}
                   alt={product.name}

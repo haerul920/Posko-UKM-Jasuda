@@ -16,10 +16,8 @@ import {
   X,
 } from "lucide-react";
 import { getActivityLogs, type ActivityLog, type ActivityModule } from "@/lib/actions/activity-log";
-import { formatDistanceToNow, format } from "date-fns";
-import { id } from "date-fns/locale";
-import * as XLSX from "xlsx";
 import { formatRelativeTime, formatClientDateTime } from "@/lib/date";
+import { exportToExcel } from "@/lib/export";
 
 // ---------------------------------------------------------------------------
 // Types & Helpers
@@ -50,9 +48,9 @@ const MODULE_COLORS: Record<ActivityModule, string> = {
   Produk: "bg-blue-50 text-blue-700 border border-blue-100",
   Mitra: "bg-purple-50 text-purple-700 border border-purple-100",
   Staf: "bg-amber-50 text-amber-700 border border-amber-100",
-  Sistem: "bg-slate-50 text-slate-700 border border-slate-100",
+  Sistem: "bg-slate-100 text-slate-700 border border-slate-200",
   Keuangan: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-  Pesanan: "bg-cyan-50 text-cyan-700 border border-cyan-100",
+  Pesanan: "bg-sky-50 text-sky-700 border border-sky-100",
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -90,7 +88,7 @@ const TIME_OPTIONS = [
   { label: "3 Bulan terakhir", hours: 24 * 90 },
 ];
 
-const MODULES: ActivityModule[] = ["Produk", "Mitra", "Staf"];
+const MODULES: ActivityModule[] = ["Produk", "Mitra", "Staf", "Sistem", "Keuangan", "Pesanan"];
 const ITEMS_PER_PAGE = 20;
 
 function formatFullTime(isoString: string): string {
@@ -116,12 +114,11 @@ function getRoleBadge(role: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// CSV Export helper
+// Excel Export helper
 // ---------------------------------------------------------------------------
 
-function exportToExcel(logs: ActivityLog[]) {
-  const exportData = logs.map((log, index) => ({
-    "No": index + 1,
+function handleExportExcel(logs: ActivityLog[]) {
+  const data = logs.map((log) => ({
     "Waktu": formatFullTime(log.createdAt),
     "Pengelola": log.actorName,
     "Peran": getRoleLabel(log.actorRole),
@@ -130,23 +127,7 @@ function exportToExcel(logs: ActivityLog[]) {
     "Deskripsi": log.description,
     "Target": log.targetName ?? "-",
   }));
-
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Aktivitas");
-
-  worksheet["!cols"] = [
-    { wch: 5 },  // No
-    { wch: 25 }, // Waktu
-    { wch: 25 }, // Pengelola
-    { wch: 15 }, // Peran
-    { wch: 15 }, // Modul
-    { wch: 20 }, // Aksi
-    { wch: 60 }, // Deskripsi
-    { wch: 25 }, // Target
-  ];
-
-  XLSX.writeFile(workbook, `Riwayat_Aktivitas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  exportToExcel(data, `Riwayat_Aktivitas_${new Date().toISOString().slice(0, 10)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -167,7 +148,6 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
   // UI state
   const [activePopup, setActivePopup] = useState<"module" | "actor" | "time" | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isExporting, setIsExporting] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
@@ -230,46 +210,6 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
     fetchLogs(1, "", "", "");
   };
 
-  const handleExport = async () => {
-    setIsExporting(true);
-    try {
-      const fromDate = timeFilter
-        ? new Date(
-            Date.now() - (TIME_OPTIONS.find((t) => t.label === timeFilter)?.hours ?? 24) * 3_600_000,
-          ).toISOString()
-        : undefined;
-
-      const result = await getActivityLogs({
-        module: moduleFilter || undefined,
-        actorId: actorFilter || undefined,
-        fromDate,
-        limit: 999999, // Get all available data matching filter
-      });
-
-      if (result.success) {
-        let exportLogs = result.logs;
-        if (searchQuery) {
-          exportLogs = exportLogs.filter(
-            (log) =>
-              log.actorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              log.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (log.targetName ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
-          );
-        }
-        if (exportLogs.length > 0) {
-          exportToExcel(exportLogs);
-        } else {
-          alert("Tidak ada data yang cocok dengan filter untuk diunduh.");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Terjadi kesalahan saat mengekspor data.");
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   // Client-side search filter
   const filteredLogs = searchQuery
     ? logs.filter(
@@ -288,7 +228,7 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
       {/* Header Card */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white border border-slate-100/50 shadow-sm rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-md">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-gradient-to-br from-ocean-light/10 to-seaweed-dark/10 rounded-xl border border-ocean-light/20">
+          <div className="p-3 bg-linear-to-br from-ocean-light/10 to-seaweed-dark/10 rounded-xl border border-ocean-light/20">
             <History className="w-7 h-7 text-ocean-light" />
           </div>
           <div>
@@ -303,21 +243,20 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
 
         <div className="flex items-center gap-3 w-full lg:w-auto">
           <button
-            onClick={handleExport}
-            disabled={filteredLogs.length === 0 || isExporting}
-            className="flex items-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-40 shrink-0 min-w-[140px] justify-center"
+            onClick={handleRefresh}
+            disabled={isPending}
+            className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2.5 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-50"
           >
-            {isExporting ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                Memproses...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                Unduh Excel
-              </>
-            )}
+            <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+            Muat Ulang
+          </button>
+          <button
+            onClick={() => handleExportExcel(filteredLogs)}
+            disabled={filteredLogs.length === 0}
+            className="flex items-center gap-2 bg-slate-900 text-white rounded-lg px-5 py-2.5 hover:bg-slate-800 transition-all duration-300 active:scale-[0.98] shadow-sm text-sm font-bold disabled:opacity-40 shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            Ekspor
           </button>
         </div>
       </div>
@@ -348,14 +287,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
         <div className="relative">
           <button
             onClick={() => setActivePopup(activePopup === "module" ? null : "module")}
-            className={`w-40 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+            className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
               moduleFilter
                 ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                 : "border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
-            <Filter className="w-4 h-4 shrink-0" />
-            <span className="truncate">{moduleFilter || "Semua Modul"}</span>
+            <Filter className="w-4 h-4" />
+            {moduleFilter || "Semua Modul"}
           </button>
 
           {activePopup === "module" && (
@@ -392,14 +331,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
           <div className="relative">
             <button
               onClick={() => setActivePopup(activePopup === "actor" ? null : "actor")}
-              className={`w-48 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+              className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
                 actorFilter
                   ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                   : "border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
-              <UserCheck className="w-4 h-4 shrink-0" />
-              <span className="truncate">{activeActor ? activeActor.actorName : "Semua Pengelola"}</span>
+              <UserCheck className="w-4 h-4" />
+              {activeActor ? activeActor.actorName : "Semua Pengelola"}
             </button>
 
             {activePopup === "actor" && (
@@ -412,9 +351,9 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
                   >
                     Semua Pengelola
                   </button>
-                  {actors.map((actor, idx) => (
+                  {actors.map((actor) => (
                     <button
-                      key={`${actor.actorId}-${idx}`}
+                      key={actor.actorId}
                       className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors ${
                         actorFilter === actor.actorId ? "bg-ocean-light/5" : ""
                       }`}
@@ -436,14 +375,14 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
         <div className="relative">
           <button
             onClick={() => setActivePopup(activePopup === "time" ? null : "time")}
-            className={`w-44 flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
+            className={`flex items-center gap-2 bg-white border rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-sm whitespace-nowrap ${
               timeFilter
                 ? "border-ocean-light text-ocean-light bg-ocean-light/5"
                 : "border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
-            <Filter className="w-4 h-4 shrink-0" />
-            <span className="truncate">{timeFilter || "Semua Waktu"}</span>
+            <Filter className="w-4 h-4" />
+            {timeFilter || "Semua Waktu"}
           </button>
 
           {activePopup === "time" && (
@@ -472,6 +411,21 @@ export default function RiwayatClient({ initialLogs, totalLogs, actors }: Props)
           )}
         </div>
 
+        {/* Clear filters */}
+        {hasActiveFilter && (
+          <button
+            onClick={() => {
+              setModuleFilter("");
+              setActorFilter("");
+              setTimeFilter("");
+              fetchLogs(1, "", "", "");
+            }}
+            className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap px-2"
+          >
+            <X className="w-4 h-4" />
+            Hapus Filter
+          </button>
+        )}
       </div>
 
       {/* Table */}

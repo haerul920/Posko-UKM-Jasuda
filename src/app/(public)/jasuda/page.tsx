@@ -265,6 +265,17 @@ export default function JasudaStore() {
                   <motion.div
                     key={product.id}
                     whileHover={{ scale: 1.02 }}
+                    onClick={() => {
+                      openProductModal({
+                        id: String(product.id),
+                        name: product.name,
+                        price: product.price,
+                        image: product.imageUrl || '/image/nothing%20picture.webp',
+                        description: product.description,
+                        vendor: "Jasuda",
+                        shopeeLink: product.shopeeLink
+                      });
+                    }}
                     className={`glass-panel rounded-2xl overflow-hidden relative group shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${spanClass}`}
                   >
                     <img

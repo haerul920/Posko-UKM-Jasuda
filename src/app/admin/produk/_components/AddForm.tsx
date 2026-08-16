@@ -359,7 +359,7 @@ export default function AddProductDrawer({ isOpen, onClose, mitra = [], onAddSuc
                       </button>
 
                       {storeDropdownOpen && typeof document !== "undefined" && createPortal(
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
                           <div 
                             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" 
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStoreDropdownOpen(false); }} 
